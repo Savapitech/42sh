@@ -1,0 +1,41 @@
+##
+## EPITECH PROJECT, 2024
+## robotfactory
+## File description:
+## .gitignore
+##
+
+# IDE
+.idea
+.vscode
+
+# Bin
+asm
+a.out
+libmy.a
+test
+ref_bins
+champions
+
+# Build
+*.o
+*.out
+*.[aod]
+*.cor
+
+# nix
+.direnv
+.pre-commit-config.yaml
+result
+
+# Cache
+.cache
+.fast
+
+# Coverage
+*.gc??
+testcmd
+unit_tests
+
+# Python (CI)
+*.pyc
