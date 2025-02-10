@@ -1,0 +1,89 @@
+name: EpitechCI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  GH_PUB_KEY:
+    github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl
+  GH_BOT_ACC_EMAIL:
+    41898282+github-actions[bot]@users.noreply.github.com
+  GH_BOT_ACC_NAME:
+    github-actions[bot]
+
+jobs:
+  check_the_repository_state:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Get branch name
+        id: branch-names
+        uses: tj-actions/branch-names@v6
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ steps.branch-names.outputs.head_ref_branch }}
+
+      - name: Setup GIT
+        run: |
+          git config --local user.email $GH_BOT_ACC_EMAIL
+          git config --local user.name $GH_BOT_ACC_NAME
+
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.GH_SSH_PRIVATE_KEY }}
+          known_hosts: $GH_PUB_KEY
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@v4
+
+      - name: Run the Magic Nix Cache
+        uses: DeterminateSystems/magic-nix-cache-action@v2
+
+      - name: Run coding style checker
+        run: |
+          nix run github:Sigmapitech/cs \
+            --extra-experimental-features 'nix-command flakes' \
+            -- . --ignore-rules=C-O1
+
+      - name: Build project
+        run: make
+
+      - name: Check for banned functions
+        run: |
+          nix run github:Dawoox/efc -- \
+            ./mysh \
+            ./afunc.txt
+
+  sync_repository:
+    needs: [ check_the_repository_state ]
+    if: ${{ !github.event.pull_request }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+            
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.GH_SSH_PRIVATE_KEY }}
+          known_hosts: $GH_PUB_KEY
+  
+      - name: Setup git
+        run: |
+            git config --global user.email "savinien.petitjean@epitech.eu"
+            git config --global user.name "savalet"
+            git remote add target "${{ secrets.GH_TARGET_REPO }}"
+
+      - name: Create the verbatim branch
+        run: |
+              git checkout -b main || git checkout main
+              git push --set-upstream target main --force
