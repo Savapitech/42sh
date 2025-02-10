@@ -7,7 +7,7 @@
 
 MAKEFLAGS += -j
 
-NAME := asm
+NAME := mysh
 
 LIB_NAME := libu.a
 
