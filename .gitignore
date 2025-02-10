@@ -10,12 +10,10 @@
 .vscode
 
 # Bin
-asm
+mysh
 a.out
 libmy.a
 test
-ref_bins
-champions
 
 # Build
 *.o
