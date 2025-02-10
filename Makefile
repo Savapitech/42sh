@@ -36,7 +36,7 @@ CFLAGS += -Wwrite-strings -Werror=declaration-after-statement
 CFLAGS += -Werror=format-nonliteral -Werror=int-conversion -Werror=return-type
 CFLAGS += -Werror=vla-larger-than=0 -Wno-discarded-qualifiers
 
-DEBUG_FLAGS := -DR_DEBUG_MODE -g3
+DEBUG_FLAGS := -D U_DEBUG_MODE -g3
 
 LDFLAGS += -L .
 LDLIBS := -lu
