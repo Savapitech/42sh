@@ -6,11 +6,10 @@
 */
 
 #include <stddef.h>
-#include <stdint.h>
 
-void *u_memcpy(uint8_t *dest, uint8_t const *src, size_t n)
+void *u_memcpy(char *dst, char const *src, size_t sz)
 {
-    for (size_t i = 0; i < n; i++)
-        dest[i] = src[i];
-    return dest;
+    for (size_t i = 0; i < sz; i++)
+        dst[i] = src[i];
+    return dst;
 }

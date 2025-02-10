@@ -7,11 +7,14 @@
 
 #ifndef STRING_H
     #define STRING_H
+    #include <stdbool.h>
     #include <stddef.h>
+    #define WRITE_CONST(fd, str) write(fd, str, sizeof str)
 
 typedef struct {
     char *str;
-    int sz;
+    size_t sz;
+    size_t cap;
 } buff_t;
 
 int u_getnbr(char const *);
@@ -27,5 +30,7 @@ int u_strcmp(char const *, char const *);
 int u_strncmp(char const *, char const *, int);
 char *u_numstr(char *, int);
 int u_spacelen(char const *str);
+int u_strcspn(char *str, char c);
+bool u_str_is_alnum(char *str);
 
 #endif /* STRING_H */
