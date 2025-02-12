@@ -19,16 +19,22 @@
 __attribute__((nonnull))
 void debug_env_entries(env_t *env)
 {
-    for (size_t i = 0; i < env->sz; i++)
+    for (size_t i = 0; i < env->sz; i++) {
+        if (env->env[i] == NULL)
+            continue;
         U_DEBUG("Env entry [%lu] [%s]\n", i, env->env[i]);
+    }
 }
 
 __attribute__((nonnull))
 char *get_env_value(env_t *env, char const *key)
 {
-    for (size_t i = 0; i < env->sz; i++)
+    for (size_t i = 0; i < env->sz; i++) {
+        if (env->env[i] == NULL)
+            continue;
         if (u_strncmp(env->env[i], key, u_strlen(key)) == 0)
             return env->env[i] + u_strlen(key) + 1;
+    }
     return NULL;
 }
 
@@ -36,12 +42,25 @@ __attribute__((nonnull))
 bool unset_env(env_t *env, char *key)
 {
     for (size_t i = 0; i < env->sz; i++) {
+        if (env->env[i] == NULL)
+            continue;
         if (u_strncmp(env->env[i], key, u_strlen(key)) == 0) {
             env->env[i] = NULL;
             return true;
         }
     }
     return false;
+}
+
+__attribute__((unused))
+void free_env(env_t *env)
+{
+    for (size_t i = 0; i < env->sz; i++) {
+        if (env->env[i] == NULL)
+            continue;
+        free(env->env[i]);
+    }
+    free((void *)env->env);
 }
 
 static __attribute__((nonnull))

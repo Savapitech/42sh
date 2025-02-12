@@ -20,6 +20,8 @@ typedef struct {
 // Debug
 void debug_env_entries(env_t *env);
 
+
+void free_env(env_t *env);
 env_t parse_env(char **env);
 char *get_env_value(env_t *env, char const *key);
 bool unset_env(env_t *env, char *key);

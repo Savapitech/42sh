@@ -11,6 +11,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+#include "builtins.h"
 #include "common.h"
 #include "debug.h"
 #include "env.h"
@@ -20,7 +21,7 @@
 
 static
 const builtins_t BUILTINS[] = {
-    { "exit", (void (*)(uint64_t))&exit }
+    { "exit", &builtins_exit }
 };
 
 static
@@ -80,7 +81,6 @@ int count_args(char *buffer)
     return count;
 }
 
-static
 void free_args(char **args)
 {
     char **old_args = args;
@@ -140,7 +140,7 @@ int execute(char *buffer, env_t *env)
         return RETURN_FAILURE;
     for (size_t i = 0; i < BUILTINS_SZ; i++)
         if (u_strcmp(buffer, BUILTINS[i].name) == 0)
-            BUILTINS[i].ptr(0);
+            return BUILTINS[i].ptr(env, args, buffer);
     buffer[u_strlen(buffer) - 1] = '\0';
     path = get_env_value(env, "PATH");
     full_bin_path = find_binary(path, args[0]);

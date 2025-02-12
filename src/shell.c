@@ -38,6 +38,7 @@ int shell_loop(env_t *env)
     }
     WRITE_CONST(STDOUT_FILENO, "exit\n");
     free(buffer);
+    free_env(env);
     return RETURN_SUCCESS;
 }
 

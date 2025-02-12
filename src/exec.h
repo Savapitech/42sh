@@ -7,13 +7,11 @@
 
 #ifndef EXEC_H
     #define EXEC_H
-    #include <stdint.h>
-
     #include "env.h"
 
 typedef struct {
     char const *name;
-    void (*ptr)(uint64_t a);
+    int (*ptr)(env_t *env, char **args, char *buff);
 } builtins_t;
 
 typedef struct {
@@ -23,4 +21,5 @@ typedef struct {
 } args_t;
 
 int execute(char *buffer, env_t *env);
+void free_args(char **args);
 #endif /* EXEC_H */
