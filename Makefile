@@ -30,7 +30,7 @@ CC := gcc
 CFLAGS += -Wall -Wextra -Werror=write-strings -iquote ulib
 CFLAGS += -Wno-unused-parameter -Wunused-result -fanalyzer
 CFLAGS += -Wp,-U_FORTIFY_SOURCE -Wcast-qual -Wduplicated-branches
-CFLAGS += -Wduplicated-cond -Wformat=2 -Wshadow
+CFLAGS += -Wduplicated-cond -Wformat=2 -Wshadow -fno-builtin
 CFLAGS += -Wstrict-aliasing=0 -Wstrict-prototypes -Wunreachable-code
 CFLAGS += -Wwrite-strings -Werror=declaration-after-statement
 CFLAGS += -Werror=format-nonliteral -Werror=int-conversion -Werror=return-type
