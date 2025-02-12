@@ -7,17 +7,18 @@
 
 #ifndef ENV_H
     #define ENV_H
-    #include "u_str.h"
-    #define ENV_BUFF_CAP 128
+    #include <stddef.h>
+    #define BASE_ENV_CAP 128
 
 typedef struct {
-    char *ptr;
-    size_t size;
-} env_entry_t;
+    size_t sz;
+    size_t cap;
+    char **env;
+} env_t;
 
 // Debug
-void debug_env_entries(env_entry_t *env_entries, size_t env_size);
+void debug_env_entries(env_t *env);
 
-bool parse_env(char **env, buff_t *env_values, env_entry_t *env_entries);
-size_t count_env_entries(char **env);
+env_t parse_env(char **env);
+char *get_env_value(env_t *env, char const *key);
 #endif
