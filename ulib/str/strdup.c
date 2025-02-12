@@ -7,6 +7,7 @@
 
 #include <stdlib.h>
 
+#include "u_mem.h"
 #include "u_str.h"
 
 char *u_strdup(char const *src)
@@ -15,5 +16,6 @@ char *u_strdup(char const *src)
     int len = u_strlen(src);
 
     dest = malloc(sizeof(char) * (len + 1));
+    u_bzero(dest, len + 1);
     return u_strcpy(dest, src);
 }

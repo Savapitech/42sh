@@ -12,6 +12,5 @@ char *u_strcpy(char *dest, char const *src)
 
     for (; src[i] != '\0'; i++)
         dest[i] = src[i];
-    dest[i] = '\0';
     return (dest);
 }

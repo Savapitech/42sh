@@ -11,7 +11,7 @@
 bool u_str_is_alnum(char *str)
 {
     for (; *str != '\0'; str++)
-        if (!isalnum(*str))
-            return false;
-    return true;
+        if (isalnum(*str))
+            return true;
+    return false;
 }
