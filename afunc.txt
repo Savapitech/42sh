@@ -33,3 +33,4 @@ strsignal
 pipe
 dup
 dup2
+stdin
