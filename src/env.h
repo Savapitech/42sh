@@ -7,6 +7,7 @@
 
 #ifndef ENV_H
     #define ENV_H
+    #include <stdbool.h>
     #include <stddef.h>
     #define BASE_ENV_CAP 128
 
@@ -21,4 +22,5 @@ void debug_env_entries(env_t *env);
 
 env_t parse_env(char **env);
 char *get_env_value(env_t *env, char const *key);
+bool unset_env(env_t *env, char *key);
 #endif

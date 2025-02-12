@@ -16,18 +16,32 @@
 #include "u_mem.h"
 #include "u_str.h"
 
+__attribute__((nonnull))
 void debug_env_entries(env_t *env)
 {
     for (size_t i = 0; i < env->sz; i++)
         U_DEBUG("Env entry [%lu] [%s]\n", i, env->env[i]);
 }
 
+__attribute__((nonnull))
 char *get_env_value(env_t *env, char const *key)
 {
     for (size_t i = 0; i < env->sz; i++)
         if (u_strncmp(env->env[i], key, u_strlen(key)) == 0)
             return env->env[i] + u_strlen(key) + 1;
     return NULL;
+}
+
+__attribute__((nonnull))
+bool unset_env(env_t *env, char *key)
+{
+    for (size_t i = 0; i < env->sz; i++) {
+        if (u_strncmp(env->env[i], key, u_strlen(key)) == 0) {
+            env->env[i] = NULL;
+            return true;
+        }
+    }
+    return false;
 }
 
 static __attribute__((nonnull))
