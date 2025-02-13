@@ -21,6 +21,29 @@ int builtins_exit(env_t *env, char **args __attribute__((unused)), char *buff)
     exit(RETURN_SUCCESS);
 }
 
+int builtins_env(env_t *env, char **args __attribute__((unused)),
+    char *buff __attribute__((unused)))
+{
+    for (size_t i = 0; i < env->sz; i++) {
+        if (env->env[i] == NULL)
+            continue;
+        write(STDOUT_FILENO, env->env[i], u_strlen(env->env[i]));
+        WRITE_CONST(STDOUT_FILENO, "\n");
+    }
+    return RETURN_SUCCESS;
+}
+
+int builtins_unsetenv(env_t *env, char **args,
+    __attribute__((unused)) char *buff)
+{
+    if (args[1] == NULL)
+        return (WRITE_CONST(STDERR_FILENO, "unsetenv: Too few arguments.\n"),
+            RETURN_FAILURE);
+    if (!unset_env(env, args[1]))
+        return RETURN_FAILURE;
+    return RETURN_SUCCESS;
+}
+
 static
 void cd_print_error(void)
 {

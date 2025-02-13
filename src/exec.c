@@ -22,6 +22,8 @@
 static
 const builtins_t BUILTINS[] = {
     { "cd", &builtins_cd },
+    { "env", &builtins_env },
+    { "unsetenv", &builtins_unsetenv },
     { "exit", &builtins_exit }
 };
 
