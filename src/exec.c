@@ -107,14 +107,17 @@ char **parse_args(char *buffer)
 }
 
 static
-int launch_bin(char *full_bin_path, char **args, char **env)
+int launch_bin(char *full_bin_path, char **args, env_t *env, char *buff)
 {
     int status;
     pid_t pid = fork();
 
     if (pid == 0) {
-        if (execve(full_bin_path, args, env) < 0) {
+        if (execve(full_bin_path, args, env->env) < 0) {
             WRITE_CONST(STDERR_FILENO, "Command not found.\n");
+            free_env(env);
+            free((void *)args);
+            free(buff);
             exit(127);
         }
     }
@@ -138,7 +141,7 @@ int execute(char *buffer, env_t *env)
     U_DEBUG("Found bin [%s]\n", full_bin_path);
     if (full_bin_path == NULL)
         return (free((void *)args), RETURN_FAILURE);
-    launch_bin(full_bin_path, args, NULL);
+    launch_bin(full_bin_path, args, env, buffer);
     free(full_bin_path);
     free((void *)args);
     return 0;
