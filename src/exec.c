@@ -21,6 +21,7 @@
 
 static
 const builtins_t BUILTINS[] = {
+    { "cd", &builtins_cd },
     { "exit", &builtins_exit }
 };
 
