@@ -14,7 +14,7 @@
 int builtins_exit(env_t *env, char **args __attribute__((unused)), char *buff)
 {
     free_env(env);
-    free_args(args);
+    free((void *)args);
     free(buff);
     exit(RETURN_SUCCESS);
 }

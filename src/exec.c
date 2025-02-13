@@ -81,36 +81,41 @@ int count_args(char *buffer)
     return count;
 }
 
-void free_args(char **args)
+static __attribute__((nonnull))
+bool ensure_args_capacity(char ***args, size_t const sz, size_t *cap)
 {
-    char **old_args = args;
+    char **new_ptr;
 
-    for (; *args != NULL; args++)
-        free(*args);
-    free((void *)old_args);
+    if (sz < *cap)
+        return true;
+    new_ptr = (char **)u_realloc((void *)*args, sizeof *args * sz,
+        sizeof *args * *cap << 1);
+    if (!new_ptr)
+        return false;
+    *cap <<= 1;
+    *args = new_ptr;
+    return true;
 }
 
 static
 char **parse_args(char *buffer)
 {
-    int i = 0;
-    int arg_count = count_args(buffer);
-    char **args = (char **)malloc((arg_count + 1) * sizeof(char *));
+    size_t sz = 0;
+    size_t cap = DEFAULT_ARGS_CAP;
+    char **args = (char **)malloc(sizeof *args * cap);
     char *token;
 
     if (!args)
         return NULL;
-    token = strtok(buffer, " ");
+    token = strtok(buffer, " \t");
     while (token != NULL) {
-        args[i] = (char *)malloc(u_strlen(token) + 1);
-        u_bzero(args[i], u_strlen(token) + 1);
-        if (args[i] == NULL)
-            return (free((void *)args), NULL);
-        u_strcpy(args[i], token);
-        i++;
-        token = strtok(NULL, " ");
+        ensure_args_capacity(&args, sz, &cap);
+        args[sz] = token;
+        U_DEBUG("Args [%lu] [%s]\n", sz, args[sz]);
+        sz++;
+        token = strtok(NULL, " \t");
     }
-    args[i] = NULL;
+    args[sz] = NULL;
     return args;
 }
 
@@ -141,14 +146,13 @@ int execute(char *buffer, env_t *env)
     for (size_t i = 0; i < BUILTINS_SZ; i++)
         if (u_strcmp(buffer, BUILTINS[i].name) == 0)
             return BUILTINS[i].ptr(env, args, buffer);
-    buffer[u_strlen(buffer) - 1] = '\0';
     path = get_env_value(env, "PATH");
     full_bin_path = find_binary(path, args[0]);
     U_DEBUG("Found bin [%s]\n", full_bin_path);
     if (full_bin_path == NULL)
-        return (free_args(args), RETURN_FAILURE);
+        return (free((void *)args), RETURN_FAILURE);
     launch_bin(full_bin_path, args, NULL);
     free(full_bin_path);
-    free_args(args);
+    free((void *)args);
     return 0;
 }

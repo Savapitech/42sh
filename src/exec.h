@@ -8,6 +8,7 @@
 #ifndef EXEC_H
     #define EXEC_H
     #include "env.h"
+    #define DEFAULT_ARGS_CAP 1
 
 typedef struct {
     char const *name;
