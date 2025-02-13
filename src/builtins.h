@@ -10,5 +10,6 @@
     #define BUILTINS_H
     #include "env.h"
 
+__attribute__((nonnull))
 int builtins_exit(env_t *env, char **args __attribute__((unused)), char *buff);
 #endif /* BUILTIND_H */

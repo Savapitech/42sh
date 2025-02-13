@@ -21,6 +21,6 @@ typedef struct {
     size_t cap;
 } args_t;
 
+__attribute__((nonnull))
 int execute(char *buffer, env_t *env);
-void free_args(char **args);
 #endif /* EXEC_H */

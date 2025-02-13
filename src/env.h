@@ -21,8 +21,12 @@ typedef struct {
 void debug_env_entries(env_t *env);
 
 
+__attribute__((unused))
 void free_env(env_t *env);
+__attribute__((unused))
 env_t parse_env(char **env);
+__attribute__((unused))
 char *get_env_value(env_t *env, char const *key);
+__attribute__((unused))
 bool unset_env(env_t *env, char *key);
 #endif
