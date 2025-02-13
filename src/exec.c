@@ -67,20 +67,6 @@ char *find_binary(const char *path_env, const char *binary)
         find_binary(NULL, binary));
 }
 
-static
-int count_args(char *buffer)
-{
-    int count = 0;
-    char *token;
-
-    token = strtok(buffer, " \t\n");
-    while (token != NULL) {
-        count++;
-        token = strtok(NULL, " \t\n");
-    }
-    return count;
-}
-
 static __attribute__((nonnull))
 bool ensure_args_capacity(char ***args, size_t const sz, size_t *cap)
 {
@@ -115,6 +101,7 @@ char **parse_args(char *buffer)
         sz++;
         token = strtok(NULL, " \t");
     }
+    ensure_args_capacity(&args, sz, &cap);
     args[sz] = NULL;
     return args;
 }
