@@ -18,9 +18,8 @@
 #include "u_str.h"
 
 static
-int shell_loop(env_t *env)
+int shell_loop(env_t *env, int is_a_tty)
 {
-    int is_a_tty = isatty(STDIN_FILENO);
     char *buffer = NULL;
     size_t buffer_sz;
     size_t buffer_len;
@@ -38,7 +37,8 @@ int shell_loop(env_t *env)
         U_DEBUG("Buffer [%lu] [%s]\n", buffer_len, buffer);
         execute(buffer, env);
     }
-    WRITE_CONST(STDOUT_FILENO, "exit\n");
+    if (is_a_tty)
+        WRITE_CONST(STDOUT_FILENO, "exit\n");
     return (free(buffer), RETURN_SUCCESS);
 }
 
@@ -50,7 +50,7 @@ int shell(char **env_ptr)
     if (!env.env)
         return RETURN_FAILURE;
     U_DEBUG_CALL(debug_env_entries, &env);
-    shell_result = shell_loop(&env);
+    shell_result = shell_loop(&env, isatty(STDIN_FILENO));
     free_env(&env);
     return shell_result;
 }
