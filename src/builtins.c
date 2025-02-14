@@ -33,6 +33,16 @@ int builtins_env(env_t *env, char **args __attribute__((unused)),
     return RETURN_SUCCESS;
 }
 
+int builtins_setenv(env_t *env, char **args,
+    char *buff __attribute__((unused)))
+{
+    if (args[1] == NULL)
+        return builtins_env(env, args, buff);
+    if (!set_env(env, args[1], args[2]))
+        return RETURN_FAILURE;
+    return RETURN_SUCCESS;
+}
+
 int builtins_unsetenv(env_t *env, char **args,
     __attribute__((unused)) char *buff)
 {

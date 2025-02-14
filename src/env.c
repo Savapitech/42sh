@@ -16,17 +16,6 @@
 #include "u_mem.h"
 #include "u_str.h"
 
-__attribute__((nonnull))
-void debug_env_entries(env_t *env)
-{
-    for (size_t i = 0; i < env->sz; i++) {
-        if (env->env[i] == NULL)
-            continue;
-        U_DEBUG("Env entry [%lu] [%s]\n", i, env->env[i]);
-    }
-}
-
-__attribute__((nonnull))
 char *get_env_value(env_t *env, char const *key)
 {
     for (size_t i = 0; i < env->sz; i++) {
@@ -38,7 +27,6 @@ char *get_env_value(env_t *env, char const *key)
     return NULL;
 }
 
-__attribute__((nonnull))
 bool unset_env(env_t *env, char *key)
 {
     for (size_t i = 0; i < env->sz; i++) {
@@ -46,13 +34,13 @@ bool unset_env(env_t *env, char *key)
             continue;
         if (u_strncmp(env->env[i], key, u_strlen(key)) == 0) {
             env->env[i] = NULL;
+            env->sz--;
             return true;
         }
     }
     return false;
 }
 
-__attribute__((unused))
 void free_env(env_t *env)
 {
     for (size_t i = 0; i < env->sz; i++) {
@@ -84,6 +72,29 @@ void env_bzero(char **env, size_t sz)
 {
     for (size_t i = 0; i < sz; i++)
         env[i] = NULL;
+}
+
+bool set_env(env_t *env, char *key, char *value)
+{
+    char *new_env = NULL;
+    size_t key_len = u_strlen(key);
+    size_t value_len = u_strlen(value);
+
+    if (get_env_value(env, key) != NULL)
+        unset_env(env, key);
+    env->sz++;
+    if (!ensure_env_capacity(env))
+        return false;
+    new_env = malloc(sizeof(char) * (key_len + value_len + 2));
+    if (new_env == NULL)
+        return false;
+    u_bzero(new_env, key_len + value_len + 2);
+    u_strcpy(new_env, key);
+    new_env[key_len] = '=';
+    if (value_len > 0)
+        u_strcpy(new_env + key_len + 1, value);
+    env->env[env->sz - 1] = new_env;
+    return true;
 }
 
 env_t parse_env(char **env)

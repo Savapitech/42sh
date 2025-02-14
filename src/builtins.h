@@ -20,4 +20,7 @@ int builtins_unsetenv(env_t *env, char **args,
 __attribute__((nonnull))
 int builtins_env(env_t *env, char **args __attribute__((unused)),
     char *buff __attribute__((unused)));
+__attribute__((nonnull))
+int builtins_setenv(env_t *env, char **args,
+    char *buff __attribute__((unused)));
 #endif /* BUILTIND_H */

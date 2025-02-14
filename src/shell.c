@@ -18,6 +18,16 @@
 #include "u_str.h"
 
 static
+void debug_env_entries(env_t *env)
+{
+    for (size_t i = 0; i < env->sz; i++) {
+        if (env->env[i] == NULL)
+            continue;
+        U_DEBUG("Env entry [%lu] [%s]\n", i, env->env[i]);
+    }
+}
+
+static
 int shell_loop(env_t *env, int is_a_tty)
 {
     char *buffer = NULL;

@@ -17,10 +17,6 @@ typedef struct {
     char **env;
 } env_t;
 
-// Debug
-void debug_env_entries(env_t *env);
-
-
 __attribute__((unused))
 void free_env(env_t *env);
 __attribute__((unused))
@@ -29,4 +25,6 @@ __attribute__((unused))
 char *get_env_value(env_t *env, char const *key);
 __attribute__((unused))
 bool unset_env(env_t *env, char *key);
+__attribute__((nonnull(1, 2)))
+bool set_env(env_t *env, char *key, char *value);
 #endif
