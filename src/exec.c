@@ -130,11 +130,37 @@ int launch_bin(char *full_bin_path, char **args, env_t *env, char *buff)
     return status;
 }
 
-int execute(char *buffer, env_t *env)
+static
+void signal_handler(int status)
+{
+    switch (WTERMSIG(status)) {
+        case SIGSEGV:
+            WRITE_CONST(STDERR_FILENO, "Segmentation fault (core dumped)\n");
+            break;
+        case SIGILL:
+            WRITE_CONST(STDERR_FILENO, "Illegal instruction\n");
+            break;
+        default:
+            WRITE_CONST(STDERR_FILENO, "Unknown signal\n");
+    }
+}
+
+static
+void status_handler(int status, history_t *history)
+{
+    if (WIFEXITED(status)) {
+        history->last_exit_code = WEXITSTATUS(status);
+        U_DEBUG("Exit code [%d]\n", WEXITSTATUS(history->last_exit_code));
+    } else if (WIFSIGNALED(status))
+        signal_handler(status);
+}
+
+int execute(char *buffer, env_t *env, history_t *history)
 {
     char *path = NULL;
     char *full_bin_path;
     char **args = parse_args(buffer);
+    int status;
 
     if (!args)
         return RETURN_FAILURE;
@@ -146,7 +172,8 @@ int execute(char *buffer, env_t *env)
     U_DEBUG("Found bin [%s]\n", full_bin_path);
     if (full_bin_path == NULL)
         return (free((void *)args), RETURN_FAILURE);
-    launch_bin(full_bin_path, args, env, buffer);
+    status = launch_bin(full_bin_path, args, env, buffer);
+    status_handler(status, history);
     free(full_bin_path);
     free((void *)args);
     return 0;

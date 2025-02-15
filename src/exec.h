@@ -8,6 +8,7 @@
 #ifndef EXEC_H
     #define EXEC_H
     #include "env.h"
+    #include "shell.h"
     #define DEFAULT_ARGS_CAP 1
 
 typedef struct {
@@ -22,5 +23,5 @@ typedef struct {
 } args_t;
 
 __attribute__((nonnull))
-int execute(char *buffer, env_t *env);
+int execute(char *buffer, env_t *env, history_t *history);
 #endif /* EXEC_H */

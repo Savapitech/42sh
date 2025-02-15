@@ -28,7 +28,7 @@ void debug_env_entries(env_t *env)
 }
 
 static
-int shell_loop(env_t *env, int is_a_tty)
+int shell_loop(env_t *env, int is_a_tty, history_t *history)
 {
     char *buffer = NULL;
     size_t buffer_sz;
@@ -45,7 +45,7 @@ int shell_loop(env_t *env, int is_a_tty)
         if (buffer[buffer_len - 1] == '\n')
             buffer[buffer_len - 1] = '\0';
         U_DEBUG("Buffer [%lu] [%s]\n", buffer_len, buffer);
-        execute(buffer, env);
+        execute(buffer, env, history);
     }
     if (is_a_tty)
         WRITE_CONST(STDOUT_FILENO, "exit\n");
@@ -55,12 +55,13 @@ int shell_loop(env_t *env, int is_a_tty)
 int shell(char **env_ptr)
 {
     env_t env = parse_env(env_ptr);
+    history_t history = { .cmd_history = NULL, 0 };
     int shell_result;
 
     if (!env.env)
         return RETURN_FAILURE;
     U_DEBUG_CALL(debug_env_entries, &env);
-    shell_result = shell_loop(&env, isatty(STDIN_FILENO));
+    shell_result = shell_loop(&env, isatty(STDIN_FILENO), &history);
     free_env(&env);
     return shell_result;
 }
