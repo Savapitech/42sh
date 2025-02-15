@@ -11,18 +11,21 @@
 
 #include "common.h"
 #include "env.h"
+#include "shell.h"
 #include "u_str.h"
 
-int builtins_exit(env_t *env, char **args __attribute__((unused)), char *buff)
+int builtins_exit(env_t *env, char **args __attribute__((unused)), char *buff,
+    history_t *history)
 {
     free_env(env);
     free((void *)args);
     free(buff);
-    exit(RETURN_SUCCESS);
+    exit(history->last_exit_code);
 }
 
 int builtins_env(env_t *env, char **args __attribute__((unused)),
-    char *buff __attribute__((unused)))
+    char *buff __attribute__((unused)),
+    history_t *history __attribute__((unused)))
 {
     for (size_t i = 0; i < env->sz; i++) {
         if (env->env[i] == NULL)
@@ -34,17 +37,19 @@ int builtins_env(env_t *env, char **args __attribute__((unused)),
 }
 
 int builtins_setenv(env_t *env, char **args,
-    char *buff __attribute__((unused)))
+    char *buff __attribute__((unused)),
+    history_t *history __attribute__((unused)))
 {
     if (args[1] == NULL)
-        return builtins_env(env, args, buff);
+        return builtins_env(env, args, buff, history);
     if (!set_env(env, args[1], args[2]))
         return RETURN_FAILURE;
     return RETURN_SUCCESS;
 }
 
 int builtins_unsetenv(env_t *env, char **args,
-    __attribute__((unused)) char *buff)
+    __attribute__((unused)) char *buff,
+    history_t *history __attribute__((unused)))
 {
     if (args[1] == NULL)
         return (WRITE_CONST(STDERR_FILENO, "unsetenv: Too few arguments.\n"),
@@ -72,7 +77,8 @@ void cd_print_error(void)
     }
 }
 
-int builtins_cd(env_t *env, char **args, char *buff __attribute__((unused)))
+int builtins_cd(env_t *env, char **args, char *buff __attribute__((unused)),
+    history_t *history __attribute__((unused)))
 {
     char *path = args[1];
     int result = RETURN_SUCCESS;

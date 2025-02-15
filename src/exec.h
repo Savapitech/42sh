@@ -13,7 +13,7 @@
 
 typedef struct {
     char const *name;
-    int (*ptr)(env_t *env, char **args, char *buff);
+    int (*ptr)(env_t *env, char **args, char *buff, history_t *history);
 } builtins_t;
 
 typedef struct {

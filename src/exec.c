@@ -168,7 +168,7 @@ int execute(char *buffer, env_t *env, history_t *history)
         return RETURN_FAILURE;
     for (size_t i = 0; i < BUILTINS_SZ; i++)
         if (u_strcmp(buffer, BUILTINS[i].name) == 0)
-            return BUILTINS[i].ptr(env, args, buffer);
+            return BUILTINS[i].ptr(env, args, buffer, history);
     path = get_env_value(env, "PATH");
     full_bin_path = find_binary(path, args[0]);
     if (full_bin_path == NULL)
