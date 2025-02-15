@@ -49,7 +49,7 @@ int shell_loop(env_t *env, int is_a_tty, history_t *history)
     }
     if (is_a_tty)
         WRITE_CONST(STDOUT_FILENO, "exit\n");
-    return (free(buffer), RETURN_SUCCESS);
+    return (free(buffer), history->last_exit_code);
 }
 
 int shell(char **env_ptr)

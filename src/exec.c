@@ -131,9 +131,9 @@ int launch_bin(char *full_bin_path, char **args, env_t *env, char *buff)
 }
 
 static
-void signal_handler(int status)
+void signal_handler(int sig)
 {
-    switch (WTERMSIG(status)) {
+    switch (sig) {
         case SIGSEGV:
             WRITE_CONST(STDERR_FILENO, "Segmentation fault (core dumped)\n");
             break;
@@ -148,11 +148,13 @@ void signal_handler(int status)
 static
 void status_handler(int status, history_t *history)
 {
-    if (WIFEXITED(status)) {
+    if (WIFEXITED(status))
         history->last_exit_code = WEXITSTATUS(status);
-        U_DEBUG("Exit code [%d]\n", WEXITSTATUS(history->last_exit_code));
-    } else if (WIFSIGNALED(status))
-        signal_handler(status);
+    else if (WIFSIGNALED(status)) {
+        history->last_exit_code = WTERMSIG(status) + 128;
+        signal_handler(WTERMSIG(status));
+    }
+    U_DEBUG("Exit code [%d]\n", history->last_exit_code);
 }
 
 int execute(char *buffer, env_t *env, history_t *history)
