@@ -171,9 +171,9 @@ int execute(char *buffer, env_t *env, history_t *history)
             return BUILTINS[i].ptr(env, args, buffer);
     path = get_env_value(env, "PATH");
     full_bin_path = find_binary(path, args[0]);
-    U_DEBUG("Found bin [%s]\n", full_bin_path);
     if (full_bin_path == NULL)
         return (free((void *)args), RETURN_FAILURE);
+    U_DEBUG("Found bin [%s]\n", full_bin_path);
     status = launch_bin(full_bin_path, args, env, buffer);
     status_handler(status, history);
     free(full_bin_path);

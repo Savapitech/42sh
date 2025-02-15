@@ -19,6 +19,8 @@ void *u_realloc(void *ptr, size_t actual_size, size_t new_size)
     if (!actual_size && !new_size)
         return NULL;
     new = malloc(new_size);
+    if (new == NULL)
+        return NULL;
     if (actual_size > 0 && new_size > 0)
         u_memcpy(new, ptr, actual_size);
     free(ptr);
