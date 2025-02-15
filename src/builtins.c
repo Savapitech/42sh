@@ -77,7 +77,7 @@ int builtins_cd(env_t *env, char **args, char *buff __attribute__((unused)))
     char *path = args[1];
     int result = RETURN_SUCCESS;
 
-    if (path == NULL)
+    if (path == NULL || u_strcmp(args[1], "~") == 0)
         path = get_env_value(env, "HOME");
     if (path == NULL)
         return RETURN_FAILURE;
