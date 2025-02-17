@@ -170,6 +170,20 @@ void status_handler(int status, history_t *history)
     U_DEBUG("Exit code [%d]\n", history->last_exit_code);
 }
 
+static
+bool builtins_launcher(char *buffer, env_t *env, history_t *history,
+    char **args)
+{
+    for (size_t i = 0; i < BUILTINS_SZ; i++) {
+        if (u_strcmp(buffer, BUILTINS[i].name) == 0) {
+            history->last_exit_code =
+                BUILTINS[i].ptr(env, args, buffer, history);
+            return true;
+        }
+    }
+    return false;
+}
+
 int execute(char *buffer, env_t *env, history_t *history)
 {
     char *path = NULL;
@@ -179,9 +193,8 @@ int execute(char *buffer, env_t *env, history_t *history)
 
     if (!args)
         return RETURN_FAILURE;
-    for (size_t i = 0; i < BUILTINS_SZ; i++)
-        if (u_strcmp(buffer, BUILTINS[i].name) == 0)
-            return BUILTINS[i].ptr(env, args, buffer, history);
+    if (builtins_launcher(buffer, env, history, args))
+        return RETURN_SUCCESS;
     path = get_env_value(env, "PATH");
     full_bin_path = find_binary(path, args[0]);
     if (full_bin_path == NULL)
@@ -191,5 +204,5 @@ int execute(char *buffer, env_t *env, history_t *history)
     status_handler(status, history);
     free(full_bin_path);
     free((void *)args);
-    return 0;
+    return RETURN_SUCCESS;
 }

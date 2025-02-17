@@ -46,6 +46,9 @@ int builtins_setenv(env_t *env, char **args,
         WRITE_CONST(STDERR_FILENO, "setenv: Too many arguments.\n");
         return RETURN_FAILURE;
     }
+    if (!u_str_is_alnum(args[1]))
+        return (WRITE_CONST(STDERR_FILENO, "setenv: Variable name must contain"
+            " alphanumeric characters.\n"), RETURN_FAILURE);
     if (!set_env(env, args[1], args[2]))
         return RETURN_FAILURE;
     return RETURN_SUCCESS;
