@@ -30,10 +30,18 @@ char *get_env_value(env_t *env, char const *key)
     return NULL;
 }
 
+static
+void unset_env_move(env_t *env, size_t i)
+{
+    while (env->env[i]) {
+        env->env[i] = env->env[i + 1];
+        i++;
+    }
+}
+
 bool unset_env(env_t *env, char *key)
 {
     int key_len = u_strlen(key);
-    size_t j;
 
     for (size_t i = 0; i < env->sz; i++) {
         if (env->env[i] == NULL)
@@ -41,11 +49,7 @@ bool unset_env(env_t *env, char *key)
         if (u_strcspn(env->env[i], '=') != key_len)
             continue;
         if (u_strcmp(env->env[i], key) == 0) {
-            j = i;
-            while (env->env[j]) {
-                env->env[j] = env->env[j + 1];
-                j++;
-            }
+            unset_env_move(env, i);
             env->sz--;
             return true;
         }
