@@ -8,6 +8,7 @@
 #include <fcntl.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 #include <sys/wait.h>
 #include <unistd.h>
 
@@ -111,6 +112,23 @@ char **parse_args(char *buffer)
 }
 
 static
+void command_error(char *cmd, char **args)
+{
+    struct stat st;
+
+    if (access(cmd, F_OK)) {
+            write(STDERR_FILENO, args[0], u_strlen(args[0]));
+            WRITE_CONST(STDERR_FILENO, ": Command not found.\n");
+            return;
+    }
+    stat(cmd, &st);
+    if (S_ISDIR(st.st_mode) || access(cmd, X_OK)) {
+            write(STDERR_FILENO, args[0], u_strlen(args[0]));
+            WRITE_CONST(STDERR_FILENO, ": Permissions denied.\n");
+    }
+}
+
+static
 int launch_bin(char *full_bin_path, char **args, env_t *env, char *buff)
 {
     int status;
@@ -118,12 +136,11 @@ int launch_bin(char *full_bin_path, char **args, env_t *env, char *buff)
 
     if (pid == 0) {
         if (execve(full_bin_path, args, env->env) < 0) {
-            write(STDERR_FILENO, args[0], u_strlen(args[0]));
-            WRITE_CONST(STDERR_FILENO, ": Command not found.\n");
+            command_error(full_bin_path, args);
             free_env(env);
             free((void *)args);
             free(buff);
-            exit(127);
+            exit(RETURN_FAILURE);
         }
     }
     waitpid(pid, &status, 0);
