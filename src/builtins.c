@@ -30,8 +30,8 @@ int builtins_env(env_t *env, char **args __attribute__((unused)),
     for (size_t i = 0; i < env->sz; i++) {
         if (env->env[i] == NULL)
             continue;
-        write(STDOUT_FILENO, env->env[i], u_strlen(env->env[i]));
-        WRITE_CONST(STDOUT_FILENO, "\n");
+        write(STDERR_FILENO, env->env[i], u_strlen(env->env[i]));
+        WRITE_CONST(STDERR_FILENO, "\n");
     }
     return RETURN_SUCCESS;
 }
@@ -52,7 +52,7 @@ int builtins_unsetenv(env_t *env, char **args,
     history_t *history __attribute__((unused)))
 {
     if (args[1] == NULL)
-        return (WRITE_CONST(STDOUT_FILENO, "unsetenv: Too few arguments.\n"),
+        return (WRITE_CONST(STDERR_FILENO, "unsetenv: Too few arguments.\n"),
             RETURN_FAILURE);
     if (!unset_env(env, args[1]))
         return RETURN_FAILURE;
@@ -64,16 +64,16 @@ void cd_print_error(void)
 {
     switch (errno) {
         case EACCES:
-            WRITE_CONST(STDOUT_FILENO, ": Permission denied.\n");
+            WRITE_CONST(STDERR_FILENO, ": Permission denied.\n");
             break;
         case ENOENT:
-            WRITE_CONST(STDOUT_FILENO, ": No such file or directory.\n");
+            WRITE_CONST(STDERR_FILENO, ": No such file or directory.\n");
             break;
         case ENOTDIR:
-            WRITE_CONST(STDOUT_FILENO, ": Not a directory.\n");
+            WRITE_CONST(STDERR_FILENO, ": Not a directory.\n");
             break;
         default:
-            WRITE_CONST(STDOUT_FILENO, ": Unknown error.\n");
+            WRITE_CONST(STDERR_FILENO, ": Unknown error.\n");
     }
 }
 
@@ -87,6 +87,10 @@ int builtins_cd(env_t *env, char **args, char *buff __attribute__((unused)),
         path = get_env_value(env, "HOME");
     if (path == NULL)
         return RETURN_FAILURE;
+    if (args[2] != NULL) {
+        WRITE_CONST(STDERR_FILENO, "cd: Too many arguments.\n");
+        return RETURN_FAILURE;
+    }
     if (chdir(path) < 0) {
         write(STDERR_FILENO, path, u_strlen(path));
         cd_print_error();

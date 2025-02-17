@@ -119,7 +119,7 @@ int launch_bin(char *full_bin_path, char **args, env_t *env, char *buff)
     if (pid == 0) {
         if (execve(full_bin_path, args, env->env) < 0) {
             write(STDERR_FILENO, args[0], u_strlen(args[0]));
-            WRITE_CONST(STDOUT_FILENO, ": Command not found.\n");
+            WRITE_CONST(STDERR_FILENO, ": Command not found.\n");
             free_env(env);
             free((void *)args);
             free(buff);
@@ -131,28 +131,21 @@ int launch_bin(char *full_bin_path, char **args, env_t *env, char *buff)
 }
 
 static
-void signal_handler(int sig)
-{
-    switch (sig) {
-        case SIGSEGV:
-            WRITE_CONST(STDOUT_FILENO, "Segmentation fault\n");
-            break;
-        case SIGILL:
-            WRITE_CONST(STDOUT_FILENO, "Illegal instruction\n");
-            break;
-        default:
-            WRITE_CONST(STDOUT_FILENO, "Unknown signal\n");
-    }
-}
-
-static
 void status_handler(int status, history_t *history)
 {
+    char *strsig;
+
     if (WIFEXITED(status))
         history->last_exit_code = WEXITSTATUS(status);
-    else if (WIFSIGNALED(status)) {
-        history->last_exit_code = RETURN_FAILURE;
-        signal_handler(WTERMSIG(status));
+    if (!WIFEXITED(status) && WIFSIGNALED(status)) {
+        if (WTERMSIG(status) != SIGFPE) {
+            strsig = strsignal(WTERMSIG(status));
+            write(STDERR_FILENO, strsig, u_strlen(strsig));
+        } else
+            WRITE_CONST(STDERR_FILENO, "Floating exception");
+        if (WCOREDUMP(status))
+            WRITE_CONST(STDERR_FILENO, " (core dumped)");
+        WRITE_CONST(STDERR_FILENO, "\n");
     }
     U_DEBUG("Exit code [%d]\n", history->last_exit_code);
 }
