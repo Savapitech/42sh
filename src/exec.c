@@ -24,7 +24,7 @@ const builtins_t BUILTINS[] = {
     { "builtins", &builtins_builtins },
     { "cd", &builtins_cd },
     { "chdir", &builtins_cd },
-    { "env", &builtins_env },
+    { "printenv", &builtins_env },
     { "setenv", &builtins_setenv },
     { "unsetenv", &builtins_unsetenv },
     { "exit", &builtins_exit }

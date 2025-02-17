@@ -33,6 +33,7 @@ char *get_env_value(env_t *env, char const *key)
 bool unset_env(env_t *env, char *key)
 {
     int key_len = u_strlen(key);
+    size_t j;
 
     for (size_t i = 0; i < env->sz; i++) {
         if (env->env[i] == NULL)
@@ -40,7 +41,11 @@ bool unset_env(env_t *env, char *key)
         if (u_strcspn(env->env[i], '=') != key_len)
             continue;
         if (u_strcmp(env->env[i], key) == 0) {
-            env->env[i] = NULL;
+            j = i;
+            while (env->env[j]) {
+                env->env[j] = env->env[j + 1];
+                j++;
+            }
             env->sz--;
             return true;
         }
