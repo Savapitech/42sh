@@ -174,8 +174,12 @@ static
 bool builtins_launcher(char *buffer, env_t *env, history_t *history,
     char **args)
 {
+    int buffer_l = u_strlen(buffer);
+
     for (size_t i = 0; i < BUILTINS_SZ; i++) {
-        if (u_strcmp(buffer, BUILTINS[i].name) == 0) {
+        if (u_strlen(BUILTINS[i].name) != buffer_l)
+            continue;
+        if (u_strcmp(BUILTINS[i].name, buffer) == 0) {
             history->last_exit_code =
                 BUILTINS[i].ptr(env, args, buffer, history);
             return true;
