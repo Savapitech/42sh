@@ -42,6 +42,10 @@ int builtins_setenv(env_t *env, char **args,
 {
     if (args[1] == NULL)
         return builtins_env(env, args, buff, history);
+    if (args[2] != NULL && args[3] != NULL) {
+        WRITE_CONST(STDERR_FILENO, "setenv: Too many arguments.\n");
+        return RETURN_FAILURE;
+    }
     if (!set_env(env, args[1], args[2]))
         return RETURN_FAILURE;
     return RETURN_SUCCESS;
