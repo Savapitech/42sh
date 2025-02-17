@@ -188,9 +188,23 @@ bool builtins_launcher(char *buffer, env_t *env, history_t *history,
     return false;
 }
 
+static
+char *parse_full_bin_path(env_t *env, char *bin_name)
+{
+    char *path = get_env_value(env, "PATH");
+    char *full_bin_path;
+
+    if (path == NULL)
+        full_bin_path = u_strdup(bin_name);
+    else
+        full_bin_path = find_binary(path, bin_name);
+    if (full_bin_path == NULL)
+        return NULL;
+    return full_bin_path;
+}
+
 int execute(char *buffer, env_t *env, history_t *history)
 {
-    char *path = NULL;
     char *full_bin_path;
     char **args = parse_args(buffer);
     int status;
@@ -199,8 +213,7 @@ int execute(char *buffer, env_t *env, history_t *history)
         return RETURN_FAILURE;
     if (builtins_launcher(buffer, env, history, args))
         return RETURN_SUCCESS;
-    path = get_env_value(env, "PATH");
-    full_bin_path = find_binary(path, args[0]);
+    full_bin_path = parse_full_bin_path(env, args[0]);
     if (full_bin_path == NULL)
         return (free((void *)args), RETURN_FAILURE);
     U_DEBUG("Found bin [%s]\n", full_bin_path);

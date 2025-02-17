@@ -11,28 +11,35 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "debug.h"
 #include "env.h"
 #include "u_mem.h"
 #include "u_str.h"
 
 char *get_env_value(env_t *env, char const *key)
 {
+    int key_len = u_strlen(key);
+
     for (size_t i = 0; i < env->sz; i++) {
         if (env->env[i] == NULL)
             continue;
-        if (u_strncmp(env->env[i], key, u_strlen(key)) == 0)
-            return env->env[i] + u_strlen(key) + 1;
+        if (u_strcspn(env->env[i], '=') != key_len)
+            continue;
+        if (u_strcmp(env->env[i], key) == 0)
+            return env->env[i] + key_len + 1;
     }
     return NULL;
 }
 
 bool unset_env(env_t *env, char *key)
 {
+    int key_len = u_strlen(key);
+
     for (size_t i = 0; i < env->sz; i++) {
         if (env->env[i] == NULL)
             continue;
-        if (u_strncmp(env->env[i], key, u_strlen(key)) == 0) {
+        if (u_strcspn(env->env[i], '=') != key_len)
+            continue;
+        if (u_strcmp(env->env[i], key) == 0) {
             env->env[i] = NULL;
             env->sz--;
             return true;
