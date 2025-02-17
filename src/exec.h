@@ -12,11 +12,6 @@
     #define DEFAULT_ARGS_CAP 1
 
 typedef struct {
-    char const *name;
-    int (*ptr)(env_t *env, char **args, char *buff, history_t *history);
-} builtins_t;
-
-typedef struct {
     char **args;
     size_t count;
     size_t cap;

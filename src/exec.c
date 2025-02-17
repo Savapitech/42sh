@@ -20,16 +20,16 @@
 #include "u_mem.h"
 #include "u_str.h"
 
-static
 const builtins_t BUILTINS[] = {
+    { "builtins", &builtins_builtins },
     { "cd", &builtins_cd },
+    { "chdir", &builtins_cd },
     { "env", &builtins_env },
     { "setenv", &builtins_setenv },
     { "unsetenv", &builtins_unsetenv },
     { "exit", &builtins_exit }
 };
 
-static
 const size_t BUILTINS_SZ = sizeof BUILTINS / sizeof *BUILTINS;
 
 static
@@ -98,13 +98,13 @@ char **parse_args(char *buffer)
 
     if (!args)
         return NULL;
-    token = strtok(buffer, " \t");
+    token = strtok(buffer, " \t\v");
     while (token != NULL) {
         ensure_args_capacity(&args, sz, &cap);
         args[sz] = token;
         U_DEBUG("Args [%lu] [%s]\n", sz, args[sz]);
         sz++;
-        token = strtok(NULL, " \t");
+        token = strtok(NULL, " \t\v");
     }
     ensure_args_capacity(&args, sz, &cap);
     args[sz] = NULL;
@@ -155,13 +155,16 @@ void status_handler(int status, history_t *history)
     if (WIFEXITED(status))
         history->last_exit_code = WEXITSTATUS(status);
     if (!WIFEXITED(status) && WIFSIGNALED(status)) {
+        history->last_exit_code = WTERMSIG(status);
         if (WTERMSIG(status) != SIGFPE) {
             strsig = strsignal(WTERMSIG(status));
             write(STDERR_FILENO, strsig, u_strlen(strsig));
         } else
             WRITE_CONST(STDERR_FILENO, "Floating exception");
-        if (WCOREDUMP(status))
+        if (WCOREDUMP(status)) {
+            history->last_exit_code += 128;
             WRITE_CONST(STDERR_FILENO, " (core dumped)");
+        }
         WRITE_CONST(STDERR_FILENO, "\n");
     }
     U_DEBUG("Exit code [%d]\n", history->last_exit_code);
