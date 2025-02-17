@@ -17,6 +17,7 @@
 #include "shell.h"
 #include "u_str.h"
 
+__attribute__((unused))
 static
 void debug_env_entries(env_t *env)
 {

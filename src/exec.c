@@ -135,7 +135,7 @@ void signal_handler(int sig)
 {
     switch (sig) {
         case SIGSEGV:
-            WRITE_CONST(STDERR_FILENO, "Segmentation fault (core dumped)\n");
+            WRITE_CONST(STDERR_FILENO, "Segmentation fault\n");
             break;
         case SIGILL:
             WRITE_CONST(STDERR_FILENO, "Illegal instruction\n");
