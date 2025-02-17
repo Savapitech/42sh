@@ -151,7 +151,7 @@ void status_handler(int status, history_t *history)
     if (WIFEXITED(status))
         history->last_exit_code = WEXITSTATUS(status);
     else if (WIFSIGNALED(status)) {
-        history->last_exit_code = WTERMSIG(status) + 128;
+        history->last_exit_code = RETURN_FAILURE;
         signal_handler(WTERMSIG(status));
     }
     U_DEBUG("Exit code [%d]\n", history->last_exit_code);
