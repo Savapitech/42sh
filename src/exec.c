@@ -119,7 +119,7 @@ int launch_bin(char *full_bin_path, char **args, env_t *env, char *buff)
     if (pid == 0) {
         if (execve(full_bin_path, args, env->env) < 0) {
             write(STDERR_FILENO, args[0], u_strlen(args[0]));
-            WRITE_CONST(STDERR_FILENO, ": Command not found.\n");
+            WRITE_CONST(STDOUT_FILENO, ": Command not found.\n");
             free_env(env);
             free((void *)args);
             free(buff);
@@ -135,13 +135,13 @@ void signal_handler(int sig)
 {
     switch (sig) {
         case SIGSEGV:
-            WRITE_CONST(STDERR_FILENO, "Segmentation fault\n");
+            WRITE_CONST(STDOUT_FILENO, "Segmentation fault\n");
             break;
         case SIGILL:
-            WRITE_CONST(STDERR_FILENO, "Illegal instruction\n");
+            WRITE_CONST(STDOUT_FILENO, "Illegal instruction\n");
             break;
         default:
-            WRITE_CONST(STDERR_FILENO, "Unknown signal\n");
+            WRITE_CONST(STDOUT_FILENO, "Unknown signal\n");
     }
 }
 

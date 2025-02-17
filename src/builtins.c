@@ -52,7 +52,7 @@ int builtins_unsetenv(env_t *env, char **args,
     history_t *history __attribute__((unused)))
 {
     if (args[1] == NULL)
-        return (WRITE_CONST(STDERR_FILENO, "unsetenv: Too few arguments.\n"),
+        return (WRITE_CONST(STDOUT_FILENO, "unsetenv: Too few arguments.\n"),
             RETURN_FAILURE);
     if (!unset_env(env, args[1]))
         return RETURN_FAILURE;
@@ -64,16 +64,16 @@ void cd_print_error(void)
 {
     switch (errno) {
         case EACCES:
-            WRITE_CONST(STDERR_FILENO, ": Permission denied.\n");
+            WRITE_CONST(STDOUT_FILENO, ": Permission denied.\n");
             break;
         case ENOENT:
-            WRITE_CONST(STDERR_FILENO, ": No such file or directory.\n");
+            WRITE_CONST(STDOUT_FILENO, ": No such file or directory.\n");
             break;
         case ENOTDIR:
-            WRITE_CONST(STDERR_FILENO, ": Not a directory.\n");
+            WRITE_CONST(STDOUT_FILENO, ": Not a directory.\n");
             break;
         default:
-            WRITE_CONST(STDERR_FILENO, ": Unknown error.\n");
+            WRITE_CONST(STDOUT_FILENO, ": Unknown error.\n");
     }
 }
 
