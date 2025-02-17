@@ -32,5 +32,6 @@ char *u_numstr(char *, int);
 int u_spacelen(char const *str);
 int u_strcspn(char *str, char c);
 bool u_str_is_alnum(char *str);
+bool u_str_is_only_alnum(char *str);
 
 #endif /* STRING_H */
