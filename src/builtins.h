@@ -41,4 +41,8 @@ int builtins_cd(env_t *env, char **args,
 int builtins_builtins(env_t *env __attribute__((unused)),
     char **args __attribute__((unused)), char *buff __attribute__((unused)),
     history_t *history __attribute__((unused)));
+
+int builtins_funny_double_dot(env_t *env __attribute__((unused)),
+    char **args __attribute__((unused)), char *buff __attribute__((unused)),
+    history_t *history __attribute__((unused)));
 #endif /* BUILTIND_H */

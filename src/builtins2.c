@@ -21,3 +21,10 @@ int builtins_builtins(env_t *env __attribute__((unused)),
         write(STDOUT_FILENO, BUILTINS[i].name, u_strlen(BUILTINS[i].name));
     return RETURN_SUCCESS;
 }
+
+int builtins_funny_double_dot(env_t *env __attribute__((unused)),
+    char **args __attribute__((unused)), char *buff __attribute__((unused)),
+    history_t *history __attribute__((unused)))
+{
+    return RETURN_SUCCESS;
+}
