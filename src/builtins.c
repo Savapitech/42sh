@@ -31,8 +31,8 @@ int builtins_env(env_t *env, char **args __attribute__((unused)),
     for (size_t i = 0; i < env->sz; i++) {
         if (env->env[i] == NULL)
             continue;
-        write(STDERR_FILENO, env->env[i], u_strlen(env->env[i]));
-        WRITE_CONST(STDERR_FILENO, "\n");
+        write(STDOUT_FILENO, env->env[i], u_strlen(env->env[i]));
+        WRITE_CONST(STDOUT_FILENO, "\n");
     }
     return RETURN_SUCCESS;
 }
