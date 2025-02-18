@@ -9,7 +9,7 @@
     #define STRING_H
     #include <stdbool.h>
     #include <stddef.h>
-    #define WRITE_CONST(fd, str) write(fd, str, sizeof str)
+    #define WRITE_CONST(fd, str) write(fd, str, sizeof str - 1)
 
 typedef struct {
     char *str;
