@@ -162,10 +162,10 @@ void status_handler(int status, history_t *history)
         } else
             WRITE_CONST(STDERR_FILENO, "Floating exception");
         if (WCOREDUMP(status)) {
-            history->last_exit_code += 128;
             WRITE_CONST(STDERR_FILENO, " (core dumped)");
         }
         WRITE_CONST(STDERR_FILENO, "\n");
+        history->last_exit_code += 128;
     }
     U_DEBUG("Exit code [%d]\n", history->last_exit_code);
 }
