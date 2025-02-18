@@ -157,7 +157,6 @@ void status_handler(int status, history_t *history)
     if (WIFEXITED(status))
         history->last_exit_code = WEXITSTATUS(status);
     if (!WIFEXITED(status) && WIFSIGNALED(status)) {
-        history->last_exit_code = WTERMSIG(status);
         if (WTERMSIG(status) != SIGFPE) {
             strsig = strsignal(WTERMSIG(status));
             write(STDERR_FILENO, strsig, u_strlen(strsig));
@@ -167,7 +166,6 @@ void status_handler(int status, history_t *history)
             WRITE_CONST(STDERR_FILENO, " (core dumped)");
         }
         WRITE_CONST(STDERR_FILENO, "\n");
-        history->last_exit_code += 128;
     }
     U_DEBUG("Exit code [%d]\n", history->last_exit_code);
 }
