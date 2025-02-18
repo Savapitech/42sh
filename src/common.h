@@ -9,6 +9,6 @@
     #define COMMON_H
 enum {
     RETURN_SUCCESS = 0,
-    RETURN_FAILURE = 84
+    RETURN_FAILURE = 1
 };
 #endif /* COMMON_H */
