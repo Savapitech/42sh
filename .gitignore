@@ -15,10 +15,12 @@ a.out
 libmy.a
 test
 signal
-mysh-sg
+mysh-*
 test*
+debug
 
 # Build
+.build
 *.o
 *.out
 *.[aod]
