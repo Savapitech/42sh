@@ -157,14 +157,17 @@ void status_handler(int status, history_t *history)
     if (WIFEXITED(status))
         history->last_exit_code = WEXITSTATUS(status);
     if (!WIFEXITED(status) && WIFSIGNALED(status)) {
-        if (WTERMSIG(status) != SIGFPE) {
+        if (WTERMSIG(status) != SIGFPE && WTERMSIG(status) != SIGINT &&
+            WTERMSIG(status) != SIGTRAP) {
             strsig = strsignal(WTERMSIG(status));
             write(STDERR_FILENO, strsig, u_strlen(strsig));
-        } else
-            WRITE_CONST(STDERR_FILENO, "Floating exception");
-        if (WCOREDUMP(status)) {
-            WRITE_CONST(STDERR_FILENO, " (core dumped)");
         }
+        if (WTERMSIG(status) == SIGTRAP)
+            WRITE_CONST(STDERR_FILENO, "Trace/BPT trap");
+        if (WTERMSIG(status) == SIGFPE)
+            WRITE_CONST(STDERR_FILENO, "Floating exception");
+        if (WCOREDUMP(status))
+            WRITE_CONST(STDERR_FILENO, " (core dumped)");
         WRITE_CONST(STDERR_FILENO, "\n");
     }
     U_DEBUG("Exit code [%d]\n", history->last_exit_code);
