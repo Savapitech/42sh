@@ -56,7 +56,7 @@ int shell_loop(env_t *env, int is_a_tty, history_t *history)
 int shell(char **env_ptr)
 {
     env_t env = parse_env(env_ptr);
-    history_t history = { .cmd_history = NULL, 0 };
+    history_t history = { .cmd_history = NULL, 0, .last_chdir = NULL };
     int shell_result;
 
     if (!env.env)

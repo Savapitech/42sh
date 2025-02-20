@@ -13,6 +13,7 @@
 typedef struct {
     char **cmd_history;
     int last_exit_code;
+    char *last_chdir;
 } history_t;
 int shell(char **env);
 #endif /* SHELL_H */

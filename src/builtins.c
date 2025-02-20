@@ -88,11 +88,33 @@ void cd_print_error(void)
     }
 }
 
+static
+int builtins_cd_chdir(char *path, history_t *history, char **args, env_t *env)
+{
+    bool last_chdir_set = false;
+
+    if (history->last_chdir != NULL && u_strcmp(args[1], "-") == 0) {
+        path = history->last_chdir;
+        free(history->last_chdir);
+        history->last_chdir = u_strdup(get_env_value(env, "PWD"));
+        last_chdir_set = true;
+    }
+    if (chdir(path) < 0) {
+        write(STDERR_FILENO, path, u_strlen(path));
+        cd_print_error();
+        return RETURN_FAILURE;
+    }
+    if (!last_chdir_set) {
+        free(history->last_chdir);
+        history->last_chdir = u_strdup(path);
+    }
+    return RETURN_SUCCESS;
+}
+
 int builtins_cd(env_t *env, char **args, char *buff __attribute__((unused)),
     history_t *history __attribute__((unused)))
 {
     char *path = args[1];
-    int result = RETURN_SUCCESS;
 
     if (path == NULL || u_strcmp(args[1], "~") == 0)
         path = get_env_value(env, "HOME");
@@ -102,10 +124,5 @@ int builtins_cd(env_t *env, char **args, char *buff __attribute__((unused)),
         WRITE_CONST(STDERR_FILENO, "cd: Too many arguments.\n");
         return RETURN_FAILURE;
     }
-    if (chdir(path) < 0) {
-        write(STDERR_FILENO, path, u_strlen(path));
-        cd_print_error();
-        result = RETURN_FAILURE;
-    }
-    return result;
+    return builtins_cd_chdir(path, history, args, env);
 }
