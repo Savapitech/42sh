@@ -120,7 +120,7 @@ int builtins_cd(env_t *env, char **args, char *buff __attribute__((unused)),
         path = get_env_value(env, "HOME");
     if (path == NULL)
         return RETURN_FAILURE;
-    if (args[2] != NULL) {
+    if (args[1] != NULL && args[2] != NULL) {
         WRITE_CONST(STDERR_FILENO, "cd: Too many arguments.\n");
         return RETURN_FAILURE;
     }
