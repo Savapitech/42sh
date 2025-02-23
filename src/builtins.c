@@ -14,8 +14,8 @@
 #include "debug.h"
 #include "env.h"
 #include "shell.h"
-#include "u_str.h"
 #include "u_mem.h"
+#include "u_str.h"
 
 int builtins_exit(env_t *env, char **args __attribute__((unused)), char *buff,
     history_t *history)
@@ -105,10 +105,8 @@ char *get_current_dir(void)
             return (free(buffer), NULL);
         size <<= 1;
         new_buffer = u_realloc(buffer, u_strlen(buffer) + 1, size);
-        if (!new_buffer) {
-            free(buffer);
-            return NULL;
-        }
+        if (!new_buffer)
+            return (free(buffer), NULL);
         buffer = new_buffer;
         max_it--;
     }
@@ -118,16 +116,20 @@ char *get_current_dir(void)
 static
 int builtins_cd_chdir(char *path, history_t *history, char **args, env_t *env)
 {
-    if (history->last_chdir != NULL && u_strcmp(args[1], "-") == 0)
+    char *act_pwd;
+
+    if (history->last_chdir != NULL && args[1] != NULL
+        && u_strcmp(args[1], "-") == 0)
         path = history->last_chdir;
-    free(history->last_chdir);
-    history->last_chdir = get_current_dir();
+    act_pwd = get_current_dir();
     U_DEBUG("last chdir %s\n", history->last_chdir);
     if (chdir(path) < 0) {
         write(STDERR_FILENO, path, u_strlen(path));
         cd_print_error();
-        return RETURN_FAILURE; 
+        return RETURN_FAILURE;
     }
+    free(history->last_chdir);
+    history->last_chdir = act_pwd;
     return RETURN_SUCCESS;
 }
 
