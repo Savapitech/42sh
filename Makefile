@@ -70,6 +70,7 @@ endef
 $(eval $(call mk-profile, release, SRC, , $(BIN_NAME)))
 $(eval $(call mk-profile, debug, SRC, -D U_DEBUG_MODE -g3, debug))
 $(eval $(call mk-profile, test, SRC, --coverage, test))
+$(eval $(call mk-profile, afl, SRC, -D AFL_MODE, afl_runner))
 
 all: $(NAME_release)
 
@@ -84,6 +85,31 @@ cov: tests_run
 		--gcov-ignore-errors=no_working_dir_found \
 		--exclude-unreachable-branches \
 		--exclude tests
+
+.PHONY: afl
+afl: CC := AFL_USE_ASAN=1 afl-gcc-fast
+afl: $(NAME_afl)
+
+define newline
+
+
+endef
+
+AFL_FLAGS := -i afl/inputs
+AFL_FLAGS += -x afl/tokens
+AFL_FLAGS += -o afl/generated
+
+PROCS ?= $(shell nproc)
+
+.PHONY: afl_run
+afl_run: afl
+	@ mkdir -p afl/generated
+	screen -dmS main_instance \
+		afl-fuzz $(AFL_FLAGS) -M fuzzer_1 -- ./afl_runner
+	$(foreach instance, $(shell seq 1 $(PROCS)),\
+		screen -dmS afl_$(instance) \
+		afl-fuzz $(AFL_FLAGS) -S fuzzer_$(instance) -- ./afl_runner$(newline))
+	watch -n 0.25 -- afl-whatsup -s afl/generated
 
 clean:
 	@ $(RM) $(OBJ)

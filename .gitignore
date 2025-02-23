@@ -40,5 +40,8 @@ result
 testcmd
 unit_tests
 
-# Python (CI)
-*.pyc
+# Debug
+.dbug
+
+# AFL
+afl/generated

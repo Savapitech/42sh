@@ -146,6 +146,9 @@ int launch_bin(char *full_bin_path, char **args, env_t *env, char *buff)
     pid_t pid = fork();
 
     if (pid == 0) {
+#if defined(AFL_MODE)
+        exit(0);
+#else
         if (execve(full_bin_path, args, env->env) < 0) {
             status = command_error(full_bin_path, args, errno);
             free_env(env);
@@ -153,6 +156,7 @@ int launch_bin(char *full_bin_path, char **args, env_t *env, char *buff)
             free(buff);
             exit(status);
         }
+#endif
     }
     waitpid(pid, &status, 0);
     return status;
