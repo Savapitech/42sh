@@ -11,9 +11,11 @@
 #include <unistd.h>
 
 #include "common.h"
+#include "debug.h"
 #include "env.h"
 #include "shell.h"
 #include "u_str.h"
+#include "u_mem.h"
 
 int builtins_exit(env_t *env, char **args __attribute__((unused)), char *buff,
     history_t *history)
@@ -89,24 +91,42 @@ void cd_print_error(void)
 }
 
 static
+char *get_current_dir(void)
+{
+    size_t size = 64;
+    char *buffer = malloc(size);
+    char *new_buffer;
+    size_t max_it = 100;
+
+    if (!buffer)
+        return NULL;
+    while (getcwd(buffer, size) == NULL && max_it > 0) {
+        if (errno != ERANGE)
+            return (free(buffer), NULL);
+        size <<= 1;
+        new_buffer = u_realloc(buffer, u_strlen(buffer) + 1, size);
+        if (!new_buffer) {
+            free(buffer);
+            return NULL;
+        }
+        buffer = new_buffer;
+        max_it--;
+    }
+    return buffer;
+}
+
+static
 int builtins_cd_chdir(char *path, history_t *history, char **args, env_t *env)
 {
-    bool last_chdir_set = false;
-
-    if (history->last_chdir != NULL && u_strcmp(args[1], "-") == 0) {
+    if (history->last_chdir != NULL && u_strcmp(args[1], "-") == 0)
         path = history->last_chdir;
-        free(history->last_chdir);
-        history->last_chdir = u_strdup(get_env_value(env, "PWD"));
-        last_chdir_set = true;
-    }
+    free(history->last_chdir);
+    history->last_chdir = get_current_dir();
+    U_DEBUG("last chdir %s\n", history->last_chdir);
     if (chdir(path) < 0) {
         write(STDERR_FILENO, path, u_strlen(path));
         cd_print_error();
-        return RETURN_FAILURE;
-    }
-    if (!last_chdir_set) {
-        free(history->last_chdir);
-        history->last_chdir = u_strdup(path);
+        return RETURN_FAILURE; 
     }
     return RETURN_SUCCESS;
 }
