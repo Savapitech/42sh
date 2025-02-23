@@ -5,6 +5,7 @@
 ** _
 */
 
+#include <errno.h>
 #include <fcntl.h>
 #include <stdlib.h>
 #include <string.h>
@@ -114,20 +115,28 @@ char **parse_args(char *buffer)
 }
 
 static
-void command_error(char *cmd, char **args)
+int command_error(char *cmd, char **args, int error)
 {
     struct stat st;
 
     if (access(cmd, F_OK)) {
             write(STDERR_FILENO, args[0], u_strlen(args[0]));
             WRITE_CONST(STDERR_FILENO, ": Command not found.\n");
-            return;
+            return 84;
     }
     stat(cmd, &st);
     if (S_ISDIR(st.st_mode) || access(cmd, X_OK)) {
             write(STDERR_FILENO, args[0], u_strlen(args[0]));
-            WRITE_CONST(STDERR_FILENO, ": Permissions denied.\n");
+            WRITE_CONST(STDERR_FILENO, ": Permission denied.\n");
+            return 84;
     }
+    if (error == ENOEXEC) {
+        write(STDERR_FILENO, args[0], u_strlen(args[0]));
+        WRITE_CONST(STDERR_FILENO, ": Exec format error."
+            " Wrong Architecture.\n");
+        return 0;
+    }
+    return 84;
 }
 
 static
@@ -138,11 +147,11 @@ int launch_bin(char *full_bin_path, char **args, env_t *env, char *buff)
 
     if (pid == 0) {
         if (execve(full_bin_path, args, env->env) < 0) {
-            command_error(full_bin_path, args);
+            status = command_error(full_bin_path, args, errno);
             free_env(env);
             free((void *)args);
             free(buff);
-            exit(RETURN_FAILURE);
+            exit(status);
         }
     }
     waitpid(pid, &status, 0);
