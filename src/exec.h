@@ -10,6 +10,7 @@
     #include "env.h"
     #include "shell.h"
     #define DEFAULT_ARGS_CAP 1
+    #define DEFAULT_PATH "/usr/bin:."
 
 typedef struct {
     char **args;

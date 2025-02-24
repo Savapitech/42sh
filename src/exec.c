@@ -119,7 +119,7 @@ int command_error(char *cmd, char **args, int error)
 {
     struct stat st;
 
-    if (access(cmd, F_OK)) {
+    if (access(cmd, F_OK) == -1) {
             write(STDERR_FILENO, args[0], u_strlen(args[0]));
             WRITE_CONST(STDERR_FILENO, ": Command not found.\n");
             return 84;
@@ -207,13 +207,14 @@ bool builtins_launcher(char *buffer, env_t *env, history_t *history,
 static
 char *parse_full_bin_path(env_t *env, char *bin_name)
 {
-    char *path = get_env_value(env, "PATH");
+    char const *path = get_env_value(env, "PATH");
     char *full_bin_path;
 
     if (path == NULL)
-        full_bin_path = u_strdup(bin_name);
-    else
-        full_bin_path = find_binary(path, bin_name);
+        path = DEFAULT_PATH;
+    U_DEBUG("Used path [%s]\n", path);
+    full_bin_path = find_binary(path, bin_name);
+    U_DEBUG("Exec bin [%s]\n", full_bin_path);
     if (full_bin_path == NULL)
         return NULL;
     return full_bin_path;
