@@ -133,7 +133,7 @@ int command_error(char *cmd, char **args, int error)
     if (error == ENOEXEC) {
         write(STDERR_FILENO, args[0], u_strlen(args[0]));
         WRITE_CONST(STDERR_FILENO, ": Exec format error."
-            " Binary not executable.\n");
+            " Binary file not executable.\n");
         return 0;
     }
     return 84;
