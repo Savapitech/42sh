@@ -92,7 +92,7 @@ bool ensure_args_capacity(char ***args, size_t const sz, size_t *cap)
 }
 
 static
-char **parse_args(char *buffer)
+char **parse_args(char *buffer, env_t *env)
 {
     size_t sz = 0;
     size_t cap = DEFAULT_ARGS_CAP;
@@ -104,7 +104,10 @@ char **parse_args(char *buffer)
     token = strtok(buffer, " \t\v");
     while (token != NULL) {
         ensure_args_capacity(&args, sz, &cap);
-        args[sz] = token;
+        if (*token == '$' && get_env_value(env, token + 1) != NULL)
+            args[sz] = get_env_value(env, token + 1);
+        else
+            args[sz] = token;
         U_DEBUG("Args [%lu] [%s]\n", sz, args[sz]);
         sz++;
         token = strtok(NULL, " \t\v");
@@ -223,7 +226,7 @@ char *parse_full_bin_path(env_t *env, char *bin_name)
 int execute(char *buffer, env_t *env, history_t *history)
 {
     char *full_bin_path;
-    char **args = parse_args(buffer);
+    char **args = parse_args(buffer, env);
     int status;
 
     if (!args)
