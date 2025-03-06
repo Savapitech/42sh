@@ -92,7 +92,7 @@ bool ensure_args_capacity(char ***args, size_t const sz, size_t *cap)
 }
 
 static
-char **parse_args(char *buffer)
+char **parse_args(char *buffer, env_t *env)
 {
     size_t sz = 0;
     size_t cap = DEFAULT_ARGS_CAP;
@@ -223,7 +223,7 @@ char *parse_full_bin_path(env_t *env, char *bin_name)
 int execute(char *buffer, env_t *env, history_t *history)
 {
     char *full_bin_path;
-    char **args = parse_args(buffer);
+    char **args = parse_args(buffer, env);
     int status;
 
     if (!args)

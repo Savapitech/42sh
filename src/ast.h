@@ -1,0 +1,77 @@
+/*
+** EPITECH PROJECT, 2025
+** __
+** File description:
+** _
+*/
+
+#ifndef AST_H
+    #define AST_H
+    #include <stddef.h>
+    #include <stdint.h>
+    #define DEFAULT_AST_CAP 128
+
+typedef enum {
+    T_SEMICOLON = 1 << 0, // ;
+    T_LEFT_QUOTE = 1 << 1, // "
+    T_RIGHT_QUOTE = 1 << 2, // "
+    T_AND = 1 << 3, // &&
+    T_OR = 1 << 4, // ||
+    T_PIPE = 1 << 5, // |
+    T_JOB = 1 << 6, // &
+    T_BACKTICK = 1 << 7, // `
+    T_LEFT_PARENT = 1 << 8, // (
+    T_RIGHT_PARENT = 1 << 9, // )
+    T_PREV_CMD = 1 << 10, // !!
+    T_VAR = 1 << 11, // $
+    T_REDIRECT = 1 << 12, // >
+    T_APPEND = 1 << 13, // >>
+    T_EOF = 1 << 14, // \0
+    T_ARG = 1 << 15
+} token_type_t;
+
+typedef enum {
+    N_CMD,
+    N_BIN
+} node_type_t;
+
+typedef struct {
+    token_type_t type;
+    char *str;
+    size_t sz;
+} token_t;
+
+typedef struct {
+    token_type_t type;
+    char const *str;
+    uint8_t sz;
+    char const *name;
+} tokens_list_t;
+
+typedef struct ast_s ast_t;
+
+typedef struct ast_s {
+    node_type_t type;
+    union {
+        struct {
+            ast_t *left;
+            ast_t *right;
+        } binary;
+        struct {
+            size_t sz;
+            size_t cap;
+            token_t *tokens;
+        } vector;
+    };
+    token_t tok;
+} ast_t;
+
+typedef struct {
+    size_t i;
+    size_t sz;
+    char *str;
+    size_t cap;
+    ast_t *ast;
+    token_t act_tok;
+} ast_ctx_t;
+#endif /* AST_H */
