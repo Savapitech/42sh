@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#include "ast.h"
 #include "common.h"
 #include "debug.h"
 #include "env.h"
@@ -46,7 +47,7 @@ int shell_loop(env_t *env, int is_a_tty, history_t *history)
         if (buffer[buffer_len - 1] == '\n')
             buffer[buffer_len - 1] = '\0';
         U_DEBUG("Buffer [%lu] [%s]\n", buffer_len, buffer);
-        execute(buffer, env, history);
+        visitor(buffer, env, history);
     }
     if (is_a_tty)
         WRITE_CONST(STDOUT_FILENO, "exit\n");
