@@ -13,11 +13,13 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+#include "ast.h"
 #include "builtins.h"
 #include "common.h"
 #include "debug.h"
 #include "env.h"
 #include "exec.h"
+#include "path.h"
 #include "u_mem.h"
 #include "u_str.h"
 
@@ -34,46 +36,6 @@ const builtins_t BUILTINS[] = {
 };
 
 const size_t BUILTINS_SZ = sizeof BUILTINS / sizeof *BUILTINS;
-
-static
-char *build_full_path(const char *token, const char *binary)
-{
-    size_t len_token = u_strlen(token);
-    size_t len_bin = u_strlen(binary);
-    char *full_path = malloc(len_token + len_bin + 2);
-
-    if (!full_path)
-        return NULL;
-    u_strcpy(full_path, token);
-    full_path[len_token] = '/';
-    u_strcpy(full_path + len_token + 1, binary);
-    full_path[len_token + len_bin + 1] = '\0';
-    return full_path;
-}
-
-static
-char *find_binary(const char *path_env, const char *binary)
-{
-    static char *saveptr = NULL;
-    static char *path = NULL;
-    char *token;
-    char *full_path;
-
-    if (path_env) {
-        path = u_strdup(path_env);
-        if (!path)
-            return NULL;
-        token = strtok_r(path, ":", &saveptr);
-    } else
-        token = strtok_r(NULL, ":", &saveptr);
-    if (!token)
-        return free(path), u_strdup(binary);
-    full_path = build_full_path(token, binary);
-    if (!full_path)
-        return NULL;
-    return access(full_path, X_OK) == 0 ? full_path : (free(full_path),
-        find_binary(NULL, binary));
-}
 
 static __attribute__((nonnull))
 bool ensure_args_capacity(char ***args, size_t const sz, size_t *cap)
@@ -92,22 +54,22 @@ bool ensure_args_capacity(char ***args, size_t const sz, size_t *cap)
 }
 
 static
-char **parse_args(char *buffer, env_t *env)
+char **parse_args(ast_t *node, env_t *env)
 {
-    size_t sz = 0;
+    size_t sz = 1;
     size_t cap = DEFAULT_ARGS_CAP;
     char **args = (char **)malloc(sizeof *args * cap);
-    char *token;
 
     if (!args)
         return NULL;
-    token = strtok(buffer, " \t\v");
-    while (token != NULL) {
+    node->tok.str[node->tok.sz] = '\0';
+    args[0] = node->tok.str;
+    for (size_t i = 0; i < node->vector.sz; i++) {
         ensure_args_capacity(&args, sz, &cap);
-        args[sz] = token;
+        node->vector.tokens[i].str[node->vector.tokens[i].sz] = '\0';
+        args[sz] = node->vector.tokens[i].str;
         U_DEBUG("Args [%lu] [%s]\n", sz, args[sz]);
         sz++;
-        token = strtok(NULL, " \t\v");
     }
     ensure_args_capacity(&args, sz, &cap);
     args[sz] = NULL;
@@ -140,25 +102,36 @@ int command_error(char *cmd, char **args, int error)
 }
 
 static
-int launch_bin(char *full_bin_path, char **args, env_t *env, char *buff)
+void set_fd(ef_t *ef)
+{
+    if (ef->pin_fd != STDIN_FILENO) {
+        dup2(ef->pin_fd, STDIN_FILENO);
+        close(ef->pin_fd);
+    }
+    if (ef->pout_fd != STDOUT_FILENO) {
+        dup2(ef->pout_fd, STDOUT_FILENO);
+        close(ef->pout_fd);
+    }
+}
+
+static
+int launch_bin(char *full_bin_path, char **args, ef_t *ef)
 {
     int status;
     pid_t pid = fork();
 
     if (pid == 0) {
-#if defined(AFL_MODE)
-        exit(0);
-#else
-        if (execve(full_bin_path, args, env->env) < 0) {
+        set_fd(ef);
+        if (execve(full_bin_path, args, ef->env->env) < 0) {
             status = command_error(full_bin_path, args, errno);
-            free_env(env);
+            free_env(ef->env);
             free((void *)args);
-            free(buff);
+            free(ef->buffer);
             exit(status);
         }
-#endif
     }
     waitpid(pid, &status, 0);
+    U_DEBUG("STATUS %d\n", status);
     return status;
 }
 
@@ -204,39 +177,24 @@ bool builtins_launcher(char *buffer, env_t *env, history_t *history,
     return false;
 }
 
-static
-char *parse_full_bin_path(env_t *env, char *bin_name)
-{
-    char const *path = get_env_value(env, "PATH");
-    char *full_bin_path;
-
-    if (path == NULL)
-        path = DEFAULT_PATH;
-    U_DEBUG("Used path [%s]\n", path);
-    full_bin_path = find_binary(path, bin_name);
-    U_DEBUG("Exec bin [%s]\n", full_bin_path);
-    if (full_bin_path == NULL)
-        return NULL;
-    return full_bin_path;
-}
-
-int execute(char *buffer, env_t *env, history_t *history)
+int execute(ef_t *ef)
 {
     char *full_bin_path;
-    char **args = parse_args(buffer, env);
+    char **args;
     int status;
 
+    args = parse_args(ef->act_node, ef->env);
     if (!args)
         return RETURN_FAILURE;
-    if (builtins_launcher(buffer, env, history, args))
+    if (builtins_launcher(ef->buffer, ef->env, ef->history, args))
         return RETURN_SUCCESS;
-    full_bin_path = parse_full_bin_path(env, args[0]);
+    full_bin_path = parse_full_bin_path(ef->env, args[0]);
     if (full_bin_path == NULL)
         return (free((void *)args), RETURN_FAILURE);
     U_DEBUG("Found bin [%s]\n", full_bin_path);
-    status = launch_bin(full_bin_path, args, env, buffer);
-    status_handler(status, history);
+    status = launch_bin(full_bin_path, args, ef);
+    status_handler(status, ef->history);
     free(full_bin_path);
     free((void *)args);
-    return RETURN_SUCCESS;
+    return ef->history->last_exit_code != 0 ? RETURN_FAILURE : RETURN_SUCCESS;
 }
