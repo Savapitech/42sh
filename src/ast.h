@@ -9,7 +9,12 @@
     #define AST_H
     #include <stddef.h>
     #include <stdint.h>
+
+    #include "shell.h"
+    #include "env.h"
+
     #define DEFAULT_AST_CAP 128
+    #define T_ALL 0xff
 
 typedef enum {
     T_SEMICOLON = 1 << 0, // ;
@@ -27,10 +32,12 @@ typedef enum {
     T_REDIRECT = 1 << 12, // >
     T_APPEND = 1 << 13, // >>
     T_EOF = 1 << 14, // \0
-    T_ARG = 1 << 15
+    T_ARG = 1 << 15,
+    T_INVALID = 1 << 16
 } token_type_t;
 
 typedef enum {
+    N_LST,
     N_CMD,
     N_BIN
 } node_type_t;
@@ -62,6 +69,11 @@ typedef struct ast_s {
             size_t cap;
             token_t *tokens;
         } vector;
+        struct {
+            size_t sz;
+            size_t cap;
+            ast_t **nodes;
+        } list;
     };
     token_t tok;
 } ast_t;
@@ -74,4 +86,12 @@ typedef struct {
     ast_t *ast;
     token_t act_tok;
 } ast_ctx_t;
+
+
+extern const tokens_list_t TOKENS_LIST[];
+
+ast_t *parse_expression(ast_ctx_t *ctx);
+void print_ast(ast_ctx_t *ctx, ast_t *ast, size_t depth);
+token_t get_next_token(ast_ctx_t *ctx);
+int visitor(char *buffer, env_t *env, history_t *history);
 #endif /* AST_H */
