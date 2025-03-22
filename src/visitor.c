@@ -78,26 +78,38 @@ int visit_cmd(ef_t *ef)
 }
 
 static
-int visit_pipe(ef_t *ef)
+int visit_pipe(ef_t *ef, size_t i, ast_t *node)
+{
+    int result = RETURN_FAILURE;
+
+    if (i < node->list.sz - 1)
+        if (pipe(ef->pipes) < 0)
+            return (puterror("pipe"), -1);
+    ef->pout_fd = i == node->list.sz - 1 ? STDOUT_FILENO : ef->pipes[1];
+    ef->act_node = node->list.nodes[i];
+    result = visit_cmd(ef);
+    if (result == -1)
+        return RETURN_FAILURE;
+    if (ef->pin_fd != STDIN_FILENO)
+        close(ef->pin_fd);
+    if (i < node->list.sz - 1) {
+        close(ef->pipes[1]);
+        ef->pin_fd = ef->pipes[0];
+    }
+    return result;
+}
+
+static
+int visit_pipes(ef_t *ef)
 {
     ast_t *node = ef->ctx->ast;
     int result = RETURN_FAILURE;
 
     ef->pin_fd = STDIN_FILENO;
     for (size_t i = 0; i < node->list.sz; i++) {
-        if (i < node->list.sz - 1)
-            pipe(ef->pipes);
-        ef->pout_fd = i == node->list.sz - 1 ? STDOUT_FILENO : ef->pipes[1];
-        ef->act_node = node->list.nodes[i];
-        result = visit_cmd(ef);
+        result = visit_pipe(ef, i, node);
         if (result == -1)
-            return RETURN_FAILURE;
-        if (ef->pin_fd != STDIN_FILENO)
-            close(ef->pin_fd);
-        if (i < node->list.sz - 1) {
-            close(ef->pipes[1]);
-            ef->pin_fd = ef->pipes[0];
-        }
+            break;
     }
     return result;
 }
@@ -118,7 +130,7 @@ int visitor(char *buffer, env_t *env, history_t *history)
     if (ctx.ast == NULL)
         return RETURN_FAILURE;
     if (ctx.ast->type == N_LST && ctx.ast->tok.type == T_PIPE)
-        result = visit_pipe(&ef);
+        result = visit_pipes(&ef);
     if (ctx.ast->type == N_CMD) {
         ef.act_node = ctx.ast;
         result = visit_cmd(&ef);
