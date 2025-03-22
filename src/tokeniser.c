@@ -16,7 +16,6 @@ const tokens_list_t TOKENS_LIST[] = {
     { T_LEFT_QUOTE, "\"", 1, "T_LEFT_QUOTE" },
     { T_RIGHT_QUOTE, "\"", 1, "T_RIGHT_QUOTE" },
     { T_AND, "&&", 2, "T_AND" },
-    { T_JOB, "&", 1, "T_JOB" },
     { T_OR, "||", 2, "T_OR" },
     { T_PIPE, "|", 1, "T_PIPE" },
     { T_BACKTICK, "`", 1, "T_BACKTICK" },
@@ -26,6 +25,7 @@ const tokens_list_t TOKENS_LIST[] = {
     { T_VAR, "$", 1, "T_VAR" },
     { T_APPEND, ">>", 2, "T_APPEND" },
     { T_REDIRECT, ">", 1, "T_REDIRECT" },
+    { T_IN_REDIRECT, "<", 1, "T_IN_REDIRECT" },
     { T_EOF, "\0", 1, "T_EOF" }
 };
 

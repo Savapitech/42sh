@@ -93,7 +93,7 @@ static
 ast_t *parse_arg(ast_ctx_t *ctx, ast_t *node)
 {
     ctx->act_tok = get_next_token(ctx);
-    if (ctx->act_tok.type == T_ARG) {
+    if (ctx->act_tok.type & (T_ARG | T_REDIRECT | T_APPEND | T_IN_REDIRECT)) {
         if (!ensure_node_cap(node))
             return NULL;
         node->vector.tokens[node->vector.sz] = ctx->act_tok;
