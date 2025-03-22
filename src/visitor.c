@@ -22,8 +22,8 @@ bool handle_out_redirect(ef_t *ef, ast_t *node, size_t i, size_t sz)
     if (i >= sz || node->vector.tokens[i + 1].type != T_ARG)
         return (WRITE_CONST(STDERR_FILENO,
             "Missing name for redirect.\n"), false);
-    ef->skip_i = i;
-    ef->skip_sz = 2;
+    ef->skip_i = ef->skip_i ?: i;
+    ef->skip_sz += 2;
     node->vector.tokens[i + 1].str[node->vector.tokens[i + 1].sz] = '\0';
     ef->rout_fd = open(node->vector.tokens[i + 1].str, O_CREAT | O_WRONLY |
         (node->vector.tokens[i].type == T_APPEND ? O_APPEND : O_TRUNC), 0644);
@@ -41,8 +41,8 @@ bool handle_in_redirect(ef_t *ef, ast_t *node, size_t i, size_t sz)
     if (i >= sz || node->vector.tokens[i + 1].type != T_ARG)
         return (WRITE_CONST(STDERR_FILENO,
             "Missing name for redirect.\n"), false);
-    ef->skip_i = i;
-    ef->skip_sz = 2;
+    ef->skip_i = ef->skip_i ?: i;
+    ef->skip_sz += 2;
     node->vector.tokens[i + 1].str[node->vector.tokens[i + 1].sz] = '\0';
     ef->rin_fd = open(node->vector.tokens[i + 1].str, O_RDONLY);
     if (ef->rin_fd < 0)
