@@ -106,7 +106,6 @@ int command_error(char *cmd, char **args, int error)
 static
 void set_fd(ef_t *ef)
 {
-    U_DEBUG("In fd [%d] out fd [%d]\n", ef->in_fd, ef->out_fd);
     if (ef->in_fd != STDIN_FILENO) {
         dup2(ef->in_fd, STDIN_FILENO);
         close(ef->in_fd);
@@ -162,21 +161,19 @@ void status_handler(int status)
             WRITE_CONST(STDERR_FILENO, " (core dumped)");
         WRITE_CONST(STDERR_FILENO, "\n");
     }
-    U_DEBUG("Exit code [%d]\n", history->last_exit_code);
 }
 
 static
-bool builtins_launcher(char *buffer, env_t *env, history_t *history,
-    char **args)
+bool builtins_launcher(ef_t *ef, char **args)
 {
-    int buffer_l = u_strlen(buffer);
+    int buffer_l = u_strlen(ef->buffer);
 
     for (size_t i = 0; i < BUILTINS_SZ; i++) {
         if (u_strlen(BUILTINS[i].name) != buffer_l)
             continue;
-        if (u_strcmp(BUILTINS[i].name, buffer) == 0) {
-            history->last_exit_code =
-                BUILTINS[i].ptr(env, args, buffer, history);
+        if (u_strcmp(BUILTINS[i].name, ef->buffer) == 0) {
+            ef->history->last_exit_code =
+                BUILTINS[i].ptr(ef, args);
             return true;
         }
     }
@@ -192,7 +189,7 @@ int execute(ef_t *ef)
     args = parse_args(ef, ef->act_node, ef->env);
     if (!args)
         return RETURN_FAILURE;
-    if (builtins_launcher(ef->buffer, ef->env, ef->history, args))
+    if (builtins_launcher(ef, args))
         return RETURN_SUCCESS;
     full_bin_path = parse_full_bin_path(ef->env, args[0]);
     if (full_bin_path == NULL)
@@ -200,6 +197,7 @@ int execute(ef_t *ef)
     U_DEBUG("Found bin [%s]\n", full_bin_path);
     status = launch_bin(full_bin_path, args, ef);
     status_handler(status);
+    U_DEBUG("Exit code [%d]\n", ef->history->last_exit_code);
     free(full_bin_path);
     free((void *)args);
     return ef->history->last_exit_code != 0 ? RETURN_FAILURE : RETURN_SUCCESS;

@@ -11,6 +11,7 @@
 
 #include "ast.h"
 #include "common.h"
+#include "debug.h"
 #include "exec.h"
 #include "u_str.h"
 
@@ -69,6 +70,7 @@ int visit_cmd(ef_t *ef)
         if (!handle_out_redirect(ef, ef->act_node, i, ef->act_node->vector.sz))
             return -1;
     }
+    U_DEBUG("In fd [%d] out fd [%d]\n", ef->in_fd, ef->out_fd);
     result = execute(ef);
     if (ef->rout_fd)
         close(ef->rout_fd);
