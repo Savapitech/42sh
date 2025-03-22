@@ -133,7 +133,7 @@ int launch_bin(char *full_bin_path, char **args, ef_t *ef)
             exit(status);
         }
     }
-    waitpid(pid, &status, 0);
+    waitpid(pid, &status, ef->out_fd == STDOUT_FILENO ? 0 : WNOHANG);
     return status;
 }
 
