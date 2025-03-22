@@ -30,6 +30,15 @@ void debug_env_entries(env_t *env)
 }
 
 static
+void check_basic_error(char const *buffer)
+{
+    if (*buffer == '|')
+        WRITE_CONST(STDERR_FILENO, "Invalid null command.\n");
+    if (*buffer == '>' || *buffer == '<')
+        WRITE_CONST(STDERR_FILENO, "Missing name for redirect.\n");
+}
+
+static
 int shell_loop(env_t *env, int is_a_tty, history_t *history)
 {
     char *buffer = NULL;
@@ -42,15 +51,15 @@ int shell_loop(env_t *env, int is_a_tty, history_t *history)
         if (getline(&buffer, &buffer_sz, stdin) == -1)
             break;
         buffer_len = u_strlen(buffer);
-        if (buffer_len < 2 || !u_str_is_alnum(buffer))
+        if (buffer_len < 2 || !u_str_is_alnum(buffer)) {
+            check_basic_error(buffer);
             continue;
+        }
         if (buffer[buffer_len - 1] == '\n')
             buffer[buffer_len - 1] = '\0';
         U_DEBUG("Buffer [%lu] [%s]\n", buffer_len, buffer);
         visitor(buffer, env, history);
     }
-    if (is_a_tty)
-        WRITE_CONST(STDOUT_FILENO, "exit\n");
     return (free(buffer), history->last_exit_code);
 }
 
