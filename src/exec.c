@@ -141,7 +141,8 @@ void status_handler(int status, history_t *history)
     char *strsig;
 
     if (WIFEXITED(status))
-        history->last_exit_code = WEXITSTATUS(status);
+        history->last_exit_code =
+            history->last_exit_code ?: WEXITSTATUS(status);
     if (!WIFEXITED(status) && WIFSIGNALED(status)) {
         if (WTERMSIG(status) != SIGFPE && WTERMSIG(status) != SIGINT &&
             WTERMSIG(status) != SIGTRAP) {

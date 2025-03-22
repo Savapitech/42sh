@@ -24,8 +24,6 @@ int visit_pipe(ef_t *ef)
         ef->pout_fd = i == node->list.sz - 1 ? STDOUT_FILENO : ef->pipes[1];
         ef->act_node = node->list.nodes[i];
         result = execute(ef);
-        if (result == RETURN_FAILURE)
-            return RETURN_FAILURE;
         if (ef->pin_fd != STDIN_FILENO)
             close(ef->pin_fd);
         if (i < node->list.sz - 1) {
@@ -44,6 +42,7 @@ int visitor(char *buffer, env_t *env, history_t *history)
         .history = history, .ctx = &ctx, 0 };
     int result = RETURN_FAILURE;
 
+    history->last_exit_code = 0;
     if (ctx.ast == NULL)
         return RETURN_FAILURE;
     ctx.act_tok = get_next_token(&ctx);
