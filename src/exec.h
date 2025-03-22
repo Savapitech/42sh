@@ -21,8 +21,7 @@ typedef struct {
 
 enum flags {
     F_PIPE = 1 << 0,
-    F_RED = 1 << 1,
-    F_RED_APPEND = 1 << 2
+    F_RED = 1 << 1
 };
 
 typedef struct {
@@ -31,13 +30,16 @@ typedef struct {
     history_t *history;
     ast_ctx_t *ctx;
     ast_t *act_node;
+    size_t skip_i;
+    size_t skip_sz;
     uint8_t flags;
-    char *red_file;
-    int red_in_fd;
-    int red_out_fd;
+    int rin_fd;
+    int rout_fd;
     int pipes[2];
     int pin_fd;
     int pout_fd;
+    int in_fd;
+    int out_fd;
 } ef_t;
 
 __attribute__((nonnull))

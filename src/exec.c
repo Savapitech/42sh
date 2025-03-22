@@ -54,7 +54,7 @@ bool ensure_args_capacity(char ***args, size_t const sz, size_t *cap)
 }
 
 static
-char **parse_args(ast_t *node, env_t *env)
+char **parse_args(ef_t *ef, ast_t *node, env_t *env)
 {
     size_t sz = 1;
     size_t cap = DEFAULT_ARGS_CAP;
@@ -65,6 +65,8 @@ char **parse_args(ast_t *node, env_t *env)
     node->tok.str[node->tok.sz] = '\0';
     args[0] = node->tok.str;
     for (size_t i = 0; i < node->vector.sz; i++) {
+        if (ef->skip_sz > 0 && i >= ef->skip_i && i < ef->skip_i + ef->skip_sz)
+            continue;
         ensure_args_capacity(&args, sz, &cap);
         node->vector.tokens[i].str[node->vector.tokens[i].sz] = '\0';
         args[sz] = node->vector.tokens[i].str;
@@ -104,13 +106,14 @@ int command_error(char *cmd, char **args, int error)
 static
 void set_fd(ef_t *ef)
 {
-    if (ef->pin_fd != STDIN_FILENO) {
-        dup2(ef->pin_fd, STDIN_FILENO);
-        close(ef->pin_fd);
+    U_DEBUG("In fd [%d] out fd [%d]\n", ef->in_fd, ef->out_fd);
+    if (ef->in_fd != STDIN_FILENO) {
+        dup2(ef->in_fd, STDIN_FILENO);
+        close(ef->in_fd);
     }
-    if (ef->pout_fd != STDOUT_FILENO) {
-        dup2(ef->pout_fd, STDOUT_FILENO);
-        close(ef->pout_fd);
+    if (ef->out_fd != STDOUT_FILENO) {
+        dup2(ef->out_fd, STDOUT_FILENO);
+        close(ef->out_fd);
     }
 }
 
@@ -131,7 +134,6 @@ int launch_bin(char *full_bin_path, char **args, ef_t *ef)
         }
     }
     waitpid(pid, &status, 0);
-    U_DEBUG("STATUS %d\n", status);
     return status;
 }
 
@@ -184,7 +186,7 @@ int execute(ef_t *ef)
     char **args;
     int status;
 
-    args = parse_args(ef->act_node, ef->env);
+    args = parse_args(ef, ef->act_node, ef->env);
     if (!args)
         return RETURN_FAILURE;
     if (builtins_launcher(ef->buffer, ef->env, ef->history, args))
