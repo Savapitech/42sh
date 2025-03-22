@@ -134,18 +134,21 @@ int launch_bin(char *full_bin_path, char **args, ef_t *ef)
         }
     }
     waitpid(pid, &status, ef->out_fd == STDOUT_FILENO ? 0 : WNOHANG);
+    if (WIFEXITED(status))
+        ef->history->last_exit_code =
+            ef->history->last_exit_code ?: WEXITSTATUS(status);
     return status;
 }
 
 static
-void status_handler(int status, history_t *history)
+void status_handler(int status)
 {
     char *strsig;
 
-    if (WIFEXITED(status))
-        history->last_exit_code =
-            history->last_exit_code ?: WEXITSTATUS(status);
-    if (!WIFEXITED(status) && WIFSIGNALED(status)) {
+    if (u_strncmp("Unknown", strsignal(WTERMSIG(status)), 7) == 0 ||
+        (WTERMSIG(status) >= SIGRTMIN && WTERMSIG(status) <= SIGRTMAX))
+        return;
+    if (!WIFEXITED(status) && WIFSIGNALED(status) && WTERMSIG(status)) {
         if (WTERMSIG(status) != SIGFPE && WTERMSIG(status) != SIGINT &&
             WTERMSIG(status) != SIGTRAP) {
             strsig = strsignal(WTERMSIG(status));
@@ -196,7 +199,7 @@ int execute(ef_t *ef)
         return (free((void *)args), RETURN_FAILURE);
     U_DEBUG("Found bin [%s]\n", full_bin_path);
     status = launch_bin(full_bin_path, args, ef);
-    status_handler(status, ef->history);
+    status_handler(status);
     free(full_bin_path);
     free((void *)args);
     return ef->history->last_exit_code != 0 ? RETURN_FAILURE : RETURN_SUCCESS;
