@@ -64,8 +64,9 @@ int visit_cmd(ef_t *ef)
 
     ef->in_fd = ef->pin_fd;
     ef->out_fd = ef->pout_fd;
-    ef->skip_i = 0;
     ef->skip_sz = 0;
+    ef->rout_fd = 0;
+    ef->rin_fd = 0;
     for (size_t i = 0; i < ef->act_node->vector.sz; i++) {
         if (!handle_in_redirect(ef, ef->act_node, i, ef->act_node->vector.sz))
             return -1;
