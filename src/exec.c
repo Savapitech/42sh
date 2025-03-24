@@ -162,12 +162,13 @@ void status_handler(int status)
 static
 bool builtins_launcher(ef_t *ef, char **args)
 {
-    int buffer_l = u_strlen(ef->buffer);
+    int bin_l = u_strlen(args[0]);
 
+    U_DEBUG("In fd [%d] out fd [%d]\n", ef->in_fd, ef->out_fd);
     for (size_t i = 0; i < BUILTINS_SZ; i++) {
-        if (u_strlen(BUILTINS[i].name) != buffer_l)
+        if (u_strlen(BUILTINS[i].name) != bin_l)
             continue;
-        if (u_strcmp(BUILTINS[i].name, ef->buffer) == 0) {
+        if (u_strcmp(BUILTINS[i].name, args[0]) == 0) {
             ef->history->last_exit_code =
                 BUILTINS[i].ptr(ef, args);
             return true;
