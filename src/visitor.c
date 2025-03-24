@@ -64,6 +64,7 @@ int visit_cmd(ef_t *ef)
 
     ef->in_fd = ef->pin_fd;
     ef->out_fd = ef->pout_fd;
+    ef->skip_i = 0;
     ef->skip_sz = 0;
     ef->rout_fd = 0;
     ef->rin_fd = 0;
@@ -73,7 +74,6 @@ int visit_cmd(ef_t *ef)
         if (!handle_out_redirect(ef, ef->act_node, i, ef->act_node->vector.sz))
             return -1;
     }
-    U_DEBUG("In fd [%d] out fd [%d]\n", ef->in_fd, ef->out_fd);
     result = execute(ef);
     if (ef->rout_fd)
         close(ef->rout_fd);
