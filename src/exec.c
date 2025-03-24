@@ -142,24 +142,19 @@ int launch_bin(char *full_bin_path, char **args, ef_t *ef)
 static
 void status_handler(int status)
 {
-    char *strsig;
-
-    if (u_strncmp("Unknown", strsignal(WTERMSIG(status)), 7) == 0 ||
-        (WTERMSIG(status) >= SIGRTMIN && WTERMSIG(status) <= SIGRTMAX))
-        return;
     if (!WIFEXITED(status) && WIFSIGNALED(status) && WTERMSIG(status)) {
-        if (WTERMSIG(status) != SIGFPE && WTERMSIG(status) != SIGINT &&
-            WTERMSIG(status) != SIGTRAP) {
-            strsig = strsignal(WTERMSIG(status));
-            write(STDERR_FILENO, strsig, u_strlen(strsig));
-        }
+        if (WTERMSIG(status) == SIGSEGV)
+            WRITE_CONST(STDERR_FILENO, "Segmentation fault");
         if (WTERMSIG(status) == SIGTRAP)
             WRITE_CONST(STDERR_FILENO, "Trace/BPT trap");
         if (WTERMSIG(status) == SIGFPE)
             WRITE_CONST(STDERR_FILENO, "Floating exception");
-        if (WCOREDUMP(status))
+        if (WCOREDUMP(status) && (WTERMSIG(status) == SIGSEGV ||
+            WTERMSIG(status) == SIGFPE || WTERMSIG(status) == SIGTRAP))
             WRITE_CONST(STDERR_FILENO, " (core dumped)");
-        WRITE_CONST(STDERR_FILENO, "\n");
+        if (WTERMSIG(status) == SIGSEGV || WTERMSIG(status) == SIGFPE ||
+            WTERMSIG(status) == SIGTRAP)
+            WRITE_CONST(STDERR_FILENO, "\n");
     }
 }
 
