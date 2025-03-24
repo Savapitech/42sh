@@ -13,7 +13,7 @@
 #include <unistd.h>
 
 #include "ast.h"
-#include "u_mem.h"
+#include "debug.h"
 #include "u_str.h"
 
 static
@@ -113,10 +113,10 @@ ast_t *parse_semi(ast_ctx_t *ctx)
 {
     ast_t *l_node = parse_cmd(ctx);
 
-    if (l_node == NULL || ctx->act_tok.type == T_EOF)
-        return ctx->ast;
     if (ctx->act_tok.type == T_PIPE)
         ctx->ast = parse_pipe(ctx, l_node);
+    else
+        return l_node;
     return ctx->ast;
 }
 
