@@ -129,6 +129,8 @@ int builtins_cd(ef_t *ef, char **args)
 {
     char *path = args[1];
 
+    if (ef->out_fd != STDOUT_FILENO)
+        return RETURN_SUCCESS;
     if (path == NULL || u_strcmp(args[1], "~") == 0)
         path = get_env_value(ef->env, "HOME");
     if (path == NULL)
