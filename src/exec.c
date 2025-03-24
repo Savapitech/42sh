@@ -129,11 +129,13 @@ int launch_bin(char *full_bin_path, char **args, ef_t *ef)
             status = command_error(full_bin_path, args, errno);
             free_env(ef->env);
             free((void *)args);
-            free(ef->buffer);
-            exit(status);
+            exit((free(ef->buffer), status));
         }
     }
-    waitpid(pid, &status, 0);
+    if (ef->out_fd == STDOUT_FILENO || ef->p_i == ef->p_sz - 1)
+        waitpid(pid, &status, 0);
+    else
+        waitpid(pid, &status, WNOHANG);
     if (WIFEXITED(status))
         ef->history->last_exit_code =
             ef->history->last_exit_code ?: WEXITSTATUS(status);

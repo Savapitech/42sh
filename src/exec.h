@@ -33,6 +33,8 @@ typedef struct {
     size_t skip_i;
     size_t skip_sz;
     uint8_t flags;
+    size_t p_i;
+    size_t p_sz;
     int rin_fd;
     int rout_fd;
     int pipes[2];

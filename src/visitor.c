@@ -110,8 +110,11 @@ int visit_pipes(ef_t *ef)
     ast_t *node = ef->act_node;
     int result = RETURN_FAILURE;
 
+    ef->p_i = 0;
+    ef->p_sz = node->list.sz;
     ef->pin_fd = STDIN_FILENO;
     for (size_t i = 0; i < node->list.sz; i++) {
+        ef->p_i = i;
         result = visit_pipe(ef, i, node);
         if (result == -1)
             break;
