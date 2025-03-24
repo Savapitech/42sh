@@ -64,6 +64,8 @@ int visit_cmd(ef_t *ef)
 
     ef->in_fd = ef->pin_fd;
     ef->out_fd = ef->pout_fd;
+    ef->skip_i = 0;
+    ef->skip_sz = 0;
     for (size_t i = 0; i < ef->act_node->vector.sz; i++) {
         if (!handle_in_redirect(ef, ef->act_node, i, ef->act_node->vector.sz))
             return -1;
@@ -131,6 +133,8 @@ int visit_list(ef_t *ef, ast_t *node)
             ef->act_node = node->list.nodes[i];
             result = visit_pipes(ef);
         }
+        ef->pin_fd = STDIN_FILENO;
+        ef->pout_fd = STDOUT_FILENO;
         if (node->list.nodes[i]->type == N_CMD) {
             ef->act_node = node->list.nodes[i];
             result = visit_cmd(ef);
