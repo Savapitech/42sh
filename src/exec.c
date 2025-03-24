@@ -106,6 +106,7 @@ int command_error(char *cmd, char **args, int error)
 static
 void set_fd(ef_t *ef)
 {
+    U_DEBUG("In fd [%d] out fd [%d]\n", ef->in_fd, ef->out_fd);
     if (ef->in_fd != STDIN_FILENO) {
         dup2(ef->in_fd, STDIN_FILENO);
         close(ef->in_fd);
@@ -132,7 +133,7 @@ int launch_bin(char *full_bin_path, char **args, ef_t *ef)
             exit(status);
         }
     }
-    waitpid(pid, &status, ef->out_fd == STDOUT_FILENO ? 0 : WNOHANG);
+    waitpid(pid, &status, 0);
     if (WIFEXITED(status))
         ef->history->last_exit_code =
             ef->history->last_exit_code ?: WEXITSTATUS(status);
