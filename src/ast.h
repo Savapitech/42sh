@@ -94,4 +94,7 @@ ast_t *parse_expression(ast_ctx_t *ctx);
 void print_ast(ast_ctx_t *ctx, ast_t *ast, size_t depth);
 token_t get_next_token(ast_ctx_t *ctx);
 int visitor(char *buffer, env_t *env, history_t *history);
+ast_t *create_node(ast_ctx_t *ctx);
+bool ensure_node_cap(ast_t *node);
+bool ensure_list_cap(ast_t *node);
 #endif /* AST_H */
