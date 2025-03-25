@@ -62,8 +62,7 @@ int shell_loop(env_t *env, int is_a_tty, history_t *history)
             check_basic_error(buffer);
             continue;
         }
-        if (buffer[buffer_len - 1] == '\n')
-            buffer[buffer_len - 1] = '\0';
+        buffer[buffer_len - 1] = '\0';
         U_DEBUG("Buffer [%lu] [%s]\n", buffer_len, buffer);
         visitor(buffer, env, history);
     }

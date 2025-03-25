@@ -50,7 +50,7 @@ token_t get_next_token(ast_ctx_t *ctx)
     char *start;
     int found_token = 0;
 
-    while (isblank(*ctx->str))
+    while (*ctx->str != '\0' && isblank(*ctx->str))
         ctx->str++;
     for (size_t i = 0; i < TOKENS_LIST_SZ; i++) {
         if (u_strncmp(ctx->str, TOKENS_LIST[i].str, TOKENS_LIST[i].sz) == 0) {
