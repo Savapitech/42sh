@@ -18,6 +18,9 @@
 
 int builtins_exit(ef_t *ef, char **args __attribute__((unused)))
 {
+    if (ef->flags & F_PIPE &&
+        !(ef->out_fd == STDOUT_FILENO || ef->p_i == ef->p_sz - 1))
+        return RETURN_SUCCESS;
     if (!(ef->flags & F_EXIT)) {
         ef->flags |= F_EXIT;
         return RETURN_SUCCESS;
@@ -132,7 +135,7 @@ int builtins_cd(ef_t *ef, char **args)
 {
     char *path = args[1];
 
-    if (ef->out_fd != STDOUT_FILENO)
+    if (!(ef->out_fd == STDOUT_FILENO || ef->p_i == ef->p_sz - 1))
         return RETURN_SUCCESS;
     if (path == NULL || u_strcmp(args[1], "~") == 0)
         path = get_env_value(ef->env, "HOME");

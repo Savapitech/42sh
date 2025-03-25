@@ -113,6 +113,7 @@ int visit_pipes(ef_t *ef)
     ef->p_i = 0;
     ef->p_sz = node->list.sz;
     ef->pin_fd = STDIN_FILENO;
+    ef->flags |= F_PIPE;
     for (size_t i = 0; i < node->list.sz; i++) {
         ef->p_i = i;
         result = visit_pipe(ef, i, node);
@@ -132,17 +133,15 @@ int visit_list(ef_t *ef, ast_t *node)
         return visit_pipes(ef);
     }
     for (size_t i = 0; i < node->list.sz; i++) {
+        ef->flags &= ~F_PIPE;
+        ef->act_node = node->list.nodes[i];
         if (node->list.nodes[i]->type == N_LST &&
-            node->list.nodes[i]->tok.type == T_PIPE) {
-            ef->act_node = node->list.nodes[i];
+            node->list.nodes[i]->tok.type == T_PIPE)
             result = visit_pipes(ef);
-        }
         ef->pin_fd = STDIN_FILENO;
         ef->pout_fd = STDOUT_FILENO;
-        if (node->list.nodes[i]->type == N_CMD) {
-            ef->act_node = node->list.nodes[i];
+        if (node->list.nodes[i]->type == N_CMD)
             result = visit_cmd(ef);
-        }
     }
     return result;
 }
@@ -170,7 +169,8 @@ int visitor(char *buffer, env_t *env, history_t *history)
     ast_ctx_t ctx = { 0, .str = buffer, .cap = DEFAULT_AST_CAP,
         .ast = malloc(sizeof *ctx.ast * DEFAULT_AST_CAP) };
     ef_t ef = { .buffer = buffer, .env = env,
-        .history = history, .ctx = &ctx, .pout_fd = STDOUT_FILENO, 0 };
+        .history = history, .ctx = &ctx, .pout_fd = STDOUT_FILENO,
+        .flags = 0, 0 };
     int result = RETURN_FAILURE;
 
     history->last_exit_code = 0;
