@@ -74,5 +74,6 @@ int shell(char **env_ptr)
     U_DEBUG_CALL(debug_env_entries, &env);
     shell_result = shell_loop(&env, isatty(STDIN_FILENO), &history);
     free_env(&env);
+    WRITE_CONST(STDOUT_FILENO, "exit\n");
     return shell_result;
 }

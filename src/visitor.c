@@ -10,8 +10,8 @@
 #include <unistd.h>
 
 #include "ast.h"
+#include "builtins.h"
 #include "common.h"
-#include "debug.h"
 #include "exec.h"
 #include "u_str.h"
 
@@ -147,6 +147,24 @@ int visit_list(ef_t *ef, ast_t *node)
     return result;
 }
 
+static
+int visitor_launcher(ef_t *ef)
+{
+    int result = RETURN_FAILURE;
+
+    ef->ctx->act_tok = get_next_token(ef->ctx);
+    ef->ctx->ast = parse_expression(ef->ctx);
+    if (ef->ctx->ast == NULL)
+        return RETURN_FAILURE;
+    if (ef->ctx->ast->type == N_LST)
+        result = visit_list(ef, ef->ctx->ast);
+    if (ef->ctx->ast->type == N_CMD) {
+        ef->act_node = ef->ctx->ast;
+        result = visit_cmd(ef);
+    }
+    return result;
+}
+
 int visitor(char *buffer, env_t *env, history_t *history)
 {
     ast_ctx_t ctx = { 0, .str = buffer, .cap = DEFAULT_AST_CAP,
@@ -158,15 +176,8 @@ int visitor(char *buffer, env_t *env, history_t *history)
     history->last_exit_code = 0;
     if (ctx.ast == NULL)
         return RETURN_FAILURE;
-    ctx.act_tok = get_next_token(&ctx);
-    ctx.ast = parse_expression(&ctx);
-    if (ctx.ast == NULL)
-        return RETURN_FAILURE;
-    if (ctx.ast->type == N_LST)
-        result = visit_list(&ef, ctx.ast);
-    if (ctx.ast->type == N_CMD) {
-        ef.act_node = ctx.ast;
-        result = visit_cmd(&ef);
-    }
+    result = visitor_launcher(&ef);
+    if (ef.flags & F_EXIT)
+        builtins_exit(&ef, NULL);
     return result == -1 ? RETURN_FAILURE : result;
 }

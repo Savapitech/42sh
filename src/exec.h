@@ -21,7 +21,8 @@ typedef struct {
 
 enum flags {
     F_PIPE = 1 << 0,
-    F_RED = 1 << 1
+    F_RED = 1 << 1,
+    F_EXIT = 1 << 2
 };
 
 typedef struct {

@@ -11,17 +11,20 @@
 #include <unistd.h>
 
 #include "common.h"
-#include "debug.h"
 #include "env.h"
 #include "exec.h"
 #include "u_mem.h"
 #include "u_str.h"
 
-int builtins_exit(ef_t *ef, char **args)
+int builtins_exit(ef_t *ef, char **args __attribute__((unused)))
 {
+    if (!(ef->flags & F_EXIT)) {
+        ef->flags |= F_EXIT;
+        return RETURN_SUCCESS;
+    }
     free_env(ef->env);
-    free((void *)args);
     free(ef->buffer);
+    WRITE_CONST(STDOUT_FILENO, "exit\n");
     exit(ef->history->last_exit_code);
 }
 
