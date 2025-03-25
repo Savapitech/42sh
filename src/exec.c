@@ -132,7 +132,7 @@ int launch_bin(char *full_bin_path, char **args, ef_t *ef)
             exit((free(ef->buffer), status));
         }
     }
-    if (ef->out_fd == STDOUT_FILENO || ef->p_i == ef->p_sz - 1)
+    if (!(ef->flags & F_PIPE) || ef->p_i == ef->p_sz - 1)
         waitpid(pid, &status, 0);
     else
         waitpid(pid, &status, WNOHANG);
