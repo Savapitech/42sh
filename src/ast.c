@@ -13,32 +13,13 @@
 #include <unistd.h>
 
 #include "ast.h"
-#include "debug.h"
-#include "u_str.h"
-
-static
-bool parser_eat(ast_ctx_t *ctx, token_type_t expected)
-{
-    token_type_t prev_tok_type = ctx->act_tok.type;
-
-    ctx->act_tok = get_next_token(ctx);
-    if (!(ctx->act_tok.type & expected)) {
-        if (prev_tok_type == T_PIPE)
-            WRITE_CONST(STDERR_FILENO, "Invalid null command.\n");
-        else {
-            WRITE_CONST(STDERR_FILENO, "Parse error near \"");
-            write(STDERR_FILENO, ctx->act_tok.str, ctx->act_tok.sz);
-            WRITE_CONST(STDERR_FILENO, "\"\n");
-        }
-        return false;
-    }
-    return true;
-}
 
 static
 ast_t *parse_arg(ast_ctx_t *ctx, ast_t *node)
 {
     ctx->act_tok = get_next_token(ctx);
+    if (ctx->act_tok.type == T_SEMICOLON)
+        return node;
     if (ctx->act_tok.type & (T_ARG | T_REDIRECT | T_APPEND | T_IN_REDIRECT)) {
         if (!ensure_node_cap(node))
             return NULL;
@@ -50,16 +31,10 @@ ast_t *parse_arg(ast_ctx_t *ctx, ast_t *node)
 }
 
 static
-ast_t *parse_cmd(ast_ctx_t *ctx)
+ast_t *fill_cmd_node(ast_ctx_t *ctx)
 {
-    ast_t *node;
+    ast_t *node = create_node(ctx);
 
-    if (ctx->act_tok.type == T_EOF)
-        return ctx->ast;
-    if (ctx->act_tok.type != T_ARG)
-        if (!parser_eat(ctx, T_ARG))
-            return NULL;
-    node = create_node(ctx);
     if (node == NULL)
         return NULL;
     node->type = N_CMD;
@@ -71,6 +46,17 @@ ast_t *parse_cmd(ast_ctx_t *ctx)
     node->tok = ctx->act_tok;
     node->vector.sz = 0;
     return parse_arg(ctx, node);
+}
+
+static
+ast_t *parse_cmd(ast_ctx_t *ctx)
+{
+    if (ctx->act_tok.type == T_EOF)
+        return ctx->ast;
+    if (ctx->act_tok.type != T_ARG)
+        if (!parser_eat(ctx, T_ARG))
+            return NULL;
+    return fill_cmd_node(ctx);
 }
 
 static
@@ -141,6 +127,9 @@ static
 ast_t *fill_semi_node(ast_ctx_t *ctx, ast_t *node)
 {
     while (ctx->act_tok.type == T_SEMICOLON) {
+        ctx->act_tok = get_next_token(ctx);
+        if (ctx->act_tok.type == T_SEMICOLON)
+            continue;
         if (!ensure_list_cap(node))
             return false;
         node->list.nodes[node->list.sz] = parse_semi(ctx);
@@ -151,12 +140,23 @@ ast_t *fill_semi_node(ast_ctx_t *ctx, ast_t *node)
     return node;
 }
 
+static
+void skip_semi(ast_ctx_t *ctx)
+{
+    while (ctx->act_tok.type == T_SEMICOLON)
+        ctx->act_tok = get_next_token(ctx);
+}
+
 ast_t *parse_expression(ast_ctx_t *ctx)
 {
-    ast_t *l_node = parse_semi(ctx);
+    ast_t *l_node;
     ast_t *node;
 
-    if (l_node == NULL || ctx->act_tok.type == T_EOF)
+    if (ctx->act_tok.type == T_EOF)
+        return ctx->ast;
+    skip_semi(ctx);
+    l_node = parse_semi(ctx);
+    if (l_node == NULL)
         return ctx->ast;
     if (ctx->act_tok.type == T_SEMICOLON) {
         node = create_semi_node(ctx, l_node);

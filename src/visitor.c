@@ -164,6 +164,17 @@ int visitor_launcher(ef_t *ef)
     return result;
 }
 
+static
+void remove_trailing_semi(char *str)
+{
+    for (size_t len = u_strlen(str); len > 0; len--) {
+        if (str[len] != '\0' && str[len] != '\n' && str[len] != ';')
+            break;
+        if (str[len] == ';')
+            str[len] = '\0';
+    }
+}
+
 int visitor(char *buffer, env_t *env, history_t *history)
 {
     ast_ctx_t ctx = { 0, .str = buffer, .cap = DEFAULT_AST_CAP,
@@ -173,6 +184,7 @@ int visitor(char *buffer, env_t *env, history_t *history)
         .flags = 0, 0 };
     int result = RETURN_FAILURE;
 
+    remove_trailing_semi(ctx.str);
     history->last_exit_code = 0;
     if (ctx.ast == NULL)
         return RETURN_FAILURE;
