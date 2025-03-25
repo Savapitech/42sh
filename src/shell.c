@@ -5,6 +5,7 @@
 ** _
 */
 
+#include <signal.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,7 +15,6 @@
 #include "common.h"
 #include "debug.h"
 #include "env.h"
-#include "exec.h"
 #include "shell.h"
 #include "u_str.h"
 
@@ -36,6 +36,13 @@ void check_basic_error(char const *buffer)
         WRITE_CONST(STDERR_FILENO, "Invalid null command.\n");
     if (*buffer == '>' || *buffer == '<')
         WRITE_CONST(STDERR_FILENO, "Missing name for redirect.\n");
+}
+
+static
+void ignore_sigint(int sig __attribute__((unused)))
+{
+    WRITE_CONST(STDIN_FILENO, "\n");
+    WRITE_CONST(STDOUT_FILENO, SHELL_PROMPT);
 }
 
 static
@@ -72,6 +79,7 @@ int shell(char **env_ptr)
     if (!env.env)
         return RETURN_FAILURE;
     U_DEBUG_CALL(debug_env_entries, &env);
+    signal(SIGINT, ignore_sigint);
     shell_result = shell_loop(&env, isatty(STDIN_FILENO), &history);
     free_env(&env);
     WRITE_CONST(STDOUT_FILENO, "exit\n");
