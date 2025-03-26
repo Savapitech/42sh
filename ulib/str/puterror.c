@@ -11,7 +11,7 @@
 
 #include "u_str.h"
 
-void puterror(char *prefix)
+void puterror(char const *prefix)
 {
     char const *error_msg = strerror(errno);
     size_t len;

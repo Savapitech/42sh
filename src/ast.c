@@ -20,7 +20,8 @@ ast_t *parse_arg(ast_ctx_t *ctx, ast_t *node)
     ctx->act_tok = get_next_token(ctx);
     if (ctx->act_tok.type == T_SEMICOLON)
         return node;
-    if (ctx->act_tok.type & (T_ARG | T_REDIRECT | T_APPEND | T_IN_REDIRECT)) {
+    if (ctx->act_tok.type & (T_ARG | T_REDIRECT | T_APPEND |
+        T_IN_REDIRECT | T_HEREDOC)) {
         if (!ensure_node_cap(node))
             return NULL;
         node->vector.tokens[node->vector.sz] = ctx->act_tok;

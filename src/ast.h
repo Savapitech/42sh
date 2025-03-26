@@ -29,11 +29,12 @@ typedef enum {
     T_PREV_CMD = 1 << 9, // !!
     T_VAR = 1 << 10, // $
     T_REDIRECT = 1 << 11, // >
-    T_IN_REDIRECT = 1 << 12, // <
-    T_APPEND = 1 << 13, // >>
-    T_EOF = 1 << 14, // \0
-    T_ARG = 1 << 15,
-    T_INVALID = 1 << 16
+    T_APPEND = 1 << 12, // >>
+    T_HEREDOC = 1 << 13, // <
+    T_IN_REDIRECT = 1 << 14, // <
+    T_EOF = 1 << 15, // \0
+    T_ARG = 1 << 16,
+    T_INVALID = 1 << 17
 } token_type_t;
 
 typedef enum {

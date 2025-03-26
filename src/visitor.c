@@ -6,6 +6,7 @@
 */
 
 #include <fcntl.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 
@@ -13,44 +14,8 @@
 #include "builtins.h"
 #include "common.h"
 #include "exec.h"
+#include "redirects.h"
 #include "u_str.h"
-
-static
-bool handle_out_redirect(ef_t *ef, ast_t *node, size_t i, size_t sz)
-{
-    if (!(node->vector.tokens[i].type & (T_REDIRECT | T_APPEND)))
-        return true;
-    if (i >= sz || node->vector.tokens[i + 1].type != T_ARG)
-        return (WRITE_CONST(STDERR_FILENO,
-            "Missing name for redirect.\n"), false);
-    ef->skip_i = ef->skip_i ?: i;
-    ef->skip_sz += 2;
-    node->vector.tokens[i + 1].str[node->vector.tokens[i + 1].sz] = '\0';
-    ef->rout_fd = open(node->vector.tokens[i + 1].str, O_CREAT | O_WRONLY |
-        (node->vector.tokens[i].type == T_APPEND ? O_APPEND : O_TRUNC), 0644);
-    if (ef->rout_fd < 0)
-        return (puterror(node->vector.tokens[i + 1].str), false);
-    ef->out_fd = ef->rout_fd;
-    return true;
-}
-
-static
-bool handle_in_redirect(ef_t *ef, ast_t *node, size_t i, size_t sz)
-{
-    if (node->vector.tokens[i].type != T_IN_REDIRECT)
-        return true;
-    if (i >= sz || node->vector.tokens[i + 1].type != T_ARG)
-        return (WRITE_CONST(STDERR_FILENO,
-            "Missing name for redirect.\n"), false);
-    ef->skip_i = ef->skip_i ?: i;
-    ef->skip_sz += 2;
-    node->vector.tokens[i + 1].str[node->vector.tokens[i + 1].sz] = '\0';
-    ef->rin_fd = open(node->vector.tokens[i + 1].str, O_RDONLY);
-    if (ef->rin_fd < 0)
-        return (puterror(node->vector.tokens[i + 1].str), false);
-    ef->in_fd = ef->rin_fd;
-    return true;
-}
 
 /*
  * ef->in_fd = ef->pin_fd;
@@ -69,9 +34,9 @@ int visit_cmd(ef_t *ef)
     ef->rout_fd = 0;
     ef->rin_fd = 0;
     for (size_t i = 0; i < ef->act_node->vector.sz; i++) {
-        if (!handle_in_redirect(ef, ef->act_node, i, ef->act_node->vector.sz))
-            return -1;
-        if (!handle_out_redirect(ef, ef->act_node, i, ef->act_node->vector.sz))
+        if (!handle_in_redirect(ef, ef->act_node, i, ef->act_node->vector.sz)
+        || !handle_out_redirect(ef, ef->act_node, i, ef->act_node->vector.sz)
+        || !handle_heredoc(ef, ef->act_node, i, ef->act_node->vector.sz))
             return -1;
     }
     result = execute(ef);
