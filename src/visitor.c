@@ -144,8 +144,8 @@ void remove_trailing_semi(char *str)
 
 int visitor(char *buffer, env_t *env, history_t *history)
 {
-    ast_ctx_t ctx = { 0, .str = buffer, .cap = u_strlen(buffer) + 1,
-        .ast = malloc(sizeof *ctx.ast * (u_strlen(buffer) + 1)) };
+    ast_ctx_t ctx = { 0, .str = buffer, .cap = u_strlen(buffer) + 10,
+        .ast = malloc(sizeof *ctx.ast * (u_strlen(buffer) + 10)) };
     ef_t ef = { .buffer = buffer, .env = env,
         .history = history, .ctx = &ctx, .pout_fd = STDOUT_FILENO,
         .flags = 0, 0 };
