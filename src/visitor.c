@@ -57,6 +57,8 @@ int visit_pipe(ef_t *ef, size_t i, ast_t *node)
             return (puterror("pipe"), -1);
     ef->pout_fd = i == node->list.sz - 1 ? STDOUT_FILENO : ef->pipes[1];
     ef->act_node = node->list.nodes[i];
+    if (!ef->act_node)
+        return -1;
     result = visit_cmd(ef);
     if (result == -1)
         return RETURN_FAILURE;
