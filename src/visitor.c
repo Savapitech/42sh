@@ -142,13 +142,14 @@ void remove_trailing_semi(char *str)
 
 int visitor(char *buffer, env_t *env, history_t *history)
 {
-    ast_ctx_t ctx = { 0, .str = buffer, .cap = DEFAULT_AST_CAP,
-        .ast = malloc(sizeof *ctx.ast * DEFAULT_AST_CAP) };
+    ast_ctx_t ctx = { 0, .str = buffer, .cap = u_strlen(buffer) + 1,
+        .ast = malloc(sizeof *ctx.ast * (u_strlen(buffer) + 1)) };
     ef_t ef = { .buffer = buffer, .env = env,
         .history = history, .ctx = &ctx, .pout_fd = STDOUT_FILENO,
         .flags = 0, 0 };
     int result = RETURN_FAILURE;
 
+    ctx.first_node = ctx.ast;
     remove_trailing_semi(ctx.str);
     history->last_exit_code = 0;
     if (ctx.ast == NULL)
@@ -156,5 +157,6 @@ int visitor(char *buffer, env_t *env, history_t *history)
     result = visitor_launcher(&ef);
     if (ef.flags & F_EXIT)
         builtins_exit(&ef, NULL);
+    free_ast(&ctx);
     return result == -1 ? RETURN_FAILURE : result;
 }

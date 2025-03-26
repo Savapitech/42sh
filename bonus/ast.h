@@ -86,6 +86,7 @@ typedef struct {
     size_t cap;
     ast_t *ast;
     token_t act_tok;
+    ast_t *first_node;
 } ast_ctx_t;
 
 
@@ -99,4 +100,5 @@ ast_t *create_node(ast_ctx_t *ctx);
 bool ensure_node_cap(ast_t *node);
 bool ensure_list_cap(ast_t *node);
 bool parser_eat(ast_ctx_t *ctx, token_type_t expected);
+void free_ast(ast_ctx_t *ctx);
 #endif /* AST_H */

@@ -5,6 +5,7 @@
 ** _
 */
 
+#include <stdlib.h>
 #include <unistd.h>
 
 #include "ast.h"
@@ -78,4 +79,15 @@ bool ensure_list_cap(ast_t *node)
     node->list.cap <<= 1;
     node->list.nodes = temp;
     return true;
+}
+
+void free_ast(ast_ctx_t *ctx)
+{
+    for (size_t i = 0; i < ctx->sz; i++) {
+        if (ctx->first_node[i].type == N_LST)
+            free((void *)ctx->first_node[i].list.nodes);
+        if (ctx->first_node[i].type == N_CMD)
+            free(ctx->first_node[i].vector.tokens);
+    }
+    free(ctx->first_node);
 }
