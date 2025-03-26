@@ -12,6 +12,7 @@ BIN_NAME := mysh
 LIB_NAME := libu.a
 
 SRC := $(wildcard src/*.c)
+BONUS_SRC := $(wildcard bonus/*.c)
 
 LIB_SRC := $(wildcard ulib/*.c)
 LIB_SRC += $(wildcard ulib/write/printf/*.c)
@@ -71,6 +72,9 @@ $(eval $(call mk-profile, release, SRC, , $(BIN_NAME)))
 $(eval $(call mk-profile, debug, SRC, -D U_DEBUG_MODE -g3, debug))
 $(eval $(call mk-profile, test, SRC, --coverage, test))
 $(eval $(call mk-profile, afl, SRC, -D AFL_MODE, afl_runner))
+$(eval $(call mk-profile, bonus, BONUS_SRC, , my_bonus))
+$(eval $(call mk-profile, debug_bonus, \
+	BONUS_SRC, -D U_DEBUG_MODE -g3, debug_bonus))
 
 all: $(NAME_release)
 
