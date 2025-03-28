@@ -27,7 +27,6 @@ int builtins_exit(ef_t *ef, char **args __attribute__((unused)))
     }
     free_env(ef->env);
     free(ef->buffer);
-    WRITE_CONST(STDOUT_FILENO, "exit\n");
     exit(ef->history->last_exit_code);
 }
 
