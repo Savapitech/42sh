@@ -57,6 +57,8 @@ int visit_pipe(ef_t *ef, size_t i, ast_t *node)
             return (puterror("pipe"), -1);
     ef->pout_fd = i == node->list.sz - 1 ? STDOUT_FILENO : ef->pipes[1];
     ef->act_node = node->list.nodes[i];
+    if (!ef->act_node)
+        return -1;
     result = visit_cmd(ef);
     if (result == -1)
         return RETURN_FAILURE;
@@ -142,8 +144,8 @@ void remove_trailing_semi(char *str)
 
 int visitor(char *buffer, env_t *env, history_t *history)
 {
-    ast_ctx_t ctx = { 0, .str = buffer, .cap = u_strlen(buffer) + 1,
-        .ast = malloc(sizeof *ctx.ast * (u_strlen(buffer) + 1)) };
+    ast_ctx_t ctx = { 0, .str = buffer, .cap = u_strlen(buffer) + 10,
+        .ast = malloc(sizeof *ctx.ast * (u_strlen(buffer) + 10)) };
     ef_t ef = { .buffer = buffer, .env = env,
         .history = history, .ctx = &ctx, .pout_fd = STDOUT_FILENO,
         .flags = 0, 0 };

@@ -18,23 +18,21 @@
 
 typedef enum {
     T_SEMICOLON = 1 << 0, // ;
-    T_LEFT_QUOTE = 1 << 1, // "
-    T_RIGHT_QUOTE = 1 << 2, // "
-    T_AND = 1 << 3, // &&
-    T_OR = 1 << 4, // ||
-    T_PIPE = 1 << 5, // |
-    T_BACKTICK = 1 << 6, // `
-    T_LEFT_PARENT = 1 << 7, // (
-    T_RIGHT_PARENT = 1 << 8, // )
-    T_PREV_CMD = 1 << 9, // !!
-    T_VAR = 1 << 10, // $
-    T_REDIRECT = 1 << 11, // >
-    T_APPEND = 1 << 12, // >>
-    T_HEREDOC = 1 << 13, // <
-    T_IN_REDIRECT = 1 << 14, // <
-    T_EOF = 1 << 15, // \0
-    T_ARG = 1 << 16,
-    T_INVALID = 1 << 17
+    T_AND = 1 << 1, // &&
+    T_OR = 1 << 2, // ||
+    T_PIPE = 1 << 3, // |
+    T_BACKTICK = 1 << 4, // `
+    T_LEFT_PARENT = 1 << 5, // (
+    T_RIGHT_PARENT = 1 << 6, // )
+    T_PREV_CMD = 1 << 7, // !!
+    T_VAR = 1 << 8, // $
+    T_REDIRECT = 1 << 9, // >
+    T_APPEND = 1 << 10, // >>
+    T_HEREDOC = 1 << 11, // <
+    T_IN_REDIRECT = 1 << 12, // <
+    T_EOF = 1 << 13, // \0
+    T_ARG = 1 << 14,
+    T_INVALID = 1 << 15
 } token_type_t;
 
 typedef enum {
