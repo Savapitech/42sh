@@ -69,7 +69,11 @@ char **parse_args(ef_t *ef, ast_t *node, env_t *env)
             continue;
         ensure_args_capacity(&args, sz, &cap);
         node->vector.tokens[i].str[node->vector.tokens[i].sz] = '\0';
-        args[sz] = node->vector.tokens[i].str;
+        if (*node->vector.tokens[i].str == '$'
+            && get_env_value(env, node->vector.tokens[i].str + 1) != NULL)
+            args[sz] = get_env_value(env, node->vector.tokens[i].str + 1);
+        else
+            args[sz] = node->vector.tokens[i].str;
         U_DEBUG("Args [%lu] [%s]\n", sz, args[sz]);
         sz++;
     }

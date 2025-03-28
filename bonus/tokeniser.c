@@ -20,7 +20,6 @@ const tokens_list_t TOKENS_LIST[] = {
     { T_LEFT_PARENT, "(", 1, "T_LEFT_PARENT" },
     { T_RIGHT_PARENT, ")", 1, "T_RIGHT_PARENT" },
     { T_PREV_CMD, "!!", 2, "T_PREV_CMD" },
-    { T_VAR, "$", 1, "T_VAR" },
     { T_APPEND, ">>", 2, "T_APPEND" },
     { T_REDIRECT, ">", 1, "T_REDIRECT" },
     { T_HEREDOC, "<<", 2, "T_HEREDOC" },
