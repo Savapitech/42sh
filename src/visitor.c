@@ -17,6 +17,8 @@
 #include "redirects.h"
 #include "u_str.h"
 
+#include "debug.h"
+
 /*
  * ef->in_fd = ef->pin_fd;
  * ef->out_fd = ef->out_fd;
@@ -109,6 +111,8 @@ int visit_list(ef_t *ef, ast_t *node)
         ef->pout_fd = STDOUT_FILENO;
         if (node->list.nodes[i]->type == N_CMD)
             result = visit_cmd(ef);
+        if (node->tok.type == T_AT)
+            sleep(3);
     }
     return result;
 }
