@@ -10,7 +10,7 @@
 .vscode
 
 # Bin
-mysh
+42sh
 a.out
 libmy.a
 test

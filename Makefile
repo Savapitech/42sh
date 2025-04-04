@@ -7,7 +7,7 @@
 
 MAKEFLAGS += -j
 
-BIN_NAME := mysh
+BIN_NAME := 42sh
 
 LIB_NAME := libu.a
 
