@@ -1,0 +1,98 @@
+/*
+** EPITECH PROJECT, 2025
+** history_42sh
+** File description:
+** his for history
+*/
+#include <ctype.h>
+#include <errno.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+#include "common.h"
+#include "env.h"
+#include "exec.h"
+#include "u_mem.h"
+#include "u_str.h"
+#include "history.h"
+
+const parsing_history_t tab_fnct[] = {
+    {"!!", &his_last_command},//last command
+    {"!$", &his_last_word},//last word command
+    {"!*", &his_last_arg},//last argument commmand
+    {"![command]", &his_last_same_command},//derniere commande + arg sur la derniere meme command dans l historique dans le cas ou il n y a qu un charactère il prend le dernier qui commence par la meme chaine
+    {"![number]", &his_id_command},//id command
+    {NULL, NULL},
+};
+
+static
+int cmd_history_is_in(char *line)
+{
+    for (int i = 0; line[i] != 0; i++)
+        if (line[i] == CHAR_HIST && 
+            (line[i + 1] != ' ' && line[i + 1] != '\t'))
+            return 0;
+    return 1;
+}
+
+static
+int is_two_char_cmd(char *line, int coord_x)
+{
+    if (line[coord_x] != CHAR_HIST)
+        return -1;
+    coord_x++;
+    switch (line[coord_x]){
+        case '!':
+            return 0;
+        case '$':
+            return 1;
+        case '*':
+            return 2;
+    }
+    return -1;
+}
+
+static
+int which_his_cmd(his_variable_t *his_variable, char *line)
+{
+    for (int i = 0; line[i] != '\0' ; i++){
+        his_variable->type = is_two_char_cmd(line, i);
+        if (his_variable->type != -1){
+            his_variable->coord_variable = i;
+            his_variable->size_variable = 2;
+            printf("command find; %s\n", tab_fnct[his_variable->type].name);
+            return 0;
+        }
+    }
+    return 0;
+}
+
+static
+char *replace_history(char *line)
+{
+    his_variable_t his_variable = {0, 0, -1};
+    
+    which_his_cmd(&his_variable, line);
+    while(his_variable.type != -1){
+        line = tab_fnct[his_variable.type].funct(line, &his_variable, NULL);
+        if (line == NULL)
+            return NULL;
+        which_his_cmd(&his_variable, line);
+    }
+    return line;
+}
+
+char *parse_history(char *line, size_t *buffer_len)//Faire passer une structure avec l historique
+{
+    if (cmd_history_is_in(line) == 0){
+        line = replace_history(line);
+        if (line == NULL)
+            return NULL;
+        *buffer_len = u_strlen(line) + 1;
+        printf("FIND ! |%s| in line\n-------------\n", line);
+        return line;
+    }
+    printf("PARSING HIS; %s try to find : %c\n", line, CHAR_HIST);
+    return line;
+}
