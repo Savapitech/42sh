@@ -50,8 +50,8 @@ static
 int shell_loop(env_t *env, int is_a_tty, history_t *history)
 {
     char *buffer = NULL;
-    size_t buffer_sz;
-    size_t buffer_len;
+    size_t buffer_sz = 0;
+    size_t buffer_len = 0;
 
     while (true) {
         if (is_a_tty)
@@ -59,7 +59,7 @@ int shell_loop(env_t *env, int is_a_tty, history_t *history)
         if (getline(&buffer, &buffer_sz, stdin) == -1)//passer la ligne 59 a 63 dans une fonction
             break;
         buffer_len = u_strlen(buffer);
-        buffer = parse_history(buffer, &buffer_len);
+        parse_history(&buffer, &buffer_len, &buffer_sz);
         if (buffer_len < 2 || !u_str_is_alnum(buffer)) {
             check_basic_error(buffer);
             continue;

@@ -54,7 +54,7 @@ int is_two_char_cmd(char *line, int coord_x)
 }
 
 static
-int which_his_cmd(his_variable_t *his_variable, char *line)
+int which_his_cmd(his_variable_t *his_variable, char const *line)
 {
     for (int i = 0; line[i] != '\0' ; i++){
         his_variable->type = is_two_char_cmd(line, i);
@@ -83,16 +83,20 @@ char *replace_history(char *line)
     return line;
 }
 
-char *parse_history(char *line, size_t *buffer_len)//Faire passer une structure avec l historique
+int parse_history(char **pointer_line, size_t *buffer_len, size_t *buffer_sz)//Faire passer une structure avec l historique
 {
+    char *line = *pointer_line;
+
+    *buffer_sz = 0;
     if (cmd_history_is_in(line) == 0){
         line = replace_history(line);
         if (line == NULL)
-            return NULL;
+            return 84;
         *buffer_len = u_strlen(line) + 1;
-        printf("FIND ! |%s| in line\n-------------\n", line);
-        return line;
+        *pointer_line = line;
+        printf("FIND ! |%s && %p| in line\n-------------\n", line, line);
+        return 0;
     }
     printf("PARSING HIS; %s try to find : %c\n", line, CHAR_HIST);
-    return line;
+    return 0;
 }
