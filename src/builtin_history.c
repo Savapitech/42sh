@@ -11,18 +11,18 @@
 #include "history.h"
 
 /*
-**Il faut deux \0 parce que dans le gettokeniser 
+**Il faut deux \0 parce que dans le gettokeniser
 ** y un truc qui regarde
 **après le premier \0
 */
 
 /*
 **cat in str prend un
-** his_variable_t en 
-** parametre pour 
-** connaitre la coord 
+** his_variable_t en
+** parametre pour
+** connaitre la coord
 ** d' ou commencer a concaténer
-** mais aussi le nombre de charactère a retiré 
+** mais aussi le nombre de charactère a retiré
 ** il vas free le buffer
 */
 
@@ -32,7 +32,7 @@ static
 char *cat_in_str(his_variable_t *his_variable, char *str, char *cpy)
 {
     int i = 0;
-    int len_str = strlen(str) - 1;//pour l \n
+    int len_str = strlen(str);
     int size_right = len_str - his_variable->coord_variable - his_variable->size_variable;
     int size_left = (len_str - size_right) - his_variable->size_variable;  
     char *new_str = malloc(sizeof(char) * (size_right + size_left + strlen(cpy) + 2));//ajout de deux \0
@@ -55,7 +55,8 @@ char *cat_in_str(his_variable_t *his_variable, char *str, char *cpy)
     return new_str;
 }
 
-char *his_last_command(char *line, his_variable_t *his_variable, his_command_t *his_command)
+char *his_last_command(char *line,
+    his_variable_t *his_variable, his_command_t *his_command)
 {
     char *new_line = malloc(sizeof(char) * 4);
     char *new_str = NULL;
@@ -67,13 +68,13 @@ char *his_last_command(char *line, his_variable_t *his_variable, his_command_t *
     new_line[2] = '\0';
     new_line[3] = '\0';
     new_str = cat_in_str(his_variable, line, new_line);
-    printf("Adresse; %p && str; %s\n", new_line, new_line);
     free(new_line);
     free(line);
     return new_str;
 }
 
-char *his_last_same_command(char *line, his_variable_t *his_variable, his_command_t *his_command)
+char *his_last_same_command(char *line,
+    his_variable_t *his_variable, his_command_t *his_command)
 {
     char *new_line = malloc(sizeof(char) * 10);
 
@@ -87,10 +88,11 @@ char *his_last_same_command(char *line, his_variable_t *his_variable, his_comman
     return new_line;
 }
 
-char *his_id_command(char *line, his_variable_t *his_variable, his_command_t *his_command)
+char *his_id_command(char *line,
+    his_variable_t *his_variable, his_command_t *his_command)
 {
     char *new_line = malloc(sizeof(char) * 10);
-    
+
     if (new_line == NULL)
         return NULL;
     new_line[0] = 'l';
@@ -101,10 +103,11 @@ char *his_id_command(char *line, his_variable_t *his_variable, his_command_t *hi
     return new_line;
 }
 
-char *his_last_word(char *line, his_variable_t *his_variable, his_command_t *his_command)
+char *his_last_word(char *line,
+    his_variable_t *his_variable, his_command_t *his_command)
 {
     char *new_line = malloc(sizeof(char) * 10);
-    
+
     if (new_line == NULL)
         return NULL;
     new_line[0] = 'l';
@@ -115,7 +118,8 @@ char *his_last_word(char *line, his_variable_t *his_variable, his_command_t *his
     return new_line;
 }
 
-char *his_last_arg(char *line, his_variable_t *his_variable, his_command_t *his_command)
+char *his_last_arg(char *line,
+    his_variable_t *his_variable, his_command_t *his_command)
 {
     char *new_line = malloc(sizeof(char) * 10);
 

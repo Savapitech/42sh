@@ -13,9 +13,9 @@
 typedef struct {
     char const *name;
     int (*ptr)(ef_t *ef, char **args);
-} builtins_t;
+} builtins_funcs_t;
 
-extern const builtins_t BUILTINS[];
+extern const builtins_funcs_t BUILTINS[];
 extern const size_t BUILTINS_SZ;
 
 int builtins_exit(ef_t *ef, char **args);

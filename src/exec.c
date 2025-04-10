@@ -23,7 +23,7 @@
 #include "u_mem.h"
 #include "u_str.h"
 
-const builtins_t BUILTINS[] = {
+const builtins_funcs_t BUILTINS[] = {
     { "builtins", &builtins_builtins },
     { "cd", &builtins_cd },
     { "chdir", &builtins_cd },

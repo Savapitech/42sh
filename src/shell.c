@@ -18,6 +18,7 @@
 #include "shell.h"
 #include "u_str.h"
 #include "history.h"
+#include "exec.h"
 
 __attribute__((unused))
 static
@@ -47,41 +48,80 @@ void ignore_sigint(int sig __attribute__((unused)))
 }
 
 static
-int shell_loop(env_t *env, int is_a_tty, history_t *history)
+void write_prompt(int is_a_tty)
+{
+    if (is_a_tty)
+        WRITE_CONST(STDOUT_FILENO, SHELL_PROMPT);
+}
+
+/*
+** Noeud de fonction
+** Pour changer la commande
+** passer en parametre
+** si besoin
+** historique, alias ...
+*/
+static
+int shell_loop(int is_a_tty, builtin_handler_t *builtin_handler)
 {
     char *buffer = NULL;
     size_t buffer_sz = 0;
     size_t buffer_len = 0;
 
     while (true) {
-        if (is_a_tty)
-            WRITE_CONST(STDOUT_FILENO, SHELL_PROMPT);
-        if (getline(&buffer, &buffer_sz, stdin) == -1)//passer la ligne 59 a 63 dans une fonction
+        write_prompt(is_a_tty);
+        if (getline(&buffer, &buffer_sz, stdin) == -1)
             break;
-        buffer_len = u_strlen(buffer);
-        parse_history(&buffer, &buffer_len, &buffer_sz);
-        if (buffer_len < 2 || !u_str_is_alnum(buffer)) {
+        buffer_len = update_command(&buffer, &buffer_sz, builtin_handler);
+        if (buffer_len < 1 || !u_str_is_alnum(buffer)) {
             check_basic_error(buffer);
             continue;
         }
         /*SAVE COMMAND pour evité le cas !4 !3*/
-        buffer[buffer_len - 1] = '\0';
         U_DEBUG("Buffer [%lu] [%s]\n", buffer_len, buffer);
-        visitor(buffer, env, history);
+        visitor(buffer, builtin_handler);
     }
-    return (free(buffer), history->last_exit_code);
+    free(builtin_handler->history_command);
+    return (free(buffer), builtin_handler->history->last_exit_code);
 }
+
+his_command_t *init_cmd_history(void)
+{
+    his_command_t *cmd_history = malloc(sizeof(his_command_t));
+
+    if (cmd_history == NULL)
+        return NULL;
+    cmd_history->sz = 1;
+    cmd_history[0].arg = NULL;
+    cmd_history[0].command = NULL;
+    cmd_history[0].id = 0;
+    return cmd_history;
+}
+
+/*
+** verifier le retour du malloc et passer
+** l initalisation de builtin handler dans
+** une fonction pour l env l' history et les futurs builtins
+*/
 int shell(char **env_ptr)
 {
     env_t env = parse_env(env_ptr);
-    history_t history = { .cmd_history = NULL, 0, .last_chdir = NULL };
+    history_t history = { .cmd_history = NULL, 0, .last_chdir = NULL};
+    his_command_t *cmd_history = init_cmd_history();
+    builtin_handler_t builtin_handler = {.env = &env,
+        .history = &history, .history_command = cmd_history};
     int shell_result;
 
-    if (!env.env)
+    if (!cmd_history || !env.env){
+        if (cmd_history)
+            free(cmd_history);
+        if (env.env)
+            free(env.env);
         return RETURN_FAILURE;
+    }
     U_DEBUG_CALL(debug_env_entries, &env);
     signal(SIGINT, ignore_sigint);
-    shell_result = shell_loop(&env, isatty(STDIN_FILENO), &history);
+    shell_result = shell_loop(isatty(STDIN_FILENO), &builtin_handler);
     free_env(&env);
     return shell_result;
 }
