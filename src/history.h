@@ -18,6 +18,8 @@ typedef struct history_variable_s {
     int coord_variable;
     int size_variable;
     int type;
+    char *str;
+    int id;
 } his_variable_t;
 
 typedef struct history_command_s {

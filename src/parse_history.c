@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 
 #include "common.h"
 #include "env.h"
@@ -25,6 +26,27 @@ const parsing_history_t tab_fnct[] = {
     {"![number]", &his_id_command}, //id command
     {NULL, NULL},
 };
+
+//const size_t TOKENS_LIST_SZ = sizeof TOKENS_LIST / sizeof *TOKENS_LIST;
+
+int my_atoi(const char *str)
+{
+    int result = 0;
+    int sign = 1;
+
+    while ((*str > '9' && *str < '0') || *str == '-')
+        str++;
+    if (*str == '-') {
+        sign = -1;
+        str++;
+    } else if (*str == '+') {
+        str++;
+    }
+    for (; *str >= '0' && *str <= '9'; str++) {
+        result = result * 10 + (*str - '0');
+    }
+    return result * sign;
+}
 
 static
 int cmd_history_is_in(char *line)
@@ -59,6 +81,59 @@ int is_two_char_cmd(char *line, int coord_x)
 }
 
 static
+bool is_a_token(char *str, int index_str)
+{
+    str+=index_str;
+    for (size_t i = 0; i < 16; i++) {
+        if (strncmp(str, TOKENS_LIST[i].str, 2) == 0){
+            return true;
+        }
+    }
+    return false;
+}
+
+static
+char *strn_to_ndup(int start, int size, char *str)
+{
+    char *new_str = malloc(sizeof(char) * (size + 1));
+    int count = 0;
+
+    if (new_str == NULL)
+        return NULL;
+    new_str[size] = '\0';
+    for (int i = start; i != start + size; i++){
+        new_str[count] = str[i];
+        count++;
+    }
+    return new_str;
+}
+
+static
+int choose_id_or_last(his_variable_t *his_variable, int index_str, char *str)
+{
+    int mode = 0;
+    const int cpy_index = index_str; 
+    char *last_or_id = NULL;
+
+    if (str[index_str] != CHAR_HIST && is_a_token(str, index_str + 1) == false)
+        return -1;
+    index_str++;
+    for (;str[index_str] != 0; index_str++){
+        if (is_a_token(str, index_str) == true || isblank(str[index_str]))
+            break;
+        if (!isdigit(str[index_str]))
+            mode = 1;
+    }
+    his_variable->coord_variable = cpy_index;
+    his_variable->size_variable = index_str - cpy_index;
+    his_variable->str = strn_to_ndup(cpy_index, (index_str - cpy_index), str);
+    if (his_variable->str == NULL)
+        return 3;//La fonction last command dois verifier le NULL
+    his_variable->id = my_atoi(his_variable->str + 1);
+    return (mode == 1) ? 3 : 4;
+}
+
+static
 int which_his_cmd(his_variable_t *his_variable, char const *line)
 {
     for (int i = 0; line[i] != '\0'; i++){
@@ -68,6 +143,9 @@ int which_his_cmd(his_variable_t *his_variable, char const *line)
             his_variable->size_variable = 2;
             return 0;
         }
+        his_variable->type = choose_id_or_last(his_variable, i, line);
+        if (his_variable->type != -1)
+            return 0;
     }
     return 0;
 }
@@ -75,7 +153,7 @@ int which_his_cmd(his_variable_t *his_variable, char const *line)
 static
 char *replace_history(char *line)
 {
-    his_variable_t his_variable = {0, 0, -1};
+    his_variable_t his_variable = {.coord_variable = 0, .id = 0, .size_variable = 0, .str = NULL, .type = -1};
 
     which_his_cmd(&his_variable, line);
     while (his_variable.type != -1){
@@ -94,6 +172,7 @@ int parse_history(char **pointer_line,
 
     *buffer_sz = 0;
     if (cmd_history_is_in(line) == 0){
+        //printf("JE REMPLACE...\n......\n....\n..\n.\n");
         line = replace_history(line);
         if (line == NULL)
             return 84;
