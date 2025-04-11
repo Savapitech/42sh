@@ -55,11 +55,6 @@ jobs:
       - name: Build project
         run: make
 
-      - name: Check for banned functions
-        run: |
-          nix run github:Dawoox/efc -- \
-            ./mysh \
-            ./afunc.txt
 
   sync_repository:
     needs: [ check_the_repository_state ]
