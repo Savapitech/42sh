@@ -62,17 +62,17 @@ int builtins_cd_chdir(ef_t *ef, char **args, char *path)
 {
     char *act_pwd;
 
-    if (ef->history->last_chdir != NULL && args[1] != NULL
+    if (ef->builtin_handler->history->last_chdir != NULL && args[1] != NULL
         && u_strcmp(args[1], "-") == 0)
-        path = ef->history->last_chdir;
+        path = ef->builtin_handler->history->last_chdir;
     act_pwd = get_current_dir();
     if (chdir(path) < 0) {
         write(STDERR_FILENO, path, u_strlen(path));
         cd_print_error();
         return RETURN_FAILURE;
     }
-    free(ef->history->last_chdir);
-    ef->history->last_chdir = act_pwd;
+    free(ef->builtin_handler->history->last_chdir);
+    ef->builtin_handler->history->last_chdir = act_pwd;
     return RETURN_SUCCESS;
 }
 

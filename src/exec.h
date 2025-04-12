@@ -43,6 +43,7 @@ typedef struct {
     int pout_fd;
     int in_fd;
     int out_fd;
+    builtin_handler_t *builtin_handler;
 } ef_t;
 
 __attribute__((nonnull))

@@ -152,7 +152,8 @@ int visitor(char *buffer, builtin_handler_t *builtin_handler)
         .ast = malloc(sizeof *ctx.ast * (u_strlen(buffer) + 10)) };
     ef_t ef = { .buffer = buffer, .env = builtin_handler->env,
         .history = builtin_handler->history, .ctx
-        = &ctx, .pout_fd = STDOUT_FILENO, .flags = 0, 0 };
+        = &ctx, .pout_fd = STDOUT_FILENO, .flags = 0,
+        .builtin_handler = builtin_handler};
     int result = RETURN_FAILURE;
 
     ctx.first_node = ctx.ast;

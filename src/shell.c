@@ -80,6 +80,7 @@ int shell_loop(int is_a_tty, builtin_handler_t *builtin_handler)
         /*SAVE COMMAND pour evité le cas !4 !3*/
         U_DEBUG("Buffer [%lu] [%s]\n", buffer_len, buffer);
         visitor(buffer, builtin_handler);
+        free(buffer);
     }
     free(builtin_handler->history_command);
     return (free(buffer), builtin_handler->history->last_exit_code);

@@ -123,7 +123,9 @@ int parse_history(char **pointer_line,
         if (line == NULL)
             return 84;
         *buffer_len = u_strlen(line) + 1;
+        free(*pointer_line);
         *pointer_line = line;
+        //free(*pointer_line);
         return 0;
     }
     return 0;

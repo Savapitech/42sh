@@ -137,8 +137,8 @@ int launch_bin(char *full_bin_path, char **args, ef_t *ef)
     else
         waitpid(pid, &status, WNOHANG);
     if (WIFEXITED(status))
-        ef->history->last_exit_code =
-            ef->history->last_exit_code ?: WEXITSTATUS(status);
+        ef->builtin_handler->history->last_exit_code =
+            ef->builtin_handler->history->last_exit_code ?: WEXITSTATUS(status);
     return status;
 }
 
@@ -171,7 +171,7 @@ bool builtins_launcher(ef_t *ef, char **args)
         if (u_strlen(BUILTINS[i].name) != bin_l)
             continue;
         if (u_strcmp(BUILTINS[i].name, args[0]) == 0) {
-            ef->history->last_exit_code =
+            ef->builtin_handler->history->last_exit_code =
                 BUILTINS[i].ptr(ef, args);
             return true;
         }
@@ -199,5 +199,6 @@ int execute(ef_t *ef)
     U_DEBUG("Exit code [%d]\n", ef->history->last_exit_code);
     free(full_bin_path);
     free((void *)args);
-    return ef->history->last_exit_code != 0 ? RETURN_FAILURE : RETURN_SUCCESS;
+    return ef->builtin_handler->history->last_exit_code
+     != 0 ? RETURN_FAILURE : RETURN_SUCCESS;
 }
