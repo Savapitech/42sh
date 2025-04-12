@@ -8,6 +8,16 @@
 #include <string.h>
 #include <stdlib.h>
 
+static
+int insert_in_str(char *dest, char *cpy, int start)
+{
+    for (int j = 0; cpy[j] != 0; j++){
+        dest[start] = cpy[j];
+        start++;
+    }
+    return start;
+}
+
 char *cat_in_str(his_variable_t *his_variable, char *str, char *cpy)
 {
     int i = 0;
@@ -22,10 +32,7 @@ char *cat_in_str(his_variable_t *his_variable, char *str, char *cpy)
         return NULL;
     for (; i < size_left; i++)
         new_str[i] = str[i];
-    for (int j = 0; cpy[j] != 0; j++){
-        new_str[i] = cpy[j];
-        i++;
-    }
+    i += insert_in_str(new_str, cpy, i);
     for (int k = 0; k < size_right; k++){
         new_str[i] = str[k + size_left + his_variable->size_variable];
         i++;

@@ -23,7 +23,7 @@ const parsing_history_t tab_fnct[] = {
     {"!!", &his_last_command}, //last command
     {"!$", &his_last_word}, //last word command
     {"!*", &his_last_arg}, //last argument commmand
-    {"![command]", &his_last_same_command}, //derniere commande + arg sur la derniere meme command dans l historique dans le cas ou il n y a qu un charactère il prend le dernier qui commence par la meme chaine
+    {"![command]", &his_last_same_command},  //derniere commande + arg sur la derniere meme command dans l historique dans le cas ou il n y a qu un charactère il prend le dernier qui commence par la meme chaine
     {"![number]", &his_id_command}, //id command
     {NULL, NULL},
 };
