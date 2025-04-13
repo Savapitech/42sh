@@ -138,7 +138,7 @@ int launch_bin(char *full_bin_path, char **args, ef_t *ef)
         waitpid(pid, &status, WNOHANG);
     if (WIFEXITED(status))
         ef->builtin_handler->history->last_exit_code =
-            ef->builtin_handler->history->last_exit_code ?: WEXITSTATUS(status);
+        ef->builtin_handler->history->last_exit_code ?: WEXITSTATUS(status);
     return status;
 }
 
