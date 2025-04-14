@@ -88,14 +88,17 @@ int shell_loop(int is_a_tty, builtin_handler_t *builtin_handler)
 
 his_command_t *init_cmd_history(void)
 {
-    his_command_t *cmd_history = malloc(sizeof(his_command_t));
+    his_command_t *cmd_history = malloc(sizeof(his_command_t) * 100);
 
     if (cmd_history == NULL)
         return NULL;
-    cmd_history->sz = 1;
-    cmd_history[0].arg = NULL;
-    cmd_history[0].command = NULL;
-    cmd_history[0].id = 0;
+    for (int i = 0; i != 100; i++){
+        cmd_history[i].arg = NULL;
+        cmd_history[i].command = NULL;
+        cmd_history[i].id = i;
+    }
+        
+    cmd_history[0].command;
     return cmd_history;
 }
 
