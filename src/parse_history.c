@@ -33,7 +33,8 @@ int cmd_history_is_in(char *line)
 {
     for (int i = 0; line[i] != 0; i++)
         if (line[i] == CHAR_HIST &&
-            (line[i + 1] != ' ' && line[i + 1] != '\t'))
+            (line[i + 1] != ' ' && line[i + 1] != '\t' 
+            && line[i + 1] != '\0'))
             return 0;
     return 1;
 }
