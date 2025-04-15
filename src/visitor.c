@@ -127,6 +127,8 @@ int visitor_launcher(ef_t *ef)
     ef->ctx->ast = parse_expression(ef->ctx);
     if (ef->ctx->ast == NULL)
         return RETURN_FAILURE;
+    //if (ef->ctx->ast->type == N_LOP)
+    //    result = visit_loop(ef, ef->ctx->ast);
     if (ef->ctx->ast->type == N_LST)
         result = visit_list(ef, ef->ctx->ast);
     if (ef->ctx->ast->type == N_CMD) {
