@@ -97,7 +97,6 @@ his_command_t *init_cmd_history(void)
         cmd_history[i].id = i;
     }
     cmd_history->sz = 0;
-    cmd_history = fill_cmd_history(cmd_history);
     return cmd_history;
 }
 

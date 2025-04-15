@@ -28,7 +28,7 @@
 
 #include <string.h>
 #include "utils.h"
-
+#include <ctype.h>
 #include <stddef.h>
 #include <stdlib.h>
 
@@ -58,12 +58,12 @@ static char *concat_cmd_arg(char *dest, char *src)
 char *his_last_command(char *line,
     his_variable_t *his_variable, his_command_t *his_command)
 {
-    char *new_line;
+    char *new_line = NULL;
     char *new_str = NULL;
 
     if (his_command->sz == 0){
         printf("%d: Event not found\n", his_command->sz);
-        return new_str;
+        return NULL;
     }
     new_line = concat_cmd_arg(his_command[his_command->sz - 1].command,
         his_command[his_command->sz - 1].arg);
@@ -77,16 +77,25 @@ char *his_last_command(char *line,
 char *his_last_same_command(char *line,
     his_variable_t *his_variable, his_command_t *his_command)
 {
-    char *new_line = malloc(sizeof(char) * 10);
+    char *new_line = &line[1];
+    char *new_str = NULL;
 
-    if (new_line == NULL)
-        return NULL;
-    new_line[0] = 'l';
-    new_line[1] = 's';
-    new_line[2] = '\0';
-    new_line[3] = '\0';
+    for (int i = his_command->sz - 1; i >= 0; i--) {
+        if (his_command[i].command == NULL) {
+            printf("%s: Event not found\n", new_line);
+            return NULL;
+        }
+        if (strncmp(his_command[i].command, new_line, strlen(new_line)) == 0) {
+            new_line = concat_cmd_arg(his_command[i].command,
+                his_command[i].arg);
+            new_str = cat_in_str(his_variable, line, new_line);
+            free(line);
+            return new_str;
+        }
+    }
+    printf("%s: Event not found\n", new_line);
     free(line);
-    return new_line;
+    return NULL;
 }
 
 char *his_id_command(char *line,
@@ -108,19 +117,44 @@ char *his_id_command(char *line,
     return new_str;
 }
 
+static char *get_last_word(char *str)
+{
+    char *last_word = NULL;
+    int last_space = 0;
+    int x = 0;
+
+    if (!str)
+        return NULL;
+    while (str[x] != '\0') {
+        if(isblank(str[x]))
+            last_space = x + 1;
+        x++;
+    }
+    last_word = malloc(sizeof(char) * (x - last_space) + 1);
+    if (last_word != NULL) {
+        last_word = strncpy(last_word, &str[last_space], x - last_space);
+        last_word[x - last_space] = '\0';
+    }
+    return last_word;
+}
+
 char *his_last_word(char *line,
     his_variable_t *his_variable, his_command_t *his_command)
 {
-    char *new_line = malloc(sizeof(char) * 10);
+    char *new_line = NULL;
+    char *new_str = NULL;
 
-    if (new_line == NULL)
+    if (his_command[his_command->sz - 1].arg == NULL){
+        new_line = get_last_word(his_command[his_command->sz - 1].command);
+    } else
+        new_line = get_last_word(his_command[his_command->sz - 1].arg);
+    if (!new_line)
         return NULL;
-    new_line[0] = 'l';
-    new_line[1] = 's';
-    new_line[2] = '\0';
-    new_line[3] = '\0';
+    new_str = cat_in_str(his_variable, line, new_line);
+    printf("%s\n", new_line);
+    free(new_line);
     free(line);
-    return new_line;
+    return new_str;
 }
 
 char *his_last_arg(char *line,

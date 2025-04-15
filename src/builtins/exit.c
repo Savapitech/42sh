@@ -23,6 +23,5 @@ int builtins_exit(ef_t *ef, char **args __attribute__((unused)))
     }
     free_env(ef->env);
     free(ef->buffer);
-    save_cmd_history(ef->builtin_handler->history_command);
     exit(ef->builtin_handler->history->last_exit_code);
 }
