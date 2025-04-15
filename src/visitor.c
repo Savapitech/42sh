@@ -117,6 +117,7 @@ int visit_list(ef_t *ef, ast_t *node)
     return result;
 }
 
+//TODO: visit loop befor a visit list with a loop
 static
 int visitor_launcher(ef_t *ef)
 {
