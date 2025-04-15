@@ -200,5 +200,5 @@ int execute(ef_t *ef)
     free(full_bin_path);
     free((void *)args);
     return ef->builtin_handler->history->last_exit_code
-     != 0 ? RETURN_FAILURE : RETURN_SUCCESS;
+        != 0 ? RETURN_FAILURE : RETURN_SUCCESS;
 }

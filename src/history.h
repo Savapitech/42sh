@@ -47,4 +47,7 @@ char *his_last_word(char *line,
     his_variable_t *his_variable, his_command_t *his_command);
 char *his_last_arg(char *line,
     his_variable_t *his_variable, his_command_t *his_command);
+his_command_t *fill_cmd_history(his_command_t *cmd_history);
+int save_cmd_history(his_command_t *cmd_history);
+his_command_t set_cmd(char *line, his_command_t cmd_struct);
 #endif /* HISTORY_H */

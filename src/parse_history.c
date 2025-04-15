@@ -23,7 +23,7 @@ const parsing_history_t tab_fnct[] = {
     {"!!", &his_last_command}, //last command
     {"!$", &his_last_word}, //last word command
     {"!*", &his_last_arg}, //last argument commmand
-    {"![command]", &his_last_same_command},  //derniere commande + arg sur la derniere meme command dans l historique dans le cas ou il n y a qu un charactère il prend le dernier qui commence par la meme chaine
+    {"![command]", &his_last_same_command},
     {"![number]", &his_id_command}, //id command
     {NULL, NULL},
 };
@@ -97,14 +97,15 @@ int which_his_cmd(his_variable_t *his_variable, char const *line)
 }
 
 static
-char *replace_history(char *line)
+char *replace_history(char *line, his_command_t *cmd_history)
 {
     his_variable_t his_variable = {.coord_variable = 0,
         .id = 0, .size_variable = 0, .str = NULL, .type = -1};
 
     which_his_cmd(&his_variable, line);
     while (his_variable.type != -1){
-        line = tab_fnct[his_variable.type].funct(line, &his_variable, NULL);
+        line = tab_fnct[his_variable.type].funct(line, &his_variable,
+            cmd_history);
         if (line == NULL)
             return NULL;
         which_his_cmd(&his_variable, line);
@@ -119,7 +120,7 @@ int parse_history(char **pointer_line,
 
     *buffer_sz = 0;
     if (cmd_history_is_in(line) == 0){
-        line = replace_history(line);
+        line = replace_history(line, *cmd_history);
         if (line == NULL)
             return 84;
         *buffer_len = u_strlen(line) + 1;

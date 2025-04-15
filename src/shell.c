@@ -77,7 +77,6 @@ int shell_loop(int is_a_tty, builtin_handler_t *builtin_handler)
             check_basic_error(buffer);
             continue;
         }
-        /*SAVE COMMAND pour evité le cas !4 !3*/
         U_DEBUG("Buffer [%lu] [%s]\n", buffer_len, buffer);
         visitor(buffer, builtin_handler);
         free(buffer);
@@ -97,8 +96,8 @@ his_command_t *init_cmd_history(void)
         cmd_history[i].command = NULL;
         cmd_history[i].id = i;
     }
-        
-    cmd_history[0].command;
+    cmd_history->sz = 0;
+    cmd_history = fill_cmd_history(cmd_history);
     return cmd_history;
 }
 

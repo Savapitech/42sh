@@ -8,6 +8,15 @@
 #include "builtins_handler.h"
 #include "u_str.h"
 
+his_command_t *save_command(char *cmd, his_command_t *cmd_history)
+{
+    if (!cmd)
+        return cmd_history;
+    cmd_history[cmd_history->sz] = set_cmd(cmd, cmd_history[cmd_history->sz]);
+    cmd_history->sz++;
+    return cmd_history;
+}
+
 size_t update_command(char **buffer,
     size_t *buffer_sz, builtin_handler_t *builtin_handler)
 {
@@ -15,8 +24,10 @@ size_t update_command(char **buffer,
 
     buffer_len = u_strlen(*buffer);
     (*buffer)[buffer_len - 1] = '\0';
-    /*parse_alias*/
+    //parse_alias
     parse_history(buffer, &buffer_len,
         buffer_sz, &builtin_handler->history_command);
+    builtin_handler->history_command = save_command(*buffer,
+        builtin_handler->history_command);
     return buffer_len;
 }
