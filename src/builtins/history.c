@@ -15,9 +15,10 @@ int builtins_history(ef_t *ef, char **args __attribute__((unused)))
     his_command_t *cmd_history = ef->builtin_handler->history_command;
 
     for (int i = 0; i < cmd_history->sz; i++){
-        if (cmd_history[i].arg)
-            printf("%d  %s %s\n", i, cmd_history[i].command, cmd_history[i].arg);
-        else
+        if (cmd_history[i].arg) {
+            printf("%d  %s %s\n", i, cmd_history[i].command,
+                cmd_history[i].arg);
+        } else
             printf("%d  %s\n", i, cmd_history[i].command);
     }
     return RETURN_SUCCESS;

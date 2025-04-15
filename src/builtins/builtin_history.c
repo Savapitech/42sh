@@ -126,7 +126,7 @@ static char *get_last_word(char *str)
     if (!str)
         return NULL;
     while (str[x] != '\0') {
-        if(isblank(str[x]))
+        if (isblank(str[x]))
             last_space = x + 1;
         x++;
     }
