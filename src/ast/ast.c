@@ -104,7 +104,7 @@ ast_t *parse_semi(ast_ctx_t *ctx)
         ctx->ast = parse_loop(ctx, l_node);
     if (ctx->act_tok.type == T_PIPE)
         ctx->ast = parse_pipe(ctx, l_node);
-    else
+    if (!(ctx->act_tok.type & (T_PIPE | T_WHILE | T_FOREACH)))
         return l_node;
     return ctx->ast;
 }

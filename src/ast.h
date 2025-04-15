@@ -33,8 +33,8 @@ typedef enum {
     T_HEREDOC = 1 << 13, // <
     T_IN_REDIRECT = 1 << 14, // <
     T_AT = 1 << 15, // <
-    T_WHILE = 5 << 16, // while
-    T_FOREACH = 7 << 17, // foreach
+    T_WHILE = 1 << 16, // while
+    T_FOREACH = 1 << 17, // foreach
     T_EOF = 1 << 18, // \0
     T_ARG = 1 << 19,
     T_INVALID = 1 << 20
