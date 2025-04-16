@@ -127,6 +127,7 @@ int visitor_launcher(ef_t *ef)
     ef->ctx->ast = parse_expression(ef->ctx);
     if (ef->ctx->ast == NULL)
         return RETURN_FAILURE;
+    U_DEBUG_CALL(print_ast, ef->ctx->ast, ef->ctx, 0);
     if (ef->ctx->ast->type == N_LOP)
         result = visit_loop(ef, ef->ctx->ast);
     if (ef->ctx->ast->type == N_LST)
@@ -151,8 +152,10 @@ void remove_trailing_semi(char *str)
 
 int visitor(char *buffer, env_t *env, history_t *history)
 {
-    ast_ctx_t ctx = { 0, .str = buffer, .cap = u_strlen(buffer) + 10,
-        .ast = malloc(sizeof *ctx.ast * (u_strlen(buffer) + 10)) };
+    ast_ctx_t ctx = { 0, .str = buffer,
+        .cap = u_strlen(buffer) + 10 + DEFAULT_AST_CAP,
+        .ast = malloc(sizeof *ctx.ast *
+            (u_strlen(buffer) + 10 + DEFAULT_AST_CAP)) };
     ef_t ef = { .buffer = buffer, .env = env,
         .history = history, .ctx = &ctx, .pout_fd = STDOUT_FILENO,
         .flags = 0, 0 };
