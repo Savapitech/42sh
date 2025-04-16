@@ -49,12 +49,16 @@ ast_t *fill_cmd_node(ast_ctx_t *ctx)
     return parse_arg(ctx, node);
 }
 
-static
+/*
+ * Removed this check to do && || if, nothing has changed,
+ * to be seen in case of trouble,
+ * putting it back this may solve the problem but will break the && || if
+ *   if (ctx->act_tok.type == T_EOF)
+ *       return ctx->ast;
+ */
 ast_t *parse_cmd(ast_ctx_t *ctx)
 {
-    if (ctx->act_tok.type == T_EOF)
-        return ctx->ast;
-    if (ctx->act_tok.type != T_ARG){
+    if (ctx->act_tok.type != T_ARG) {
         if (ctx->act_tok.type & (T_WHILE | T_FOREACH))
             return NULL;
         if (!parser_eat(ctx, T_ARG))
@@ -75,7 +79,6 @@ bool parse_pipe_childs(ast_ctx_t *ctx, ast_t *node)
     return true;
 }
 
-static
 ast_t *parse_pipe(ast_ctx_t *ctx, ast_t *l_node)
 {
     ast_t *node = create_node(ctx);
@@ -98,17 +101,43 @@ ast_t *parse_pipe(ast_ctx_t *ctx, ast_t *l_node)
     return node;
 }
 
-static
-ast_t *parse_semi(ast_ctx_t *ctx)
+ast_t *parse_condition(ast_ctx_t *ctx)
 {
     ast_t *l_node = parse_cmd(ctx);
 
+    if (l_node == NULL)
+        return NULL;
     if (ctx->act_tok.type & (T_WHILE | T_FOREACH))
         ctx->ast = parse_loop(ctx);
-    else if (ctx->act_tok.type == T_PIPE)
-        ctx->ast = parse_pipe(ctx, l_node);
-    else
-        return l_node;
+    else {
+        switch (ctx->act_tok.type) {
+            case T_PIPE:
+                ctx->ast = parse_pipe(ctx, l_node);
+                break;
+            default:
+                return l_node;
+        }
+    }
+    return ctx->ast;
+}
+
+static
+ast_t *parse_semi(ast_ctx_t *ctx)
+{
+    ast_t *l_node = parse_condition(ctx);
+
+    if (l_node == NULL)
+        return NULL;
+    switch (ctx->act_tok.type) {
+        case T_AND:
+            ctx->ast = parse_and(ctx, l_node);
+            break;
+        case T_OR:
+            ctx->ast = parse_or(ctx, l_node);
+            break;
+        default:
+            return l_node;
+    }
     return ctx->ast;
 }
 

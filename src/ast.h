@@ -102,14 +102,23 @@ typedef struct {
 
 extern const tokens_list_t TOKENS_LIST[];
 
+// Main funcs
 ast_t *parse_expression(ast_ctx_t *ctx);
-void print_ast(ast_ctx_t *ctx, ast_t *ast, size_t depth);
 token_t get_next_token(ast_ctx_t *ctx);
 int visitor(char *buffer, env_t *env, history_t *history);
+
+// Utils funcs
 ast_t *create_node(ast_ctx_t *ctx);
 bool ensure_node_cap(ast_t *node);
 bool ensure_list_cap(ast_t *node);
 bool parser_eat(ast_ctx_t *ctx, token_type_t expected);
 ast_t *parse_loop(ast_ctx_t *ctx);
 void free_ast(ast_ctx_t *ctx);
+void print_ast(ast_t *ast, ast_ctx_t *ctx, size_t depth);
+
+// Outside needed parser
+ast_t *parse_cmd(ast_ctx_t *ctx);
+ast_t *parse_condition(ast_ctx_t *ctx);
+ast_t *parse_and(ast_ctx_t *ctx, ast_t *l_node);
+ast_t *parse_or(ast_ctx_t *ctx, ast_t *l_node);
 #endif /* AST_H */
