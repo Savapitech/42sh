@@ -19,6 +19,7 @@
 #include "u_str.h"
 #include "history.h"
 #include "exec.h"
+#include "alias.h"
 
 __attribute__((unused))
 static
@@ -105,25 +106,52 @@ his_command_t *init_cmd_history(void)
 ** l initalisation de builtin handler dans
 ** une fonction pour l env l' history et les futurs builtins
 */
+alias_t init_alias(void)
+{
+    alias_t alias;
+
+    alias.size = 1;
+    alias.alias_array = malloc(sizeof(char *) * alias.size);
+    alias.alias_to_replace = malloc(sizeof(char *) * alias.size);
+    return alias;
+}
+
+static
+bool error_in_init(builtin_handler_t *builtin_handler)
+{
+    if (!builtin_handler->history_command || !builtin_handler->env->env || !builtin_handler->alias->alias_array || !builtin_handler->alias->alias_to_replace){
+        if (builtin_handler->history_command)
+            free(builtin_handler->history_command);
+        if (builtin_handler->env->env)
+            free(builtin_handler->env->env);
+        if (builtin_handler->alias->alias_array)
+            free(builtin_handler->alias->alias_array);
+        if (!builtin_handler->alias->alias_to_replace)
+            free(builtin_handler->alias->alias_to_replace);
+        return true;
+        }
+    return false;
+}
+
 int shell(char **env_ptr)
 {
+    alias_t alias = init_alias();
     env_t env = parse_env(env_ptr);
     history_t history = { .cmd_history = NULL, 0, .last_chdir = NULL};
     his_command_t *cmd_history = init_cmd_history();
     builtin_handler_t builtin_handler = {.env = &env,
-        .history = &history, .history_command = cmd_history};
+        .history = &history, .history_command = cmd_history,
+        .alias = &alias};
     int shell_result;
 
-    if (!cmd_history || !env.env){
-        if (cmd_history)
-            free(cmd_history);
-        if (env.env)
-            free(env.env);
+    if (error_in_init(&builtin_handler) == true){
+        free_alias(builtin_handler.alias);
         return RETURN_FAILURE;
     }
     U_DEBUG_CALL(debug_env_entries, &env);
     signal(SIGINT, ignore_sigint);
     shell_result = shell_loop(isatty(STDIN_FILENO), &builtin_handler);
-    free_env(&env);
+    free_env(builtin_handler.env);
+    free_alias(builtin_handler.alias);
     return shell_result;
 }

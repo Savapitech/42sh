@@ -15,6 +15,9 @@
 typedef struct alias_s{
     size_t size;
     char **alias_array;
+    char **alias_to_replace;
 } alias_t;
+
+void free_alias(alias_t *alias);
 
 #endif /* ALIAS*/
