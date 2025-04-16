@@ -35,6 +35,8 @@ void debug_env_entries(env_t *env)
 static
 void check_basic_error(char const *buffer)
 {
+    if (buffer == NULL)
+        return;
     if (*buffer == '|')
         WRITE_CONST(STDERR_FILENO, "Invalid null command.\n");
     if (*buffer == '>' || *buffer == '<')
