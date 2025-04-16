@@ -11,7 +11,7 @@ int len_array(char **array)
 {
     int i = 0;
 
-    while(array[i] != NULL)
+    while (array[i] != NULL)
         i++;
     return i;
 }
