@@ -8,7 +8,7 @@
 #ifndef COMMON_H
     #define COMMON_H
 enum {
-    RETURN_SUCCESS = 0,
-    RETURN_FAILURE = 1
+    RETURN_SUCCESS,
+    RETURN_FAILURE
 };
 #endif /* COMMON_H */

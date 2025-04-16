@@ -32,6 +32,7 @@ const builtins_t BUILTINS[] = {
     { "setenv", &builtins_setenv },
     { "unsetenv", &builtins_unsetenv },
     { ":", &builtins_funny_double_dot },
+    { "eval", &builtins_eval },
     { "exit", &builtins_exit }
 };
 
