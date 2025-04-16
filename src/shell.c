@@ -94,12 +94,12 @@ his_command_t *init_cmd_history(void)
 
     if (cmd_history == NULL)
         return NULL;
-    for (int i = 0; i != 100; i++){
+    for (int i = 1; i != 100; i++){
         cmd_history[i].arg = NULL;
         cmd_history[i].command = NULL;
         cmd_history[i].id = i;
     }
-    cmd_history->sz = 0;
+    cmd_history->sz = 1;
     return cmd_history;
 }
 

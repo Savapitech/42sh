@@ -80,7 +80,7 @@ char *his_last_same_command(char *line,
     char *new_line = &line[his_variable->coord_variable + 1];
     char *new_str = NULL;
 
-    for (int i = his_command->sz - 1; i >= 0; i--) {
+    for (int i = his_command->sz - 1; i > 0; i--) {
         if (his_command[i].command == NULL) {
             printf("%s: Event not found\n", new_line);
             return NULL;
@@ -111,7 +111,7 @@ char *his_id_command(char *line,
     }
     new_line = concat_cmd_arg(his_command[id].command, his_command[id].arg);
     new_str = cat_in_str(his_variable, line, new_line);
-    printf("%s\n", new_line);
+    printf("%s\n", new_str);
     free(new_line);
     free(line);
     return new_str;
@@ -151,7 +151,7 @@ char *his_last_word(char *line,
     if (!new_line)
         return NULL;
     new_str = cat_in_str(his_variable, line, new_line);
-    printf("%s\n", new_line);
+    printf("%s\n", new_str);
     free(new_line);
     free(line);
     return new_str;
