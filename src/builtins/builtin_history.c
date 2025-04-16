@@ -83,7 +83,7 @@ char *his_last_same_command(char *line,
     for (int i = his_command->sz - 1; i > 0; i--) {
         if (his_command[i].command == NULL) {
             printf("%s: Event not found\n", new_line);
-            return NULL;
+            return new_str;
         }
         if (strncmp(his_command[i].command, new_line, strlen(new_line)) == 0) {
             new_line = concat_cmd_arg(his_command[i].command,
@@ -94,19 +94,18 @@ char *his_last_same_command(char *line,
         }
     }
     printf("%s: Event not found\n", new_line);
-    free(line);
-    return NULL;
+    return new_str;
 }
 
 char *his_id_command(char *line,
     his_variable_t *his_variable, his_command_t *his_command)
 {
-    int id = atoi(&line[his_variable->coord_variable + 1]);
+    int id = -1 + atoi(&line[his_variable->coord_variable + 1]);
     char *new_line;
     char *new_str = NULL;
 
-    if (his_command[id].command == NULL){
-        printf("%d: Event not found\n", id);
+    if (id < 0 || id > 100 || his_command[id].command == NULL){
+        printf("%d: Event not found\n", id + 1);
         return new_str;
     }
     new_line = concat_cmd_arg(his_command[id].command, his_command[id].arg);
@@ -165,12 +164,13 @@ char *his_last_arg(char *line,
     char *new_str = NULL;
 
     if (!his_command[id].arg)
-        new_line = u_strdup(" ");
+        new_line = " ";
     else
         new_line = u_strdup(his_command[id].arg);
     new_str = cat_in_str(his_variable, line, new_line);
     printf("%s\n", new_line);
-    free(new_line);
+    if (his_command[id].arg)
+        free(new_line);
     free(line);
     return new_str;
 }
