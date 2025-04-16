@@ -101,12 +101,20 @@ ast_t *get_usr_loop_cmd(ast_t *node)
     return node;
 }
 
+static
+void exit_child(int sig __attribute__((unused)))
+{
+    _exit(sig);
+}
+
 //TODO: need to change the while true by a check_condition
 static
 void launch_loop(ef_t *ef, ast_t *node)
 {
     int status;
 
+    signal(SIGINT, exit_child);
+    signal(EOF, exit_child);
     node = get_usr_loop_cmd(node);
     if (node == NULL)
         exit(84);
