@@ -33,8 +33,7 @@ const builtins_funcs_t BUILTINS[] = {
     { "unsetenv", &builtins_unsetenv },
     { ":", &builtins_funny_double_dot },
     { "exit", &builtins_exit },
-    { "history", &builtins_history},
-    { "alias", &builtins_alias}
+    { "history", &builtins_history}
 };
 
 const size_t BUILTINS_SZ = sizeof BUILTINS / sizeof *BUILTINS;
