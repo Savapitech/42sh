@@ -20,12 +20,11 @@
 #include "history.h"
 
 const parsing_history_t tab_fnct[] = {
-    {"!!", &his_last_command}, //last command
-    {"!$", &his_last_word}, //last word command
-    {"!*", &his_last_arg}, //last argument commmand
+    {"!!", &his_last_command},
+    {"!$", &his_last_word},
+    {"!*", &his_last_arg},
     {"![command]", &his_last_same_command},
-    {"![number]", &his_id_command}, //id command
-    {NULL, NULL},
+    {"![number]", &his_id_command},
 };
 
 static

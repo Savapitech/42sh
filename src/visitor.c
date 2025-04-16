@@ -146,19 +146,19 @@ void remove_trailing_semi(char *str)
     }
 }
 
-int visitor(char *buffer, builtin_handler_t *builtin_handler)
+int visitor(char *buffer, exec_ctx_t *exec_ctx)
 {
     ast_ctx_t ctx = { 0, .str = buffer, .cap = u_strlen(buffer) + 10,
         .ast = malloc(sizeof *ctx.ast * (u_strlen(buffer) + 10)) };
-    ef_t ef = { .buffer = buffer, .env = builtin_handler->env,
-        .history = builtin_handler->history, .ctx
+    ef_t ef = { .buffer = buffer, .env = exec_ctx->env,
+        .history = exec_ctx->history, .ctx
         = &ctx, .pout_fd = STDOUT_FILENO, .flags = 0,
-        .builtin_handler = builtin_handler};
+        .exec_ctx = exec_ctx};
     int result = RETURN_FAILURE;
 
     ctx.first_node = ctx.ast;
     remove_trailing_semi(ctx.str);
-    builtin_handler->history->last_exit_code = 0;
+    exec_ctx->history->last_exit_code = 0;
     if (ctx.ast == NULL)
         return RETURN_FAILURE;
     result = visitor_launcher(&ef);

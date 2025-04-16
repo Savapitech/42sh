@@ -12,7 +12,7 @@
 
 int builtins_history(ef_t *ef, char **args __attribute__((unused)))
 {
-    his_command_t *cmd_history = ef->builtin_handler->history_command;
+    his_command_t *cmd_history = ef->exec_ctx->history_command;
 
     for (int i = 0; i < cmd_history->sz; i++){
         if (cmd_history[i].arg) {

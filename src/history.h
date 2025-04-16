@@ -24,7 +24,6 @@ typedef struct history_variable_s {
 
 typedef struct history_command_s {
     int id;
-    char time[5];// []h[]
     char *command;
     char *arg;
     int sz;

@@ -33,16 +33,16 @@ his_command_t *save_command(char *cmd, his_command_t *cmd_history)
 }
 
 size_t update_command(char **buffer,
-    size_t *buffer_sz, builtin_handler_t *builtin_handler)
+    size_t *buffer_sz, exec_ctx_t *exec_ctx)
 {
     size_t buffer_len = 0;
 
     buffer_len = u_strlen(*buffer);
     (*buffer)[buffer_len - 1] = '\0';
     if (parse_history(buffer, &buffer_len,
-        buffer_sz, &builtin_handler->history_command) == 84)
+        buffer_sz, &exec_ctx->history_command) == 84)
         return -1;
-    builtin_handler->history_command = save_command(*buffer,
-        builtin_handler->history_command);
+    exec_ctx->history_command = save_command(*buffer,
+        exec_ctx->history_command);
     return buffer_len;
 }

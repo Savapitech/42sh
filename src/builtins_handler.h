@@ -16,8 +16,8 @@ typedef struct {
     env_t *env;
     history_t *history;
     his_command_t *history_command;
-} builtin_handler_t;
+} exec_ctx_t;
 
 size_t update_command(char **buffer,
-    size_t *buffer_sz, builtin_handler_t *builtin_handler);
+    size_t *buffer_sz, exec_ctx_t *exec_ctx);
 #endif /* BUILTINS_HANDLER_H */
