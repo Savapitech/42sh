@@ -101,6 +101,7 @@ ast_t *get_usr_loop_cmd(ast_t *node)
     return node;
 }
 
+//TODO: need to change the while true by a check_condition
 static
 void launch_loop(ef_t *ef, ast_t *node)
 {
@@ -116,7 +117,6 @@ void launch_loop(ef_t *ef, ast_t *node)
     exit(status);
 }
 
-//TODO: need to change the while true by a check_condition
 int visit_loop(ef_t *ef, ast_t *node)
 {
     int status;
