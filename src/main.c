@@ -11,6 +11,6 @@
 int main(int ac __attribute__((unused)), char **av __attribute__((unused)),
     char **env)
 {
-    U_DEBUG_MSG("Debug mode activated.");
+    U_DEBUG_MSG("Debug mode activated.\n");
     return shell(env);
 }
