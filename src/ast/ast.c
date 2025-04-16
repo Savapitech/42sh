@@ -54,9 +54,12 @@ ast_t *parse_cmd(ast_ctx_t *ctx)
 {
     if (ctx->act_tok.type == T_EOF)
         return ctx->ast;
-    if (ctx->act_tok.type != T_ARG)
+    if (ctx->act_tok.type != T_ARG){
+        if (ctx->act_tok.type & (T_WHILE | T_FOREACH))
+            return NULL;
         if (!parser_eat(ctx, T_ARG))
             return NULL;
+    }
     return fill_cmd_node(ctx);
 }
 
@@ -101,7 +104,7 @@ ast_t *parse_semi(ast_ctx_t *ctx)
     ast_t *l_node = parse_cmd(ctx);
 
     if (ctx->act_tok.type & (T_WHILE | T_FOREACH))
-        ctx->ast = parse_loop(ctx, l_node);
+        ctx->ast = parse_loop(ctx);
     else if (ctx->act_tok.type == T_PIPE)
         ctx->ast = parse_pipe(ctx, l_node);
     else

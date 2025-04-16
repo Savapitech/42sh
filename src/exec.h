@@ -47,4 +47,5 @@ typedef struct {
 
 __attribute__((nonnull))
 int execute(ef_t *ef);
+int visit_loop(ef_t *ef, ast_t *node);
 #endif /* EXEC_H */

@@ -41,10 +41,10 @@ typedef enum {
 } token_type_t;
 
 typedef enum {
-    N_LOP,
     N_LST,
     N_CMD,
-    N_BIN
+    N_BIN,
+    N_LOP
 } node_type_t;
 
 typedef struct {
@@ -110,6 +110,6 @@ ast_t *create_node(ast_ctx_t *ctx);
 bool ensure_node_cap(ast_t *node);
 bool ensure_list_cap(ast_t *node);
 bool parser_eat(ast_ctx_t *ctx, token_type_t expected);
-ast_t *parse_loop(ast_ctx_t *ctx, ast_t *l_node);
+ast_t *parse_loop(ast_ctx_t *ctx);
 void free_ast(ast_ctx_t *ctx);
 #endif /* AST_H */
