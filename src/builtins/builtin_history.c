@@ -77,7 +77,7 @@ char *his_last_command(char *line,
 char *his_last_same_command(char *line,
     his_variable_t *his_variable, his_command_t *his_command)
 {
-    char *new_line = &line[1];
+    char *new_line = &line[his_variable->coord_variable + 1];
     char *new_str = NULL;
 
     for (int i = his_command->sz - 1; i >= 0; i--) {
@@ -101,7 +101,7 @@ char *his_last_same_command(char *line,
 char *his_id_command(char *line,
     his_variable_t *his_variable, his_command_t *his_command)
 {
-    int id = ((int)line[1] - 48) - 1;
+    int id = atoi(&line[his_variable->coord_variable + 1]);
     char *new_line;
     char *new_str = NULL;
 

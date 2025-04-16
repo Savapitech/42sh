@@ -35,6 +35,8 @@ typedef struct parsing_history_s {
     char *(*funct)(char *, his_variable_t *, his_command_t *);
 } parsing_history_t;
 
+extern const parsing_history_t tab_fnct[];
+
 int parse_history(char **pointer_line,
     size_t *buffer_len, size_t *buffer_sz, his_command_t **cmd_history);
 char *his_last_command(char *line,
