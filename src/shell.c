@@ -103,7 +103,9 @@ his_command_t *init_cmd_history(void)
 static
 bool error_in_init(exec_ctx_t *exec_ctx)
 {
-    if (!exec_ctx->history_command || !exec_ctx->env->env) {
+    if (!exec_ctx->history_command || !exec_ctx->env->env || !exec_ctx->alias->alias_array || !exec_ctx->alias->alias_to_replace) {
+        free(exec_ctx->alias->alias_array);
+        free(exec_ctx->alias->alias_to_replace);
         free(exec_ctx->history_command);
         free(exec_ctx->env->env);
         return true;
@@ -111,13 +113,24 @@ bool error_in_init(exec_ctx_t *exec_ctx)
     return false;
 }
 
+alias_t init_alias(void)
+{
+    alias_t alias;
+
+    alias.size = 1;
+    alias.alias_array = malloc(sizeof(char *) * alias.size);
+    alias.alias_to_replace = malloc(sizeof(char *) * alias.size);
+    return alias;
+}
+
 int shell(char **env_ptr)
 {
+    alias_t alias = init_alias();
     env_t env = parse_env(env_ptr);
     history_t history = { .cmd_history = NULL, 0, .last_chdir = NULL};
     his_command_t *cmd_history = init_cmd_history();
     exec_ctx_t exec_ctx = {.env = &env,
-        .history = &history, .history_command = cmd_history };
+        .history = &history, .history_command = cmd_history, .alias = &alias};
     int shell_result;
 
     if (error_in_init(&exec_ctx) == true){
