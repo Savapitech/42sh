@@ -55,31 +55,38 @@ void write_prompt(int is_a_tty)
         WRITE_CONST(STDOUT_FILENO, SHELL_PROMPT);
 }
 
-/*
-** Noeud de fonction
-** Pour changer la commande
-** passer en parametre
-** si besoin
-*/
+static
+bool change_shell_command(char **buffer, exec_ctx_t *exec_ctx,
+    size_t buffer_sz)
+{
+    size_t buffer_len = 0;
+    char *tmp_buff = NULL;
+
+    if (getline(buffer, &buffer_sz, stdin) == -1)
+        return false;
+    tmp_buff = (*buffer);
+    buffer_len = update_command(&tmp_buff, &buffer_sz, exec_ctx);
+    if (buffer_len < 1 || !u_str_is_alnum(tmp_buff)) {
+        check_basic_error(tmp_buff);
+        free(tmp_buff);
+        return true;
+    }
+    U_DEBUG("Buffer [%lu] [%s]\n", buffer_len, buffer);
+    visitor(tmp_buff, exec_ctx);
+    free(tmp_buff);
+    return false;
+}
+
 static
 int shell_loop(int is_a_tty, exec_ctx_t *exec_ctx)
 {
     char *buffer = NULL;
     size_t buffer_sz = 0;
-    size_t buffer_len = 0;
 
     while (true) {
         write_prompt(is_a_tty);
-        if (getline(&buffer, &buffer_sz, stdin) == -1)
-            break;
-        buffer_len = update_command(&buffer, &buffer_sz, exec_ctx);
-        if (buffer_len < 1 || !u_str_is_alnum(buffer)) {
-            check_basic_error(buffer);
-            continue;
-        }
-        U_DEBUG("Buffer [%lu] [%s]\n", buffer_len, buffer);
-        visitor(buffer, exec_ctx);
-        free(buffer);
+        if (change_shell_command(&buffer, exec_ctx, buffer_sz) == true)
+            return exec_ctx->history->last_exit_code;
     }
     free(exec_ctx->history_command);
     return (free(buffer), exec_ctx->history->last_exit_code);

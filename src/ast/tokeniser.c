@@ -6,6 +6,7 @@
 */
 
 #include <ctype.h>
+#include <unistd.h>
 
 #include "ast.h"
 #include "debug.h"
@@ -28,10 +29,36 @@ const tokens_list_t TOKENS_LIST[] = {
     { T_AT, "@", 1, "T_AT" },
     { T_HEREDOC, "<<", 2, "T_HEREDOC" },
     { T_IN_REDIRECT, "<", 1, "T_IN_REDIRECT" },
+    { T_WHILE, "while", 5, "T_WHILE"},
+    { T_FOREACH, "foreach", 7, "T_WHILE"},
     { T_EOF, "\0", 1, "T_EOF" }
 };
 
 const size_t TOKENS_LIST_SZ = sizeof TOKENS_LIST / sizeof *TOKENS_LIST;
+
+void skip_semi(ast_ctx_t *ctx)
+{
+    while (ctx->act_tok.type & (T_SEMICOLON | T_AT))
+        ctx->act_tok = get_next_token(ctx);
+}
+
+bool parser_eat(ast_ctx_t *ctx, token_type_t expected)
+{
+    token_type_t prev_tok_type = ctx->act_tok.type;
+
+    ctx->act_tok = get_next_token(ctx);
+    if (!(ctx->act_tok.type & expected)) {
+        if (prev_tok_type == T_PIPE)
+            WRITE_CONST(STDERR_FILENO, "Invalid null command.\n");
+        else {
+            WRITE_CONST(STDERR_FILENO, "Parse error near \"");
+            write(STDERR_FILENO, ctx->act_tok.str, ctx->act_tok.sz);
+            WRITE_CONST(STDERR_FILENO, "\"\n");
+        }
+        return false;
+    }
+    return true;
+}
 
 static
 void get_arg_token(ast_ctx_t *ctx, int *found_token)
