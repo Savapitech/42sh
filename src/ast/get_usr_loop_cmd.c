@@ -43,7 +43,8 @@ ast_t *get_first_cmd(ast_t *node, char prompt[], size_t *bf_len)
 {
     size_t buffer_len = 0;
 
-    printf("%s? ", prompt);
+    if (isatty(STDIN_FILENO))
+        printf("%s? ", prompt);
     node->loop.buffers[node->loop.sz] = NULL;
     getline(&(node->loop.buffers[node->loop.sz]), bf_len, stdin);
     if (!feof(stdin)){
@@ -102,7 +103,8 @@ ast_t *get_usr_loop_cmd(ast_t *node)
     node = get_first_cmd(node, prompt, &buffer_sz);
     while (!feof(stdin) &&
     strcmp("end", node->loop.buffers[node->loop.sz - 1])){
-        printf("%s? ", prompt);
+        if (isatty(STDIN_FILENO))
+            printf("%s? ", prompt);
         if (node->loop.sz >= node->loop.cap)
             node = buffers_realloc(node);
         if (node == NULL)

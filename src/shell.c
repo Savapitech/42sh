@@ -53,7 +53,6 @@ int shell_loop(env_t *env, int is_a_tty, history_t *history)
     size_t buffer_len;
 
     while (true) {
-        printf("caca\n");
         if (is_a_tty)
             WRITE_CONST(STDOUT_FILENO, SHELL_PROMPT);
         if (getline(&buffer, &buffer_sz, stdin) == -1)

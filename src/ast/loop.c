@@ -54,12 +54,11 @@ int while_loop(ef_t *ef, ast_t *node, char **save_buffers)
     ef->env->in_loop = true;
     for (size_t i = 0; node->loop.buffers[i]; i++){
         status = visitor(node->loop.buffers[i], ef->env, ef->history);
-        free_array(node->loop.buffers);
-        node->loop.buffers = arraydup(save_buffers);
         if (node->loop.buffers == NULL)
             exit(84);
     }
     free_array(node->loop.buffers);
+    node->loop.buffers = arraydup(save_buffers);
     ef->env->in_loop = false;
     return status;
 }
@@ -70,14 +69,14 @@ int foreach_loop(ef_t *ef, ast_t *node, char **save_buffers)
     int status = 0;
 
     ef->env->in_loop = true;
-    for (size_t i = 0; node->loop.buffers[i] && ef->flags; i++){
+    for (size_t i = 0; node->loop.buffers[i]; i++){
         status = visitor(node->loop.buffers[i], ef->env, ef->history);
-        free_array(node->loop.buffers);
-        node->loop.buffers = arraydup(save_buffers);
         if (node->loop.buffers == NULL)
             exit(84);
     }
     free_array(node->loop.buffers);
+    node->loop.buffers = arraydup(save_buffers);
+    printf("%s\n", node->loop.buffers[0]);
     ef->env->in_loop = false;
     return status;
 }
@@ -102,6 +101,7 @@ void launch_loop(ef_t *ef, ast_t *node)
     while (true)
         status = loop_func(ef, node, save_array);
     free_array(save_array);
+    free_array(node->loop.buffers);
     exit(status);
 }
 
