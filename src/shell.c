@@ -63,13 +63,13 @@ bool change_shell_command(char **buffer, exec_ctx_t *exec_ctx,
     char *tmp_buff = NULL;
 
     if (getline(buffer, &buffer_sz, stdin) == -1)
-        return false;
+        return true;
     tmp_buff = (*buffer);
     buffer_len = update_command(&tmp_buff, &buffer_sz, exec_ctx);
     if (buffer_len < 1 || !u_str_is_alnum(tmp_buff)) {
         check_basic_error(tmp_buff);
         free(tmp_buff);
-        return true;
+        return false;
     }
     U_DEBUG("Buffer [%lu] [%s]\n", buffer_len, buffer);
     visitor(tmp_buff, exec_ctx);
@@ -85,7 +85,7 @@ int shell_loop(int is_a_tty, exec_ctx_t *exec_ctx)
 
     while (true) {
         write_prompt(is_a_tty);
-        if (change_shell_command(&buffer, exec_ctx, buffer_sz) == false)
+        if (change_shell_command(&buffer, exec_ctx, buffer_sz) == true)
             return exec_ctx->history->last_exit_code;
     }
     free(exec_ctx->history_command);
