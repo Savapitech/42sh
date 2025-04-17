@@ -114,6 +114,7 @@ bool parser_eat(ast_ctx_t *ctx, token_type_t expected);
 ast_t *parse_loop(ast_ctx_t *ctx);
 void free_ast(ast_ctx_t *ctx);
 void print_ast(ast_t *ast, ast_ctx_t *ctx, size_t depth);
+void skip_semi(ast_ctx_t *ctx);
 
 // Outside needed parser
 ast_t *parse_cmd(ast_ctx_t *ctx);

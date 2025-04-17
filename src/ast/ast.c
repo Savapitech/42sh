@@ -176,13 +176,6 @@ ast_t *fill_semi_node(ast_ctx_t *ctx, ast_t *node)
     return node;
 }
 
-static
-void skip_semi(ast_ctx_t *ctx)
-{
-    while (ctx->act_tok.type & (T_SEMICOLON | T_AT))
-        ctx->act_tok = get_next_token(ctx);
-}
-
 ast_t *parse_expression(ast_ctx_t *ctx)
 {
     ast_t *l_node;

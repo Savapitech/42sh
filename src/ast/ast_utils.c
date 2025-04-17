@@ -36,24 +36,6 @@ void print_ast(ast_t *ast, ast_ctx_t *ctx, size_t depth)
     }
 }
 
-bool parser_eat(ast_ctx_t *ctx, token_type_t expected)
-{
-    token_type_t prev_tok_type = ctx->act_tok.type;
-
-    ctx->act_tok = get_next_token(ctx);
-    if (!(ctx->act_tok.type & expected)) {
-        if (prev_tok_type == T_PIPE)
-            WRITE_CONST(STDERR_FILENO, "Invalid null command.\n");
-        else {
-            WRITE_CONST(STDERR_FILENO, "Parse error near \"");
-            write(STDERR_FILENO, ctx->act_tok.str, ctx->act_tok.sz);
-            WRITE_CONST(STDERR_FILENO, "\"\n");
-        }
-        return false;
-    }
-    return true;
-}
-
 ast_t *create_node(ast_ctx_t *ctx)
 {
     ast_t *new_ast;
