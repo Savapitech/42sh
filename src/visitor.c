@@ -16,6 +16,7 @@
 #include "exec.h"
 #include "redirects.h"
 #include "u_str.h"
+#include "visitor.h"
 
 #include "debug.h"
 
@@ -92,27 +93,47 @@ int visit_pipes(ef_t *ef)
     return result;
 }
 
-static
 int visit_list(ef_t *ef, ast_t *node)
 {
     int result = RETURN_FAILURE;
 
+    if (node->type == N_CMD) {
+        ef->act_node = node;
+        return visit_cmd(ef);
+    }
     if (node->tok.type == T_PIPE) {
         ef->act_node = node;
         return visit_pipes(ef);
     }
+    return result;
+}
+
+static
+int visit_condition(ef_t *ef, ast_t *node)
+{
+    if (node->tok.type == T_AND)
+        return visit_and(ef, node);
+    if (node->tok.type == T_OR)
+        return visit_or(ef, node);
+    return RETURN_FAILURE;
+}
+
+static
+int visit_semi(ef_t *ef, ast_t *node)
+{
+    int result = RETURN_FAILURE;
+
     for (size_t i = 0; i < node->list.sz; i++) {
         ef->flags &= ~F_PIPE;
         ef->act_node = node->list.nodes[i];
-        if (node->list.nodes[i]->type == N_LST &&
-            node->list.nodes[i]->tok.type == T_PIPE)
-            result = visit_pipes(ef);
+        if (node->list.nodes[i]->tok.type & (T_AND | T_OR))
+            result = visit_condition(ef, node->list.nodes[i]);
+        if (node->list.nodes[i]->type == N_LST)
+            result = visit_list(ef, node->list.nodes[i]);
         ef->pin_fd = STDIN_FILENO;
         ef->pout_fd = STDOUT_FILENO;
         if (node->list.nodes[i]->type == N_CMD)
             result = visit_cmd(ef);
-        if (node->tok.type == T_AT)
-            sleep(3);
     }
     return result;
 }
@@ -130,7 +151,11 @@ int visitor_launcher(ef_t *ef)
     U_DEBUG_CALL(print_ast, ef->ctx->ast, ef->ctx, 0);
     if (ef->ctx->ast->type == N_LOP)
         result = visit_loop(ef, ef->ctx->ast);
-    if (ef->ctx->ast->type == N_LST)
+    if (ef->ctx->ast->tok.type == T_SEMICOLON)
+        result = visit_semi(ef, ef->ctx->ast);
+    if (ef->ctx->ast->tok.type & (T_AND | T_OR))
+        result = visit_condition(ef, ef->ctx->ast);
+    if (ef->ctx->ast->tok.type == T_PIPE)
         result = visit_list(ef, ef->ctx->ast);
     if (ef->ctx->ast->type == N_CMD) {
         ef->act_node = ef->ctx->ast;
