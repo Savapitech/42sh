@@ -69,8 +69,7 @@ char **parse_args(ef_t *ef, ast_t *node, env_t *env)
         if (ef->skip_sz > 0 && i >= ef->skip_i && i < ef->skip_i + ef->skip_sz)
             continue;
         ensure_args_capacity(&args, sz, &cap);
-        node->vector.tokens[i].str[node->vector.tokens[i].sz] = '\0';
-        args[sz] = node->vector.tokens[i].str;
+        args[sz] = handle_var_case(node, env, &i);
         U_DEBUG("Args [%lu] [%s]\n", sz, args[sz]);
         sz++;
     }
