@@ -67,10 +67,10 @@ ast_t *get_first_cmd(ast_t *node, char prompt[], size_t *bf_len)
 }
 
 static
-ast_t *increase_buffers(ast_t *node, size_t *buffer_len)
+ast_t *increase_buffers(ast_t *node, size_t *buffer_len, int *eof)
 {
     node->loop.buffers[node->loop.sz] = NULL;
-    getline(&(node->loop.buffers[node->loop.sz]), buffer_len, stdin);
+    *eof = getline(&(node->loop.buffers[node->loop.sz]), buffer_len, stdin);
     *buffer_len = u_strlen(node->loop.buffers[node->loop.sz]);
     node->loop.buffers[node->loop.sz][*buffer_len - 1] = '\0';
     node->loop.sz++;
@@ -82,6 +82,7 @@ ast_t *get_usr_loop_cmd(ast_t *node)
 {
     char prompt[] = "foreach? ";
     size_t buffer_len;
+    int eof = 0;
 
     node->loop.buffers = malloc(sizeof(char *) * node->loop.cap);
     if (node->tok.type == T_WHILE)
@@ -93,7 +94,7 @@ ast_t *get_usr_loop_cmd(ast_t *node)
             node = buffers_realloc(node);
         if (node == NULL)
             return NULL;
-        increase_buffers(node, &buffer_len);
+        increase_buffers(node, &buffer_len, &eof);
     }
     free(node->loop.buffers[node->loop.sz]);
     node->loop.sz--;
@@ -107,21 +108,62 @@ void exit_child(int sig __attribute__((unused)))
     _exit(sig);
 }
 
+static
+int while_loop(ef_t *ef, ast_t *node, char **save_buffers)
+{
+    int status = 0;
+
+    ef->env->in_loop = true;
+    for (size_t i = 0; i < node->loop.sz; i++){
+        status = visitor(node->loop.buffers[i], ef->env, ef->history);
+        free_array(node->loop.buffers);
+        node->loop.buffers = arraydup(save_buffers);
+        if (node->loop.buffers == NULL)
+            exit(84);
+    }
+    free_array(node->loop.buffers);
+    ef->env->in_loop = false;
+    return status;
+}
+
+static
+int foreach_loop(ef_t *ef, ast_t *node, char **save_buffers)
+{
+    int status = 0;
+
+    ef->env->in_loop = true;
+    for (size_t i = 0; i < node->loop.sz; i++){
+        status = visitor(node->loop.buffers[i], ef->env, ef->history);
+        free_array(node->loop.buffers);
+        node->loop.buffers = arraydup(save_buffers);
+        if (node->loop.buffers == NULL)
+            exit(84);
+    }
+    free_array(node->loop.buffers);
+    ef->env->in_loop = false;
+    return status;
+}
+
 //TODO: need to change the while true by a check_condition
 static
 void launch_loop(ef_t *ef, ast_t *node)
 {
     int status;
+    char **save_array = NULL;
+    int (*loop_func)(ef_t *, ast_t *, char **) = while_loop;
 
     signal(SIGINT, exit_child);
-    signal(EOF, exit_child);
     node = get_usr_loop_cmd(node);
     if (node == NULL)
         exit(84);
+    save_array = arraydup(node->loop.buffers);
+    if (save_array == NULL)
+        exit(84);
+    if (node->tok.type == T_FOREACH)
+        loop_func = foreach_loop;
     while (true)
-        for (size_t i = 0; i < node->loop.sz; i++)
-            status = visitor(node->loop.buffers[i], ef->env, ef->history);
-    free_array(node->loop.buffers);
+        status = loop_func(ef, node, save_array);
+    free_array(save_array);
     exit(status);
 }
 
