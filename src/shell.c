@@ -75,6 +75,7 @@ int shell_loop(int is_a_tty, exec_ctx_t *exec_ctx)
         buffer_len = update_command(&buffer, &buffer_sz, exec_ctx);
         if (buffer_len < 1 || !u_str_is_alnum(buffer)) {
             check_basic_error(buffer);
+            free(buffer);
             continue;
         }
         U_DEBUG("Buffer [%lu] [%s]\n", buffer_len, buffer);
