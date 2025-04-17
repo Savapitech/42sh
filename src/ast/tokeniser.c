@@ -28,6 +28,8 @@ const tokens_list_t TOKENS_LIST[] = {
     { T_AT, "@", 1, "T_AT" },
     { T_HEREDOC, "<<", 2, "T_HEREDOC" },
     { T_IN_REDIRECT, "<", 1, "T_IN_REDIRECT" },
+    { T_WHILE, "while", 5, "T_WHILE"},
+    { T_FOREACH, "foreach", 7, "T_WHILE"},
     { T_EOF, "\0", 1, "T_EOF" }
 };
 

@@ -24,7 +24,7 @@
         #define DEBUG_INTERNAL(fmt, ...) ERR(HEAD_FMT fmt, HEAD, __VA_ARGS__)
 
         #define U_DEBUG(fmt, ...) DEBUG_INTERNAL(fmt, __VA_ARGS__)
-        #define U_DEBUG_MSG(msg) DEBUG_INTERNAL("%s\n", msg)
+        #define U_DEBUG_MSG(msg) DEBUG_INTERNAL("%s", msg)
 
         #define U_DEBUG_CALL(func, ...) func(__VA_ARGS__)
     #else

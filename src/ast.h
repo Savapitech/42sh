@@ -32,15 +32,18 @@ typedef enum {
     T_HEREDOC = 1 << 13, // <
     T_IN_REDIRECT = 1 << 14, // <
     T_AT = 1 << 15, // <
-    T_EOF = 1 << 16, // \0
-    T_ARG = 1 << 17,
-    T_INVALID = 1 << 18
+    T_WHILE = 1 << 16, // while
+    T_FOREACH = 1 << 17, // foreach
+    T_EOF = 1 << 18, // \0
+    T_ARG = 1 << 19,
+    T_INVALID = 1 << 20
 } token_type_t;
 
 typedef enum {
     N_LST,
     N_CMD,
-    N_BIN
+    N_BIN,
+    N_LOP
 } node_type_t;
 
 typedef struct {
@@ -75,6 +78,12 @@ typedef struct ast_s {
             size_t cap;
             ast_t **nodes;
         } list;
+        struct {
+            size_t sz;
+            size_t cap;
+            char **buffers;
+            ast_t *condition;
+        } loop;
     };
     token_t tok;
 } ast_t;
@@ -92,13 +101,23 @@ typedef struct {
 
 extern const tokens_list_t TOKENS_LIST[];
 
+// Main funcs
 ast_t *parse_expression(ast_ctx_t *ctx);
-void print_ast(ast_ctx_t *ctx, ast_t *ast, size_t depth);
 token_t get_next_token(ast_ctx_t *ctx);
+
+// Utils funcs
 int visitor(char *buffer, exec_ctx_t *exec_ctx);
 ast_t *create_node(ast_ctx_t *ctx);
 bool ensure_node_cap(ast_t *node);
 bool ensure_list_cap(ast_t *node);
 bool parser_eat(ast_ctx_t *ctx, token_type_t expected);
+ast_t *parse_loop(ast_ctx_t *ctx);
 void free_ast(ast_ctx_t *ctx);
+void print_ast(ast_t *ast, ast_ctx_t *ctx, size_t depth);
+
+// Outside needed parser
+ast_t *parse_cmd(ast_ctx_t *ctx);
+ast_t *parse_condition(ast_ctx_t *ctx);
+ast_t *parse_and(ast_ctx_t *ctx, ast_t *l_node);
+ast_t *parse_or(ast_ctx_t *ctx, ast_t *l_node);
 #endif /* AST_H */
