@@ -120,7 +120,7 @@ void launch_loop(ef_t *ef, ast_t *node)
         exit(84);
     while (true)
         for (size_t i = 0; i < node->loop.sz; i++)
-            status = visitor(node->loop.buffers[i], ef->env, ef->history);
+            status = visitor(node->loop.buffers[i], ef->exec_ctx);
     free_array(node->loop.buffers);
     exit(status);
 }

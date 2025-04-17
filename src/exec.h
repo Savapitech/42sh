@@ -43,9 +43,11 @@ typedef struct {
     int pout_fd;
     int in_fd;
     int out_fd;
+    exec_ctx_t *exec_ctx;
 } ef_t;
 
 __attribute__((nonnull))
 int execute(ef_t *ef);
 int visit_loop(ef_t *ef, ast_t *node);
+char *handle_var_case(ast_t *node, env_t *env, size_t *i);
 #endif /* EXEC_H */
