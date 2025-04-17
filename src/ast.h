@@ -111,5 +111,6 @@ bool ensure_node_cap(ast_t *node);
 bool ensure_list_cap(ast_t *node);
 bool parser_eat(ast_ctx_t *ctx, token_type_t expected);
 ast_t *parse_loop(ast_ctx_t *ctx);
+ast_t *get_usr_loop_cmd(ast_t *node);
 void free_ast(ast_ctx_t *ctx);
 #endif /* AST_H */

@@ -15,7 +15,7 @@
 
 int builtins_break(ef_t *ef, char **args)
 {
-    if (args[1] != NULL)
+    if (args[1] != NULL && ef->env->in_loop == false)
         WRITE_CONST(STDERR_FILENO, "break: Too many arguments.\n");
     if (ef->env->in_loop == false && args[1] == NULL)
         return (WRITE_CONST(STDERR_FILENO, "break: Not in while/foreach.\n"),
