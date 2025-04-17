@@ -30,7 +30,7 @@ typedef struct history_command_s {
 } his_command_t;
 
 typedef struct parsing_history_s {
-    char *name;
+    char const *name;
     char *(*funct)(char *, his_variable_t *, his_command_t *);
 } parsing_history_t;
 

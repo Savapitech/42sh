@@ -76,6 +76,7 @@ int choose_id_or_last(his_variable_t *his_variable, int index_str, char *str)
     if (his_variable->str == NULL)
         return 3;
     his_variable->id = atoi(his_variable->str + 1);
+    free(his_variable->str);
     return (mode == 1) ? 3 : 4;
 }
 

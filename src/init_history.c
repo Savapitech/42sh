@@ -15,7 +15,7 @@
 
 static char *get_arg(char *line, int x, int end_cmd)
 {
-    char *tmp = malloc(sizeof(char) * (x - end_cmd) + 1);
+    char *tmp = malloc(sizeof(char) * ((x - end_cmd) + 1));
 
     if (tmp != NULL) {
         tmp = strncpy(tmp, &line[end_cmd], x - end_cmd);
@@ -31,7 +31,7 @@ his_command_t set_cmd(char *line, his_command_t cmd_struct)
 
     while (line[x] != '\0' && !isblank(line[x]))
         x++;
-    cmd_struct.command = malloc(sizeof(char) * x + 1);
+    cmd_struct.command = malloc((sizeof(char) * x + 1));
     if (cmd_struct.command != NULL) {
         cmd_struct.command = strncpy(cmd_struct.command, line, x);
         cmd_struct.command[x] = '\0';
