@@ -70,7 +70,8 @@ char **parse_args(ef_t *ef, ast_t *node, env_t *env)
             continue;
         ensure_args_capacity(&args, sz, &cap);
         args[sz] = handle_var_case(node, env, &i);
-        U_DEBUG("Args [%lu] [%s]\n", sz, args[sz]);
+        if (args[sz] == NULL)
+            return free(args), NULL;
         sz++;
     }
     ensure_args_capacity(&args, sz, &cap);
