@@ -56,7 +56,8 @@ void write_prompt(int is_a_tty)
 }
 
 static
-bool change_shell_command(char **buffer, exec_ctx_t *exec_ctx, size_t buffer_sz)
+bool change_shell_command(char **buffer, exec_ctx_t *exec_ctx,
+    size_t buffer_sz)
 {
     size_t buffer_len = 0;
     char *tmp_buff = NULL;
