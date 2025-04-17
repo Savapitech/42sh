@@ -48,4 +48,5 @@ typedef struct {
 
 __attribute__((nonnull))
 int execute(ef_t *ef);
+char *handle_var_case(ast_t *node, env_t *env, size_t *i);
 #endif /* EXEC_H */
