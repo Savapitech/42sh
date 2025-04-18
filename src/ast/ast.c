@@ -121,7 +121,6 @@ ast_t *parse_condition(ast_ctx_t *ctx)
     return ctx->ast;
 }
 
-static
 ast_t *parse_semi(ast_ctx_t *ctx)
 {
     ast_t *l_node = parse_condition(ctx);

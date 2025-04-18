@@ -21,8 +21,12 @@ int visit_and(ef_t *ef, ast_t *node)
         return WRITE_CONST(STDERR_FILENO, "Invalid null l/r command.\n"),
             RETURN_FAILURE;
     result = visit_list(ef, node->binary.left);
-    if (!result)
-        result = visit_list(ef, node->binary.right);
+    if (!result) {
+        if (node->binary.right->tok.type & (T_AND | T_OR))
+            result = visit_condition(ef, node->binary.right);
+        else
+            result = visit_list(ef, node->binary.right);
+    }
     return result;
 }
 
@@ -34,7 +38,11 @@ int visit_or(ef_t *ef, ast_t *node)
         return WRITE_CONST(STDERR_FILENO, "Invalid null l/r command.\n"),
             RETURN_FAILURE;
     result = visit_list(ef, node->binary.left);
-    if (result)
-        result = visit_list(ef, node->binary.right);
+    if (result) {
+        if (node->binary.right->tok.type & (T_AND | T_OR))
+            result = visit_condition(ef, node->binary.right);
+        else
+            result = visit_list(ef, node->binary.right);
+    }
     return result;
 }

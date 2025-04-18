@@ -118,6 +118,7 @@ void skip_semi(ast_ctx_t *ctx);
 
 // Outside needed parser
 ast_t *parse_cmd(ast_ctx_t *ctx);
+ast_t *parse_semi(ast_ctx_t *ctx);
 ast_t *parse_condition(ast_ctx_t *ctx);
 ast_t *parse_and(ast_ctx_t *ctx, ast_t *l_node);
 ast_t *parse_or(ast_ctx_t *ctx, ast_t *l_node);

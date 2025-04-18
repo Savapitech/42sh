@@ -108,7 +108,6 @@ int visit_list(ef_t *ef, ast_t *node)
     return result;
 }
 
-static
 int visit_condition(ef_t *ef, ast_t *node)
 {
     if (node->tok.type == T_AND)
