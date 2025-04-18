@@ -39,6 +39,7 @@ int visit_or(ef_t *ef, ast_t *node)
             RETURN_FAILURE;
     result = visit_list(ef, node->binary.left);
     if (result) {
+        ef->history->last_exit_code = 0;
         if (node->binary.right->tok.type & (T_AND | T_OR))
             result = visit_condition(ef, node->binary.right);
         else
