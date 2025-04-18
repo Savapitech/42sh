@@ -48,8 +48,10 @@ char *find_alias(his_variable_t *variable, alias_t *alias, char *buffer)
     for (size_t i = 0; i != alias->size; i++){
         if (alias->alias_array[i] == NULL)
             return NULL;
-        if (strcmp(cmd, alias->alias_array[i]) == 0)
+        if (strcmp(cmd, alias->alias_array[i]) == 0){
             new_cmd = cat_in_str(variable, buffer, alias->alias_to_replace[i]);
+            free(buffer);
+        }
     }
     return new_cmd;
 }
@@ -73,7 +75,6 @@ char *get_alias(char *buffer, int i, alias_t *alias)
 static
 bool replace_alias(char **buffer, alias_t *alias)
 {
-    bool state = false;
     char *tmp_buff = *buffer;
 
     for (int i = skip_blank(tmp_buff, 0); tmp_buff[i] != 0; i++){

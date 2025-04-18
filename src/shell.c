@@ -66,6 +66,8 @@ bool change_shell_command(char **buffer, exec_ctx_t *exec_ctx,
         return true;
     tmp_buff = (*buffer);
     buffer_len = update_command(&tmp_buff, &buffer_sz, exec_ctx);
+    if (buffer_len == 0)
+        return false;
     if (buffer_len < 1 || !u_str_is_alnum(tmp_buff)) {
         check_basic_error(tmp_buff);
         free(tmp_buff);
