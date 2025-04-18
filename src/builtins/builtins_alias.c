@@ -22,7 +22,7 @@ void free_alias(alias_t *alias)
     }
     free(alias->alias_array);
     free(alias->alias_to_replace);
-    return ;
+    return;
 }
 
 int builtins_display_alias(alias_t *alias)
@@ -35,6 +35,15 @@ int builtins_display_alias(alias_t *alias)
     return RETURN_SUCCESS;
 }
 
+int size_str_in_narray(int i, char **array)
+{
+    int size_str = 0;
+
+    for (int cp_i = i; array[cp_i] != NULL; cp_i++)
+        size_str += strlen(array[cp_i]) + 1;
+    return size_str;
+}
+
 char *array_nto_strdup(char **array, int i)
 {
     char *new_str = NULL;
@@ -43,8 +52,7 @@ char *array_nto_strdup(char **array, int i)
 
     if (len_array(array) < i)
         return NULL;
-    for (int cp_i = i;array[cp_i] != NULL; cp_i++)
-        size_str += strlen(array[cp_i]) + 1;
+    size_str = size_str_in_narray(i, array);
     new_str = malloc(size_str + 1);
     if (new_str == NULL)
         return NULL;
@@ -72,10 +80,6 @@ int builtins_alias(ef_t *ef, char **args)
         return RETURN_FAILURE;
     }
     alias->alias_array[alias->size - 1] = strdup(args[1]);
-    //for (int i = 2; args[i] != NULL; i++)
-        //printf("ALIAS \\;/%p\\\n", args[i]);
     alias->alias_to_replace[alias->size - 1] = array_nto_strdup(args, 2);
-    //printf("ALIAS\n");
-        //return RETURN_FAILURE;
     return RETURN_SUCCESS;
 }

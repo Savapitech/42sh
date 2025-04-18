@@ -110,7 +110,9 @@ his_command_t *init_cmd_history(void)
 static
 bool error_in_init(exec_ctx_t *exec_ctx)
 {
-    if (!exec_ctx->history_command || !exec_ctx->env->env || !exec_ctx->alias->alias_array || !exec_ctx->alias->alias_to_replace) {
+    if (!exec_ctx->history_command || !exec_ctx->env->env
+        || !exec_ctx->alias->alias_array ||
+        !exec_ctx->alias->alias_to_replace) {
         free(exec_ctx->alias->alias_array);
         free(exec_ctx->alias->alias_to_replace);
         free(exec_ctx->history_command);

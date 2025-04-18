@@ -11,7 +11,7 @@
     #include "history.h"
     #include "shell.h"
 
-typedef struct alias_s{
+typedef struct alias_s {
     size_t size;
     char **alias_array;
     char **alias_to_replace;

@@ -22,18 +22,15 @@
 
 static int skip_blank(char *buffer, int i)
 {
-    for (;buffer[i] != 0 && isblank(buffer[i]); i++){
+    for (; buffer[i] != 0 && isblank(buffer[i]); i++){
     }
     return i;
 }
 
 static int skip_to_next_token(char *buffer, int i)
 {
-    for (;buffer[i] != 0 && is_a_token(buffer, i) == false; i++){
-        //printf("TOEKN: %d\n", is_a_token(buffer, i));
-        //printf("str; %s where %d\n", buffer, i);
+    for (; buffer[i] != 0 && is_a_token(buffer, i) == false; i++){
     }
-    //printf("Next token %d\n", i);
     return i;
 }
 
@@ -42,26 +39,20 @@ char *find_alias(his_variable_t *variable, alias_t *alias, char *buffer)
 {
     char cmd[variable->size_variable + 1];
     char *new_cmd = NULL;
-    
-    for (int i = variable->coord_variable; i != variable->coord_variable + variable->size_variable; i++){
+
+    for (int i = variable->coord_variable; i !=
+        variable->coord_variable + variable->size_variable; i++){
         cmd[i - variable->coord_variable] = buffer[i];
     }
     cmd[variable->size_variable] = '\0';
     for (size_t i = 0; i != alias->size; i++){
         if (alias->alias_array[i] == NULL)
             return NULL;
-        if(strcmp(cmd, alias->alias_array[i]) == 0)
+        if (strcmp(cmd, alias->alias_array[i]) == 0)
             new_cmd = cat_in_str(variable, buffer, alias->alias_to_replace[i]);
     }
     return new_cmd;
 }
-/*
-je get la size et l emplacement
-ensuite variable discréte ej strcpy
-puis strcmp avec tous les alias
-et si c est trouvé je remplace
-avec cat_in_str;
-*/
 
 static
 char *get_alias(char *buffer, int i, alias_t *alias)
@@ -70,11 +61,12 @@ char *get_alias(char *buffer, int i, alias_t *alias)
     int size = 0;
     his_variable_t variable = {0, 0, 0, NULL, 0};
 
-    for (;buffer[i] != 0 && !isblank(buffer[i]) && is_a_token(buffer, i) == false; i++)
+    for (; buffer[i] != 0 && !isblank(buffer[i])
+        && is_a_token(buffer, i) == false; i++)
         size++;
     variable.coord_variable = coord;
     variable.size_variable = size;
-    buffer = find_alias(&variable, alias, buffer);//parcour de alias_t + replace
+    buffer = find_alias(&variable, alias, buffer);
     return buffer;
 }
 
@@ -94,7 +86,6 @@ bool replace_alias(char **buffer, alias_t *alias)
     *buffer = tmp_buff;
     return true;
 }
-//state = (is_a_token(tmp_buffer, i) == false) ? true : false;
 
 int parse_alias(char **buffer, size_t *buffer_len, alias_t *alias)
 {
