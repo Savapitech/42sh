@@ -19,5 +19,6 @@ typedef struct alias_s{
 
 void free_alias(alias_t *alias);
 int builtins_display_alias(alias_t *alias);
+int parse_alias(char **buffer, size_t *buffer_len, alias_t *alias);
 
 #endif /* ALIAS*/

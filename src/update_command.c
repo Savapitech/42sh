@@ -44,6 +44,7 @@ size_t update_command(char **buffer,
     if (parse_history(buffer, &buffer_len,
         buffer_sz, &exec_ctx->history_command) == 84)
         return -1;
+    parse_alias(buffer, &buffer_len, exec_ctx->alias);
     exec_ctx->history_command = save_command(*buffer,
         exec_ctx->history_command);
     return buffer_len;

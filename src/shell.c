@@ -127,6 +127,10 @@ alias_t init_alias(void)
     alias.size = 1;
     alias.alias_array = malloc(sizeof(char *) * alias.size);
     alias.alias_to_replace = malloc(sizeof(char *) * alias.size);
+    if (!alias.alias_array || !alias.alias_to_replace)
+        return alias;
+    alias.alias_array[0] = NULL;
+    alias.alias_to_replace[0] = NULL;
     return alias;
 }
 
