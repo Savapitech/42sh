@@ -30,7 +30,10 @@ const tokens_list_t TOKENS_LIST[] = {
     { T_HEREDOC, "<<", 2, "T_HEREDOC" },
     { T_IN_REDIRECT, "<", 1, "T_IN_REDIRECT" },
     { T_WHILE, "while", 5, "T_WHILE"},
-    { T_FOREACH, "foreach", 7, "T_WHILE"},
+    { T_IF, "if", 7, "T_IF"},
+    { T_THEN, "then", 7, "T_THEN"},
+    { T_ELSE, "else", 7, "T_ELSE"},
+    { T_ENDIF, "endif", 7, "T_ENDIF"},
     { T_EOF, "\0", 1, "T_EOF" }
 };
 

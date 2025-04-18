@@ -36,3 +36,18 @@ ast_t *parse_or(ast_ctx_t *ctx, ast_t *l_node)
         return NULL;
     return node;
 }
+
+static
+ast_t *parse_exp(ast_ctx_t *ctx, ast_t *node)
+{
+    return NULL;
+}
+
+ast_t *parse_if(ast_ctx_t *ctx)
+{
+    ast_t *node = create_node(ctx);
+
+    if (node == NULL)
+        return NULL;
+    return node;
+}

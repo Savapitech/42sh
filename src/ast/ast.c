@@ -183,6 +183,8 @@ ast_t *parse_expression(ast_ctx_t *ctx)
     if (ctx->act_tok.type == T_EOF)
         return ctx->ast;
     skip_semi(ctx);
+    if (ctx->act_tok.type == T_IF)
+        ctx->ast = parse_if(ctx);
     l_node = parse_semi(ctx);
     if (l_node == NULL)
         return ctx->ast;
