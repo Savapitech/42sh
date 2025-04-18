@@ -202,7 +202,6 @@ int exec_the_args(ef_t *ef, char **args)
 int execute(ef_t *ef)
 {
     char **args;
-    int status;
 
     args = parse_args(ef, ef->act_node, ef->env);
     if (!args)
