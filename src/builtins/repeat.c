@@ -23,7 +23,7 @@ bool checking_error(ef_t *ef, char **args, long *nb_loop)
     char *end;
 
     if (my_array_len(args) < 3)
-        return(WRITE_CONST(STDERR_FILENO, "repeat: Too few arguments.\n"),
+        return (WRITE_CONST(STDERR_FILENO, "repeat: Too few arguments.\n"),
         true);
     *nb_loop = strtol(args[1], &end, 10);
     if (end[0] != '\0'){
