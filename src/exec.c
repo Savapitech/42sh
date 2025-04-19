@@ -34,7 +34,8 @@ const builtins_funcs_t BUILTINS[] = {
     { ":", &builtins_funny_double_dot },
     { "repeat", &builtins_repeat },
     { "exit", &builtins_exit },
-    { "history", &builtins_history}
+    { "history", &builtins_history},
+    { "yes", &builtins_yes }
 };
 
 const size_t BUILTINS_SZ = sizeof BUILTINS / sizeof *BUILTINS;
