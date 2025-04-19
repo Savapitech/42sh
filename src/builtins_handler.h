@@ -11,11 +11,13 @@
     #include "env.h"
     #include "history.h"
     #include "shell.h"
+    #include "alias.h"
 
 typedef struct {
     env_t *env;
     history_t *history;
     his_command_t *history_command;
+    alias_t *alias;
 } exec_ctx_t;
 
 size_t update_command(char **buffer,

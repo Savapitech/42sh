@@ -12,7 +12,7 @@ bool is_a_token(char *str, int index_str)
 {
     str += index_str;
     for (size_t i = 0; i < 16; i++) {
-        if (strncmp(str, TOKENS_LIST[i].str, 2) == 0){
+        if (strncmp(str, TOKENS_LIST[i].str, TOKENS_LIST[i].sz) == 0){
             return true;
         }
     }
