@@ -25,6 +25,7 @@ void free_alias(alias_t *alias)
     return;
 }
 
+static
 int builtins_display_alias(alias_t *alias)
 {
     printf("Alias %d:\n", alias->size);
@@ -35,6 +36,7 @@ int builtins_display_alias(alias_t *alias)
     return RETURN_SUCCESS;
 }
 
+static
 int size_str_in_narray(int i, char **array)
 {
     int size_str = 0;
@@ -44,6 +46,7 @@ int size_str_in_narray(int i, char **array)
     return size_str;
 }
 
+static
 char *array_nto_strdup(char **array, int i)
 {
     char *new_str = NULL;
@@ -68,10 +71,13 @@ char *array_nto_strdup(char **array, int i)
     return new_str;
 }
 
+static
 int add_alias(alias_t *alias, char **args)
 {
-    char **new_alias_array = realloc(alias->alias_array, sizeof(char *) * alias->size);
-    char **new_replace = realloc(alias->alias_to_replace, sizeof(char *) * alias->size);
+    char **new_alias_array =
+        realloc(alias->alias_array, sizeof(char *) * alias->size);
+    char **new_replace =
+        realloc(alias->alias_to_replace, sizeof(char *) * alias->size);
 
     if (!new_alias_array || !new_replace){
         free(new_alias_array);
@@ -89,7 +95,7 @@ int builtins_alias(ef_t *ef, char **args)
 {
     alias_t *alias = ef->exec_ctx->alias;
     char *first_arg = args[1];
-    
+
     if (first_arg != NULL && strcmp(args[1], "--display") == 0)
         return builtins_display_alias(alias);
     if (len_array(args) < 3){

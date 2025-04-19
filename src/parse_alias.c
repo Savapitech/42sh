@@ -93,7 +93,7 @@ int parse_alias(char **buffer, size_t *buffer_len, alias_t *alias)
 {
     bool need_to_replace = true;
 
-    while (need_to_replace == true) 
+    while (need_to_replace == true)
         need_to_replace = replace_alias(buffer, alias);
     return 0;
 }
