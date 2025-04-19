@@ -61,9 +61,7 @@ char *parse_full_bin_path(env_t *env, char *bin_name)
 
     if (path == NULL)
         path = DEFAULT_PATH;
-    U_DEBUG("Used path [%s]\n", path);
     full_bin_path = find_binary(path, bin_name, &dup_path);
-    U_DEBUG("Exec bin [%s]\n", full_bin_path);
     if (full_bin_path == NULL)
         return NULL;
     free(dup_path);

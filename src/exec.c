@@ -23,7 +23,7 @@
 #include "u_mem.h"
 #include "u_str.h"
 
-const builtins_t BUILTINS[] = {
+const builtins_funcs_t BUILTINS[] = {
     { "builtins", &builtins_builtins },
     { "cd", &builtins_cd },
     { "chdir", &builtins_cd },
@@ -34,7 +34,8 @@ const builtins_t BUILTINS[] = {
     { ":", &builtins_funny_double_dot },
     { "break", &builtins_break },
     { "repeat", &builtins_repeat },
-    { "exit", &builtins_exit }
+    { "exit", &builtins_exit },
+    { "history", &builtins_history}
 };
 
 const size_t BUILTINS_SZ = sizeof BUILTINS / sizeof *BUILTINS;
@@ -70,9 +71,9 @@ char **parse_args(ef_t *ef, ast_t *node, env_t *env)
         if (ef->skip_sz > 0 && i >= ef->skip_i && i < ef->skip_i + ef->skip_sz)
             continue;
         ensure_args_capacity(&args, sz, &cap);
-        node->vector.tokens[i].str[node->vector.tokens[i].sz] = '\0';
-        args[sz] = node->vector.tokens[i].str;
-        U_DEBUG("Args [%lu] [%s]\n", sz, args[sz]);
+        args[sz] = handle_var_case(node, env, &i);
+        if (args[sz] == NULL)
+            return free(args), NULL;
         sz++;
     }
     ensure_args_capacity(&args, sz, &cap);
@@ -139,8 +140,8 @@ int launch_bin(char *full_bin_path, char **args, ef_t *ef)
     else
         waitpid(pid, &status, WNOHANG);
     if (WIFEXITED(status))
-        ef->history->last_exit_code =
-            ef->history->last_exit_code ?: WEXITSTATUS(status);
+        ef->exec_ctx->history->last_exit_code =
+        ef->exec_ctx->history->last_exit_code ?: WEXITSTATUS(status);
     return status;
 }
 
@@ -173,7 +174,7 @@ bool builtins_launcher(ef_t *ef, char **args)
         if (u_strlen(BUILTINS[i].name) != bin_l)
             continue;
         if (u_strcmp(BUILTINS[i].name, args[0]) == 0) {
-            ef->history->last_exit_code =
+            ef->exec_ctx->history->last_exit_code =
                 BUILTINS[i].ptr(ef, args);
             return true;
         }
@@ -208,5 +209,6 @@ int execute(ef_t *ef)
         return RETURN_FAILURE;
     exec_the_args(ef, args);
     free((void *)args);
-    return ef->history->last_exit_code != 0 ? RETURN_FAILURE : RETURN_SUCCESS;
+    return ef->exec_ctx->history->last_exit_code
+        != 0 ? RETURN_FAILURE : RETURN_SUCCESS;
 }

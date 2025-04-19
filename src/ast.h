@@ -9,9 +9,8 @@
     #define AST_H
     #include <stddef.h>
     #include <stdint.h>
-
     #include "shell.h"
-    #include "env.h"
+    #include "builtins_handler.h"
 
     #define DEFAULT_AST_CAP 128
     #define T_ALL 0xff
@@ -102,10 +101,12 @@ typedef struct {
 
 extern const tokens_list_t TOKENS_LIST[];
 
+// Main funcs
 ast_t *parse_expression(ast_ctx_t *ctx);
-void print_ast(ast_ctx_t *ctx, ast_t *ast, size_t depth);
 token_t get_next_token(ast_ctx_t *ctx);
-int visitor(char *buffer, env_t *env, history_t *history);
+
+// Utils funcs
+int visitor(char *buffer, exec_ctx_t *exec_ctx);
 ast_t *create_node(ast_ctx_t *ctx);
 bool ensure_node_cap(ast_t *node);
 bool ensure_list_cap(ast_t *node);
@@ -113,4 +114,12 @@ bool parser_eat(ast_ctx_t *ctx, token_type_t expected);
 ast_t *parse_loop(ast_ctx_t *ctx);
 ast_t *get_usr_loop_cmd(ast_t *node);
 void free_ast(ast_ctx_t *ctx);
+void print_ast(ast_t *ast, ast_ctx_t *ctx, size_t depth);
+void skip_semi(ast_ctx_t *ctx);
+
+// Outside needed parser
+ast_t *parse_cmd(ast_ctx_t *ctx);
+ast_t *parse_condition(ast_ctx_t *ctx);
+ast_t *parse_and(ast_ctx_t *ctx, ast_t *l_node);
+ast_t *parse_or(ast_ctx_t *ctx, ast_t *l_node);
 #endif /* AST_H */
