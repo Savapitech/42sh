@@ -56,8 +56,8 @@ int builtins_yes(ef_t *ef, char **args)
         return RETURN_FAILURE;
     pid = fork();
     if (pid == 0){
-        signal(SIGINT, exit_child);
         while (true){
+            signal(SIGINT, exit_child);
             write(ef->out_fd, buffer, strlen(buffer));
         }
         exit(RETURN_SUCCESS);
