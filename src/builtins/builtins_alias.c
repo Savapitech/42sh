@@ -105,7 +105,7 @@ int builtins_alias(ef_t *ef, char **args)
         return RETURN_SUCCESS;
     }
     alias->size++;
-    if (add_alias(alias, args) == RETURN_FAILURE);
+    if (add_alias(alias, args) == RETURN_FAILURE)
         return RETURN_FAILURE;
     return RETURN_SUCCESS;
 }
