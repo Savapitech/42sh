@@ -25,7 +25,6 @@ void free_alias(alias_t *alias)
     return;
 }
 
-static
 int builtins_display_alias(alias_t *alias)
 {
     printf("Alias %d:\n", alias->size);
