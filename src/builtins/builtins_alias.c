@@ -6,13 +6,14 @@
 */
 #include <string.h>
 #include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
 #include "common.h"
 #include "env.h"
 #include "exec.h"
 #include "alias.h"
-#include <string.h>
 #include "utils.h"
-#include <stdlib.h>
 
 void free_alias(alias_t *alias)
 {
@@ -87,7 +88,7 @@ int add_alias(alias_t *alias, char **args)
     alias->alias_to_replace = new_replace;
     alias->alias_array[alias->size - 1] = strdup(args[1]);
     alias->alias_to_replace[alias->size - 1] = array_nto_strdup(args, 2);
-    return 0;
+    return RETURN_SUCCESS;
 }
 
 int builtins_alias(ef_t *ef, char **args)
@@ -104,6 +105,7 @@ int builtins_alias(ef_t *ef, char **args)
         return RETURN_SUCCESS;
     }
     alias->size++;
-    add_alias(alias, args);
+    if (add_alias(alias, args) == RETURN_FAILURE);
+        return RETURN_FAILURE;
     return RETURN_SUCCESS;
 }

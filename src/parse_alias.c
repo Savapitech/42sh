@@ -22,15 +22,13 @@
 
 static int skip_blank(char *buffer, int i)
 {
-    for (; buffer[i] != 0 && isblank(buffer[i]); i++){
-    }
+    for (; buffer[i] != 0 && isblank(buffer[i]); i++);
     return i;
 }
 
 static int skip_to_next_token(char *buffer, int i)
 {
-    for (; buffer[i] != 0 && is_a_token(buffer, i) == false; i++){
-    }
+    for (; buffer[i] != 0 && is_a_token(buffer, i) == false; i++);
     return i;
 }
 
@@ -95,5 +93,5 @@ int parse_alias(char **buffer, size_t *buffer_len, alias_t *alias)
 
     while (need_to_replace == true)
         need_to_replace = replace_alias(buffer, alias);
-    return 0;
+    return RETURN_SUCCESS;
 }

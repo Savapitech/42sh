@@ -7,6 +7,7 @@
 #include "history.h"
 #include "builtins_handler.h"
 #include "u_str.h"
+#include "common.h"
 
 static int check_cmd(char *cmd)
 {
@@ -39,11 +40,11 @@ size_t update_command(char **buffer,
 
     buffer_len = u_strlen(*buffer);
     if (buffer_len < 2)
-        return 1;
+        return RETURN_FAILURE;
     (*buffer)[buffer_len - 1] = '\0';
     if (parse_history(buffer, &buffer_len,
         buffer_sz, &exec_ctx->history_command) == 84)
-        return 0;
+        return RETURN_SUCCESS;
     parse_alias(buffer, &buffer_len, exec_ctx->alias);
     exec_ctx->history_command = save_command(*buffer,
         exec_ctx->history_command);
