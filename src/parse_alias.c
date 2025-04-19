@@ -51,6 +51,7 @@ char *find_alias(his_variable_t *variable, alias_t *alias, char *buffer)
         if (strcmp(cmd, alias->alias_array[i]) == 0){
             new_cmd = cat_in_str(variable, buffer, alias->alias_to_replace[i]);
             free(buffer);
+            buffer = new_cmd;
         }
     }
     return new_cmd;
@@ -90,6 +91,9 @@ bool replace_alias(char **buffer, alias_t *alias)
 
 int parse_alias(char **buffer, size_t *buffer_len, alias_t *alias)
 {
-    replace_alias(buffer, alias);
+    bool need_to_replace = true;
+
+    while (need_to_replace == true) 
+        need_to_replace = replace_alias(buffer, alias);
     return 0;
 }

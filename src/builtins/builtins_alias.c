@@ -68,18 +68,35 @@ char *array_nto_strdup(char **array, int i)
     return new_str;
 }
 
+int add_alias(alias_t *alias, char **args)
+{
+    char **new_alias_array = realloc(alias->alias_array, sizeof(char *) * alias->size);
+    char **new_replace = realloc(alias->alias_to_replace, sizeof(char *) * alias->size);
+
+    if (!new_alias_array || !new_replace){
+        free(new_alias_array);
+        free(new_replace);
+        return RETURN_FAILURE;
+    }
+    alias->alias_array = new_alias_array;
+    alias->alias_to_replace = new_replace;
+    alias->alias_array[alias->size - 1] = strdup(args[1]);
+    alias->alias_to_replace[alias->size - 1] = array_nto_strdup(args, 2);
+    return 0;
+}
+
 int builtins_alias(ef_t *ef, char **args)
 {
     alias_t *alias = ef->exec_ctx->alias;
     char *first_arg = args[1];
-
+    
     if (first_arg != NULL && strcmp(args[1], "--display") == 0)
         return builtins_display_alias(alias);
     if (len_array(args) < 3){
         fprintf(stderr, "alias [cpy] [command]\n");
         return RETURN_FAILURE;
     }
-    alias->alias_array[alias->size - 1] = strdup(args[1]);
-    alias->alias_to_replace[alias->size - 1] = array_nto_strdup(args, 2);
+    alias->size++;
+    add_alias(alias, args);
     return RETURN_SUCCESS;
 }

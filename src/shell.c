@@ -135,6 +135,7 @@ alias_t init_alias(void)
         return alias;
     alias.alias_array[0] = NULL;
     alias.alias_to_replace[0] = NULL;
+    alias.size = 0;
     return alias;
 }
 
