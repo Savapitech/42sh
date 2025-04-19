@@ -95,11 +95,13 @@ int builtins_alias(ef_t *ef, char **args)
     alias_t *alias = ef->exec_ctx->alias;
     char *first_arg = args[1];
 
-    if (first_arg != NULL && strcmp(args[1], "--display") == 0)
-        return builtins_display_alias(alias);
-    if (len_array(args) < 3){
+    if (first_arg != NULL && strcmp(args[1], "-h") == 0){
         fprintf(stderr, "alias [cpy] [command]\n");
         return RETURN_FAILURE;
+    }
+    if (len_array(args) < 3){
+        builtins_display_alias(alias);
+        return RETURN_SUCCESS;
     }
     alias->size++;
     add_alias(alias, args);
