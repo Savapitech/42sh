@@ -196,7 +196,7 @@ int exec_the_args(ef_t *ef, char **args)
     status_handler(status);
     U_DEBUG("Exit code [%d]\n", ef->history->last_exit_code);
     free(full_bin_path);
-    return RETURN_SUCCESS;
+    return status;
 }
 
 int execute(ef_t *ef)
@@ -206,8 +206,7 @@ int execute(ef_t *ef)
     args = parse_args(ef, ef->act_node, ef->env);
     if (!args)
         return RETURN_FAILURE;
-    if (exec_the_args(ef, args))
-        return RETURN_FAILURE;
+    exec_the_args(ef, args);
     free((void *)args);
     return ef->exec_ctx->history->last_exit_code
         != 0 ? RETURN_FAILURE : RETURN_SUCCESS;
