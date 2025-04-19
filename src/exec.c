@@ -32,8 +32,10 @@ const builtins_funcs_t BUILTINS[] = {
     { "setenv", &builtins_setenv },
     { "unsetenv", &builtins_unsetenv },
     { ":", &builtins_funny_double_dot },
+    { "repeat", &builtins_repeat },
     { "exit", &builtins_exit },
-    { "history", &builtins_history}
+    { "history", &builtins_history},
+    { "yes", &builtins_yes }
 };
 
 const size_t BUILTINS_SZ = sizeof BUILTINS / sizeof *BUILTINS;
@@ -180,15 +182,11 @@ bool builtins_launcher(ef_t *ef, char **args)
     return false;
 }
 
-int execute(ef_t *ef)
+int exec_the_args(ef_t *ef, char **args)
 {
     char *full_bin_path;
-    char **args;
     int status;
 
-    args = parse_args(ef, ef->act_node, ef->env);
-    if (!args)
-        return RETURN_FAILURE;
     if (builtins_launcher(ef, args))
         return RETURN_SUCCESS;
     full_bin_path = parse_full_bin_path(ef->env, args[0]);
@@ -199,6 +197,17 @@ int execute(ef_t *ef)
     status_handler(status);
     U_DEBUG("Exit code [%d]\n", ef->history->last_exit_code);
     free(full_bin_path);
+    return status;
+}
+
+int execute(ef_t *ef)
+{
+    char **args;
+
+    args = parse_args(ef, ef->act_node, ef->env);
+    if (!args)
+        return RETURN_FAILURE;
+    exec_the_args(ef, args);
     free((void *)args);
     return ef->exec_ctx->history->last_exit_code
         != 0 ? RETURN_FAILURE : RETURN_SUCCESS;

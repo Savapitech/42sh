@@ -101,7 +101,6 @@ ast_t *get_usr_loop_cmd(ast_t *node)
     return node;
 }
 
-static
 void exit_child(int sig __attribute__((unused)))
 {
     _exit(sig);
