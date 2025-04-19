@@ -14,6 +14,7 @@
 typedef struct {
     size_t sz;
     size_t cap;
+    bool in_loop;
     char **env;
 } env_t;
 

@@ -26,4 +26,6 @@ int builtins_cd(ef_t *ef, char **args);
 int builtins_builtins(ef_t *ef, char **args);
 int builtins_funny_double_dot(ef_t *ef, char **args);
 int builtins_history(ef_t *ef, char **args);
+int builtins_break(ef_t *ef, char **args);
+int builtins_repeat(ef_t *ef, char **args);
 #endif /* BUILTIND_H */
