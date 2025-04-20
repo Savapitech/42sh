@@ -66,6 +66,8 @@ bool change_shell_command(char **buffer, exec_ctx_t *exec_ctx,
         return true;
     tmp_buff = (*buffer);
     buffer_len = update_command(&tmp_buff, &buffer_sz, exec_ctx);
+    if (buffer_len == 0)
+        return false;
     if (buffer_len < 1 || !u_str_is_alnum(tmp_buff)) {
         check_basic_error(tmp_buff);
         free(tmp_buff);
@@ -110,7 +112,11 @@ his_command_t *init_cmd_history(void)
 static
 bool error_in_init(exec_ctx_t *exec_ctx)
 {
-    if (!exec_ctx->history_command || !exec_ctx->env->env) {
+    if (!exec_ctx->history_command || !exec_ctx->env->env
+        || !exec_ctx->alias->alias_array ||
+        !exec_ctx->alias->alias_to_replace) {
+        free(exec_ctx->alias->alias_array);
+        free(exec_ctx->alias->alias_to_replace);
         free(exec_ctx->history_command);
         free(exec_ctx->env->env);
         return true;
@@ -118,13 +124,29 @@ bool error_in_init(exec_ctx_t *exec_ctx)
     return false;
 }
 
+alias_t init_alias(void)
+{
+    alias_t alias;
+
+    alias.size = 1;
+    alias.alias_array = malloc(sizeof(char *) * alias.size);
+    alias.alias_to_replace = malloc(sizeof(char *) * alias.size);
+    if (!alias.alias_array || !alias.alias_to_replace)
+        return alias;
+    alias.alias_array[0] = NULL;
+    alias.alias_to_replace[0] = NULL;
+    alias.size = 0;
+    return alias;
+}
+
 int shell(char **env_ptr)
 {
+    alias_t alias = init_alias();
     env_t env = parse_env(env_ptr);
     history_t history = { .cmd_history = NULL, 0, .last_chdir = NULL};
     his_command_t *cmd_history = init_cmd_history();
     exec_ctx_t exec_ctx = {.env = &env,
-        .history = &history, .history_command = cmd_history };
+        .history = &history, .history_command = cmd_history, .alias = &alias};
     int shell_result;
 
     if (error_in_init(&exec_ctx) == true){
@@ -134,5 +156,6 @@ int shell(char **env_ptr)
     signal(SIGINT, ignore_sigint);
     shell_result = shell_loop(isatty(STDIN_FILENO), &exec_ctx);
     free_env(exec_ctx.env);
+    free_alias(exec_ctx.alias);
     return shell_result;
 }

@@ -22,6 +22,7 @@
 #include "path.h"
 #include "u_mem.h"
 #include "u_str.h"
+#include "alias.h"
 
 const builtins_funcs_t BUILTINS[] = {
     { "builtins", &builtins_builtins },
@@ -35,6 +36,7 @@ const builtins_funcs_t BUILTINS[] = {
     { "repeat", &builtins_repeat },
     { "exit", &builtins_exit },
     { "history", &builtins_history},
+    { "alias", &builtins_alias},
     { "yes", &builtins_yes }
 };
 
