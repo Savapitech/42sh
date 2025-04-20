@@ -9,10 +9,11 @@
     #define AST_H
     #include <stddef.h>
     #include <stdint.h>
-    #include "shell.h"
     #include "builtins_handler.h"
 
     #define DEFAULT_AST_CAP 128
+    #define DEFAULT_N_LST_CAP 2
+    #define DEFAULT_N_CMD_CAP 2
     #define T_ALL 0xff
 
 typedef enum {
