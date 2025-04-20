@@ -35,7 +35,7 @@ static int skip_to_next_token(char *buffer, int i)
 static
 char *find_alias(his_variable_t *variable, alias_t *alias, char *buffer)
 {
-    char cmd[variable->size_variable + 1];
+    char cmd[variable->size_variable];
     char *new_cmd = NULL;
 
     for (int i = variable->coord_variable; i !=
