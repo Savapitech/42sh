@@ -1,0 +1,132 @@
+/*
+** EPITECH PROJECT, 2025
+** __
+** File description:
+** _
+*/
+
+#include <ctype.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
+#include "common.h"
+#include "debug.h"
+#include "readline.h"
+#include "u_str.h"
+
+static
+size_t strcpy_printable(char *dest, char const *src, size_t n)
+{
+    size_t count = 0;
+
+    for (size_t i = 0; i < n; i++) {
+        if (isprint(src[i])) {
+            *dest = src[i];
+            count++;
+            dest++;
+        }
+    }
+    return count;
+}
+
+static
+bool str_printable(char const *str, size_t size)
+{
+    for (size_t i = 0; i < size; i++)
+        if (!isprint(str[i]))
+            return false;
+    return true;
+}
+
+static
+bool ensure_buff_av_capacity(buff_t *buff, size_t requested)
+{
+    char *new_str;
+    size_t endsize = BUFF_INIT_SZ;
+
+    if ((buff->sz + requested) < buff->cap)
+        return true;
+    for (; endsize < buff->sz + requested; endsize <<= 1);
+    if (endsize > buff->cap) {
+        new_str = realloc(buff->str, (sizeof *buff->str) * endsize);
+        if (new_str == NULL)
+            return false;
+        buff->str = new_str;
+        buff->cap = endsize;
+    }
+    return true;
+}
+
+static
+bool ensure_buff_capacity(buff_t *buff)
+{
+    char *new_str;
+
+    if (buff->str == NULL) {
+        new_str = malloc((sizeof *buff->str) * BUFF_INIT_SZ);
+        if (new_str == NULL)
+            return false;
+        buff->str = new_str;
+        buff->cap = BUFF_INIT_SZ;
+    }
+    if (buff->sz == buff->cap) {
+        new_str = realloc(buff->str, (sizeof *buff->str) * buff->cap << 1);
+        if (new_str == NULL)
+            return false;
+        buff->str = new_str;
+        buff->cap <<= 1;
+    }
+    return true;
+}
+
+static
+bool append_null_terminator(buff_t *buff)
+{
+    if (!ensure_buff_av_capacity(buff, 1))
+        return false;
+    buff->str[buff->sz] = '\0';
+    buff->sz++;
+    return true;
+}
+
+static
+int8_t handle_line_buff(buff_t *buff, char *read_buff, ssize_t read_size)
+{
+    if (*read_buff == CTRL('d')) {
+        buff->sz = 0;
+        return WRITE_CONST(STDOUT_FILENO, "exit\n"), RETURN_SUCCESS;
+    }
+    if (str_printable(read_buff, read_size))
+        write(STDOUT_FILENO, read_buff, read_size);
+    if (!ensure_buff_av_capacity(buff, read_size))
+        return RETURN_FAILURE;
+    buff->sz += strcpy_printable(buff->str + buff->sz,
+        read_buff, read_size);
+    return -1;
+}
+
+bool readline(buff_t *buff)
+{
+    char read_buff[32] = "";
+    ssize_t read_size = 0;
+
+    if (!ensure_buff_capacity(buff))
+        return false;
+    while (*read_buff != '\n' && *read_buff != '\r') {
+        memset(read_buff, '\0', sizeof read_buff);
+        read_size = read(STDIN_FILENO, &read_buff, sizeof read_buff - 1);
+        if (read_size < 0)
+            return false;
+        if (read_size == 0) {
+            buff->sz = 0;
+            return true;
+        }
+        if (handle_line_buff(buff, read_buff, read_size) > -1)
+            return true;
+    }
+    U_DEBUG("buff count: %zu\n", buff->sz);
+    return append_null_terminator(buff);
+}

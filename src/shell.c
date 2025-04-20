@@ -16,6 +16,7 @@
 #include "debug.h"
 #include "env.h"
 #include "history.h"
+#include "readline.h"
 #include "shell.h"
 #include "u_str.h"
 
@@ -56,22 +57,20 @@ void write_prompt(int is_a_tty)
 }
 
 static
-bool change_shell_command(char **buffer, exec_ctx_t *exec_ctx,
-    size_t buffer_sz)
+bool change_shell_command(buff_t *buff, exec_ctx_t *exec_ctx)
 {
-    size_t buffer_len = 0;
     char *tmp_buff = NULL;
 
-    if (getline(buffer, &buffer_sz, stdin) == -1)
+    if (!readline(buff))
         return true;
-    tmp_buff = (*buffer);
-    buffer_len = update_command(&tmp_buff, &buffer_sz, exec_ctx);
-    if (buffer_len < 1 || !u_str_is_alnum(tmp_buff)) {
+    tmp_buff = buff->str;
+    buff->sz = update_command(&tmp_buff, &buff->sz, exec_ctx);
+    if (buff->sz < 1 || !u_str_is_alnum(tmp_buff)) {
         check_basic_error(tmp_buff);
         free(tmp_buff);
         return false;
     }
-    U_DEBUG("Buffer [%lu] [%s]\n", buffer_len, buffer);
+    U_DEBUG("Buffer [%lu] [%s]\n", buff->sz, buff->str);
     visitor(tmp_buff, exec_ctx);
     free(tmp_buff);
     return false;
@@ -80,16 +79,15 @@ bool change_shell_command(char **buffer, exec_ctx_t *exec_ctx,
 static
 int shell_loop(int is_a_tty, exec_ctx_t *exec_ctx)
 {
-    char *buffer = NULL;
-    size_t buffer_sz = 0;
+    buff_t buff = { .str = NULL, 0 };
 
     while (true) {
         write_prompt(is_a_tty);
-        if (change_shell_command(&buffer, exec_ctx, buffer_sz) == true)
+        if (change_shell_command(&buff, exec_ctx))
             return exec_ctx->history->last_exit_code;
     }
     free(exec_ctx->history_command);
-    return (free(buffer), exec_ctx->history->last_exit_code);
+    return free(buff.str), exec_ctx->history->last_exit_code;
 }
 
 his_command_t *init_cmd_history(void)
