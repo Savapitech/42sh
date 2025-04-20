@@ -19,6 +19,7 @@
 #include "debug.h"
 #include "env.h"
 #include "exec.h"
+#include "globbing.h"
 #include "path.h"
 #include "u_mem.h"
 #include "u_str.h"
@@ -54,6 +55,38 @@ bool ensure_args_capacity(char ***args, size_t const sz, size_t *cap)
 }
 
 static
+int process_glob_results(char **glob_results, char ***args,
+    size_t *sz, size_t *cap)
+{
+    if (!glob_results)
+        return -1;
+    for (int j = 0; glob_results[j] != NULL; j++) {
+        ensure_args_capacity(args, *sz, cap);
+        (*args)[*sz] = strdup(glob_results[j]);
+        (*sz)++;
+        free(glob_results[j]);
+    }
+    free(glob_results);
+    return 0;
+}
+
+static
+int process_args_for_globs(char *arg, char ***args, size_t *sz, size_t *cap)
+{
+    if (strchr(arg, '*')) {
+        if (process_glob_results(globbing(arg), args, sz, cap) == -1) {
+            free(*args);
+            return -1;
+        }
+    } else {
+        ensure_args_capacity(args, *sz, cap);
+        (*args)[*sz] = arg;
+        (*sz)++;
+    }
+    return 0;
+}
+
+static
 char **parse_args(ef_t *ef, ast_t *node, env_t *env)
 {
     size_t sz = 1;
@@ -67,11 +100,10 @@ char **parse_args(ef_t *ef, ast_t *node, env_t *env)
     for (size_t i = 0; i < node->vector.sz; i++) {
         if (ef->skip_sz > 0 && i >= ef->skip_i && i < ef->skip_i + ef->skip_sz)
             continue;
-        ensure_args_capacity(&args, sz, &cap);
         node->vector.tokens[i].str[node->vector.tokens[i].sz] = '\0';
-        args[sz] = node->vector.tokens[i].str;
-        U_DEBUG("Args [%lu] [%s]\n", sz, args[sz]);
-        sz++;
+        if (process_args_for_globs(node->vector.tokens[i].str,
+            &args, &sz, &cap) == -1)
+            return NULL;
     }
     ensure_args_capacity(&args, sz, &cap);
     args[sz] = NULL;
