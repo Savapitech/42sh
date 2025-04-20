@@ -33,6 +33,9 @@ int u_spacelen(char const *str);
 int u_strcspn(char *str, char c);
 bool u_str_is_alnum(char *str);
 bool u_str_is_only_alnum(char *str);
+void free_array(char **array);
 void puterror(char const *prefix);
+int my_array_len(char **tab);
+char **arraydup(char **array);
 
 #endif /* STRING_H */

@@ -23,5 +23,5 @@ int builtins_exit(ef_t *ef, char **args __attribute__((unused)))
     }
     free_env(ef->env);
     free(ef->buffer);
-    exit(ef->history->last_exit_code);
+    exit(ef->exec_ctx->history->last_exit_code);
 }

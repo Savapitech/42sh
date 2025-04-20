@@ -5,29 +5,35 @@
 ** _
 */
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 
 #include "ast.h"
+#include "debug.h"
 #include "u_mem.h"
 #include "u_str.h"
 
-bool parser_eat(ast_ctx_t *ctx, token_type_t expected)
+void print_ast(ast_t *ast, ast_ctx_t *ctx, size_t depth)
 {
-    token_type_t prev_tok_type = ctx->act_tok.type;
-
-    ctx->act_tok = get_next_token(ctx);
-    if (!(ctx->act_tok.type & expected)) {
-        if (prev_tok_type == T_PIPE)
-            WRITE_CONST(STDERR_FILENO, "Invalid null command.\n");
-        else {
-            WRITE_CONST(STDERR_FILENO, "Parse error near \"");
-            write(STDERR_FILENO, ctx->act_tok.str, ctx->act_tok.sz);
-            WRITE_CONST(STDERR_FILENO, "\"\n");
-        }
-        return false;
+    for (size_t i = 0; i < depth; i++)
+        printf(" ");
+    if (depth)
+        printf("- ");
+    printf("(%.*s)\n", (int)ast->tok.sz, ast->tok.str);
+    if (ast->type == N_BIN) {
+        print_ast(ast->binary.left, ctx, depth + 1);
+        print_ast(ast->binary.right, ctx, depth + 1);
     }
-    return true;
+    if (ast->type == N_CMD) {
+        for (size_t i = 0; i < ast->vector.sz; i++)
+            printf("%*s - (%.*s)\n", (int)depth, "",
+                (int)ast->vector.tokens[i].sz, ast->vector.tokens[i].str);
+    }
+    if (ast->type == N_LST) {
+        for (size_t i = 0; i < ast->list.sz; i++)
+            print_ast(ast->list.nodes[i], ctx, depth + 1);
+    }
 }
 
 ast_t *create_node(ast_ctx_t *ctx)
