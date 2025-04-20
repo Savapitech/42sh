@@ -9,6 +9,7 @@
 
 #include "ast.h"
 #include "common.h"
+#include "debug.h"
 #include "exec.h"
 #include "u_str.h"
 #include "visitor.h"
@@ -46,4 +47,28 @@ int visit_or(ef_t *ef, ast_t *node)
             result = visit_list(ef, node->binary.right);
     }
     return result;
+}
+
+static
+int visit_then(ef_t *ef, ast_t *node)
+{
+    int result = RETURN_FAILURE;
+
+    for (size_t i = 1; i < node->list.sz; i++)
+        result = visit_expression(ef, node->list.nodes[i]);
+    return result;
+}
+
+int visit_if(ef_t *ef, ast_t *node)
+{
+    int result = RETURN_FAILURE;
+
+    if (node->list.sz < 2)
+        return WRITE_CONST(STDERR_FILENO, "Empty if.\n"),
+            RETURN_FAILURE;
+    result = visit_expression(ef, node->list.nodes[0]);
+    U_DEBUG("If exp result [%d]\n", result);
+    if (result == RETURN_FAILURE)
+        return result;
+    return visit_then(ef, node);
 }

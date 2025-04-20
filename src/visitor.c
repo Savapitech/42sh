@@ -110,11 +110,16 @@ int visit_list(ef_t *ef, ast_t *node)
 
 int visit_condition(ef_t *ef, ast_t *node)
 {
-    if (node->tok.type == T_AND)
-        return visit_and(ef, node);
-    if (node->tok.type == T_OR)
-        return visit_or(ef, node);
-    return RETURN_FAILURE;
+    switch (node->tok.type) {
+        case T_IF:
+            return visit_if(ef, node);
+        case T_AND:
+            return visit_and(ef, node);
+        case T_OR:
+            return visit_or(ef, node);
+        default:
+            return RETURN_FAILURE;
+    }
 }
 
 static
@@ -137,29 +142,34 @@ int visit_semi(ef_t *ef, ast_t *node)
     return result;
 }
 
+int visit_expression(ef_t *ef, ast_t *node)
+{
+    int result = RETURN_FAILURE;
+
+    if (node->type == N_LOP)
+        result = visit_loop(ef, node);
+    if (node->tok.type == T_SEMICOLON)
+        result = visit_semi(ef, node);
+    if (node->tok.type & (T_IF | T_AND | T_OR))
+        result = visit_condition(ef, node);
+    if (node->tok.type == T_PIPE)
+        result = visit_list(ef, node);
+    if (node->type == N_CMD) {
+        ef->act_node = node;
+        result = visit_cmd(ef);
+    }
+    return result;
+}
+
 //TODO: visit loop befor a visit list with a loop
 static
 int visitor_launcher(ef_t *ef)
 {
-    int result = RETURN_FAILURE;
-
     ef->ctx->ast = parse_expression(ef->ctx);
     if (ef->ctx->ast == NULL)
         return RETURN_FAILURE;
     U_DEBUG_CALL(print_ast, ef->ctx->ast, ef->ctx, 0);
-    if (ef->ctx->ast->type == N_LOP)
-        result = visit_loop(ef, ef->ctx->ast);
-    if (ef->ctx->ast->tok.type == T_SEMICOLON)
-        result = visit_semi(ef, ef->ctx->ast);
-    if (ef->ctx->ast->tok.type & (T_AND | T_OR))
-        result = visit_condition(ef, ef->ctx->ast);
-    if (ef->ctx->ast->tok.type == T_PIPE)
-        result = visit_list(ef, ef->ctx->ast);
-    if (ef->ctx->ast->type == N_CMD) {
-        ef->act_node = ef->ctx->ast;
-        result = visit_cmd(ef);
-    }
-    return result;
+    return visit_expression(ef, ef->ctx->ast);
 }
 
 static
