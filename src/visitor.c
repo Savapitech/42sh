@@ -143,7 +143,6 @@ int visitor_launcher(ef_t *ef)
 {
     int result = RETURN_FAILURE;
 
-    ef->ctx->act_tok = get_next_token(ef->ctx);
     ef->ctx->ast = parse_expression(ef->ctx);
     if (ef->ctx->ast == NULL)
         return RETURN_FAILURE;
