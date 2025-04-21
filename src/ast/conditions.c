@@ -63,7 +63,8 @@ ast_t *fill_if(ast_ctx_t *ctx, ast_t *node)
     char *old_buff = ctx->str;
 
     while (true) {
-        WRITE_CONST(STDOUT_FILENO, IF_PROMPT);
+        if (isatty(STDIN_FILENO))
+            WRITE_CONST(STDOUT_FILENO, IF_PROMPT);
         if (getline(&buff.str, &buff.sz, stdin) < 0)
             return NULL;
         buff.str[strlen(buff.str) - 1] = '\0';
