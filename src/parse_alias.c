@@ -35,13 +35,14 @@ static int skip_to_next_token(char *buffer, int i)
 static
 char *find_alias(his_variable_t *variable, alias_t *alias, char *buffer)
 {
-    char cmd[variable->size_variable];
+    char *cmd = malloc(sizeof(char) * (variable->size_variable + 1));
     char *new_cmd = NULL;
 
+    if (cmd == NULL)
+        return NULL;
     for (int i = variable->coord_variable; i !=
-        variable->coord_variable + variable->size_variable; i++){
+        variable->coord_variable + variable->size_variable; i++)
         cmd[i - variable->coord_variable] = buffer[i];
-    }
     cmd[variable->size_variable] = '\0';
     for (size_t i = 0; i != alias->size; i++){
         if (alias->alias_array[i] == NULL)
@@ -52,6 +53,7 @@ char *find_alias(his_variable_t *variable, alias_t *alias, char *buffer)
             buffer = new_cmd;
         }
     }
+    free(cmd);
     return new_cmd;
 }
 
