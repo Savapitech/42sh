@@ -44,25 +44,34 @@ ast_t *parse_or(ast_ctx_t *ctx, ast_t *l_node)
 }
 
 static
+bool fill_if_node(ast_ctx_t *ctx, ast_t *node, buff_t *buff)
+{
+    if (!ensure_cond_cap(node))
+        return false;
+    ctx->str = buff->str;
+    node->cond.nodes[node->cond.sz] = parse_semi(ctx);
+    if (node->cond.nodes[node->cond.sz] == NULL)
+        return false;
+    node->cond.sz++;
+    return true;
+}
+
+static
 ast_t *fill_if(ast_ctx_t *ctx, ast_t *node)
 {
     buff_t buff = { .str = NULL, 0 };
     char *old_buff = ctx->str;
 
     while (true) {
-        ensure_list_cap(node);
         WRITE_CONST(STDOUT_FILENO, IF_PROMPT);
         if (getline(&buff.str, &buff.sz, stdin) < 0)
             return NULL;
         buff.str[strlen(buff.str) - 1] = '\0';
         if (strncmp(buff.str, "endif", 5) == 0)
             break;
-        ctx->str = buff.str;
-        node->list.nodes[node->list.sz] = parse_semi(ctx);
-        if (node->list.nodes[node->list.sz] == NULL)
+        if (!fill_if_node(ctx, node, &buff))
             return NULL;
         buff = (buff_t){ .str = NULL, 0 };
-        node->list.sz++;
     }
     ctx->str = old_buff;
     return node;
@@ -75,15 +84,15 @@ ast_t *parse_if(ast_ctx_t *ctx)
     if (node == NULL)
         return NULL;
     node->tok = ctx->act_tok;
-    node->type = N_LST;
-    node->list.cap = 2;
-    node->list.nodes =
-        (ast_t **)malloc(sizeof *node->list.nodes * node->list.cap);
-    if ((void *)node->list.nodes == NULL)
+    node->type = N_COND;
+    node->cond.cap = DEFAULT_N_COND_CAP;
+    node->cond.sz = 0;
+    node->cond.nodes =
+        (ast_t **)malloc(sizeof *node->cond.nodes * node->cond.cap);
+    if ((void *)node->cond.nodes == NULL)
         return NULL;
-    node->list.nodes[0] = parse_semi(ctx);
-    if (node->list.nodes[0] == NULL)
+    node->cond.exp = parse_semi(ctx);
+    if (node->cond.exp == NULL)
         return WRITE_CONST(STDERR_FILENO, "if: Too few arguments.\n"), NULL;
-    node->list.sz = 1;
     return fill_if(ctx, node);
 }

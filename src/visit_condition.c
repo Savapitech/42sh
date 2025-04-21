@@ -54,8 +54,8 @@ int visit_then(ef_t *ef, ast_t *node)
 {
     int result = RETURN_FAILURE;
 
-    for (size_t i = 1; i < node->list.sz; i++)
-        result = visit_expression(ef, node->list.nodes[i]);
+    for (size_t i = 0; i < node->cond.sz; i++)
+        result = visit_expression(ef, node->cond.nodes[i]);
     return result;
 }
 
@@ -63,10 +63,10 @@ int visit_if(ef_t *ef, ast_t *node)
 {
     int result = RETURN_FAILURE;
 
-    if (node->list.sz < 2)
+    if (node->cond.sz < 1)
         return WRITE_CONST(STDERR_FILENO, "Empty if.\n"),
             RETURN_FAILURE;
-    result = visit_expression(ef, node->list.nodes[0]);
+    result = visit_expression(ef, node->cond.exp);
     U_DEBUG("If exp result [%d]\n", result);
     if (result == RETURN_FAILURE)
         return result;
