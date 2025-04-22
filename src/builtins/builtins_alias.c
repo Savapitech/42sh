@@ -28,7 +28,6 @@ void free_alias(alias_t *alias)
 
 int builtins_display_alias(alias_t *alias)
 {
-    printf("Alias %d:\n", alias->size);
     for (size_t i = 0; i != alias->size; i++){
         printf("|| Alias: %s || ", alias->alias_array[i]);
         printf("Command: %s ||\n", alias->alias_to_replace[i]);
