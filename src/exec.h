@@ -48,6 +48,7 @@ typedef struct {
 
 __attribute__((nonnull))
 int execute(ef_t *ef);
+bool ensure_args_capacity(char ***args, size_t const sz, size_t *cap);
 int exec_the_args(ef_t *ef, char **args);
 void exit_child(int sig __attribute__((unused)));
 int visit_loop(ef_t *ef, ast_t *node);

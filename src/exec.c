@@ -41,7 +41,7 @@ const builtins_funcs_t BUILTINS[] = {
 
 const size_t BUILTINS_SZ = sizeof BUILTINS / sizeof *BUILTINS;
 
-static __attribute__((nonnull))
+__attribute__((nonnull))
 bool ensure_args_capacity(char ***args, size_t const sz, size_t *cap)
 {
     char **new_ptr;
@@ -58,34 +58,12 @@ bool ensure_args_capacity(char ***args, size_t const sz, size_t *cap)
 }
 
 static
-int process_glob_results(char **glob_results, char ***args,
-    size_t *sz, size_t *cap)
+int set_args(char **args, ast_t *node)
 {
-    if (!glob_results)
+    if (!args)
         return -1;
-    for (int j = 0; glob_results[j] != NULL; j++) {
-        ensure_args_capacity(args, *sz, cap);
-        (*args)[*sz] = strdup(glob_results[j]);
-        (*sz)++;
-        free(glob_results[j]);
-    }
-    free(glob_results);
-    return 0;
-}
-
-static
-int process_args_for_globs(char *arg, char ***args, size_t *sz, size_t *cap)
-{
-    if (strchr(arg, '*')) {
-        if (process_glob_results(globbing(arg), args, sz, cap) == -1) {
-            free(*args);
-            return -1;
-        }
-    } else {
-        ensure_args_capacity(args, *sz, cap);
-        (*args)[*sz] = arg;
-        (*sz)++;
-    }
+    node->tok.str[node->tok.sz] = '\0';
+    args[0] = node->tok.str;
     return 0;
 }
 
@@ -96,22 +74,18 @@ char **parse_args(ef_t *ef, ast_t *node, env_t *env)
     size_t cap = DEFAULT_ARGS_CAP;
     char **args = (char **)malloc(sizeof *args * cap);
 
-    if (!args)
+    if (set_args(args, node) == -1)
         return NULL;
-    node->tok.str[node->tok.sz] = '\0';
-    args[0] = node->tok.str;
     for (size_t i = 0; i < node->vector.sz; i++) {
         if (ef->skip_sz > 0 && i >= ef->skip_i && i < ef->skip_i + ef->skip_sz)
             continue;
         node->vector.tokens[i].str[node->vector.tokens[i].sz] = '\0';
         ensure_args_capacity(&args, sz, &cap);
-        if (process_args_for_globs(node->vector.tokens[i].str,
-            &args, &sz, &cap) == -1)
+        if (process_args(node->vector.tokens[i].str, &args, &sz, &cap) == -1)
             return NULL;
         args[sz] = handle_var_case(node, env, &i);
         if (args[sz] == NULL)
             return free(args), NULL;
-        sz++;
     }
     ensure_args_capacity(&args, sz, &cap);
     args[sz] = NULL;

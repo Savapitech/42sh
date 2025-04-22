@@ -16,5 +16,8 @@ typedef struct globs_s {
     int val;
 }globs_t;
 
-char **globbing(const char *pattern);
+char **globbing(const char *pattern, char ***args);
+int process_glob_results(char **glob_results, char ***args,
+    size_t *sz, size_t *cap);
+int process_args(char *arg, char ***args, size_t *sz, size_t *cap);
 #endif
