@@ -2,7 +2,7 @@
 ** EPITECH PROJECT, 2025
 ** 42sh
 ** File description:
-** unset_local
+** get_local
 */
 
 #include <stdbool.h>
@@ -16,30 +16,17 @@
 #include "u_str.h"
 #include "local.h"
 
-
-static
-void unset_local_move(local_t *local, size_t i)
+char *get_local_value(local_t *local, char const *key)
 {
-    while (local->local_var[i]) {
-        local->local_var[i] = local->local_var[i + 1];
-        i++;
-    }
-}
-
-bool unset_local(local_t *local, char *var)
-{
-    int key_len = u_strlen(var);
+    int key_len = u_strlen(key);
 
     for (size_t i = 0; i < local->sz; i++) {
         if (local->local_var[i] == NULL)
             continue;
         if (u_strcspn(local->local_var[i], '\t') != key_len)
             continue;
-        if (u_strcmp(local->local_var[i], var) == 0) {
-            unset_local_move(local, i);
-            local->sz--;
-            return true;
-        }
+        if (u_strcmp(local->local_var[i], key) == 0)
+            return local->local_var[i] + key_len + 1;
     }
-    return false;
+    return NULL;
 }

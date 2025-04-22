@@ -31,7 +31,7 @@ bool checking_error(ef_t *ef, char **args)
     if (my_array_len(args) < 3)
         return (WRITE_CONST(STDERR_FILENO, "foreach: Too few arguments.\n"),
         true);
-    if (!check_local_var(args[1], args[0]))
+    if (check_local_var(args[1], args[0]))
         return true;
     return false;
 }
@@ -74,6 +74,23 @@ usr_cmd_t *increase_buffers(usr_cmd_t *usr, size_t *buffer_len)
 }
 
 static
+usr_cmd_t *handle_end(usr_cmd_t *us, char prompt[])
+{
+    us->sz--;
+    if (!us->local_var[us->sz] ||
+        strcmp("end", us->local_var[us->sz])){
+        printf("%s: end not found.\n", prompt);
+        free_array(us->local_var);
+        us->local_var = NULL;
+        exit(RETURN_FAILURE);
+        return NULL;
+    }
+    free(us->local_var[us->sz]);
+    us->local_var[us->sz] = NULL;
+    return us;
+}
+
+static
 usr_cmd_t *get_usr_loop_cmd(usr_cmd_t *usr_cmd)
 {
     char prompt[] = "foreach? ";
@@ -91,14 +108,12 @@ usr_cmd_t *get_usr_loop_cmd(usr_cmd_t *usr_cmd)
             return NULL;
         increase_buffers(usr_cmd, &buffer_len);
     }
-    free(usr_cmd->local_var[usr_cmd->sz]);
-    usr_cmd->sz--;
-    usr_cmd->local_var[usr_cmd->sz] = NULL;
+    usr_cmd = handle_end(usr_cmd, prompt);
     return usr_cmd;
 }
 
 static
-int do_a_lap(ef_t *ef, char **args, char **save_cmds)
+int do_a_lap(ef_t *ef, char **args)
 {
     int status = 0;
 
@@ -116,13 +131,13 @@ int foreach_loop(ef_t *ef, char **args, usr_cmd_t *usr_cmds)
     if (save_cmds == NULL)
         exit(84);
     for (int i = 2; args[i]; i++){
-        if (!change_local(ef->exec_ctx->local, args[1], args[i]))
+        if (!set_local(ef->exec_ctx->local, args[1], args[i]))
             exit(84);
-        status = do_a_lap(ef, usr_cmds->local_var, save_cmds);
-        free_array(args);
-        args = arraydup(save_cmds);
+        status = do_a_lap(ef, usr_cmds->local_var);
+        free_array(usr_cmds->local_var);
+        usr_cmds->local_var = arraydup(save_cmds);
     }
-    free_array(usr_cmds->local_var);
+    free_array(save_cmds);
     return status;
 }
 
@@ -143,6 +158,7 @@ void launch_loop(ef_t *ef, char **args)
         exit(84);
     status = foreach_loop(ef, args, usr_cmds);
     free_array(usr_cmds->local_var);
+    free(usr_cmds);
     exit(status);
 }
 
@@ -153,7 +169,6 @@ int builtins_foreach(ef_t *ef, char **args)
 
     if (checking_error(ef, args))
         return RETURN_FAILURE;
-    printf("caok\n");
     pid = fork();
     if (pid == 0)
         launch_loop(ef, args);

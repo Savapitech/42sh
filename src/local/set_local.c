@@ -35,18 +35,23 @@ bool ensure_local_capacity(local_t *local)
 
 bool set_local(local_t *local, char *var, char *value)
 {
-    char *new_var = NULL;
+    char *new_loc = NULL;
+    size_t key_len = u_strlen(var);
+    size_t value_len = u_strlen(value);
 
+    if (get_local_value(local, var) != NULL)
+        unset_local(local, var);
     local->sz++;
     if (!ensure_local_capacity(local))
         return false;
-    new_var = malloc(sizeof(char) * (u_strlen(var) + u_strlen(value) + 2));
-    if (new_var == NULL)
+    new_loc = malloc(sizeof(char) * (key_len + value_len + 2));
+    if (new_loc == NULL)
         return false;
-    strcpy(new_var, var);
-    strcat(new_var, "\t");
-    if (value != NULL)
-        strcat(new_var, value);
-    local->local_var[local->sz - 1] = new_var;
+    u_bzero(new_loc, key_len + value_len + 2);
+    u_strcpy(new_loc, var);
+    new_loc[key_len] = '\t';
+    if (value_len > 0)
+        u_strcpy(new_loc + key_len + 1, value);
+    local->local_var[local->sz - 1] = new_loc;
     return true;
 }
