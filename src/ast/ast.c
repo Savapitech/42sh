@@ -39,7 +39,7 @@ ast_t *fill_cmd_node(ast_ctx_t *ctx)
     if (node == NULL)
         return NULL;
     node->type = N_CMD;
-    node->vector.cap = 2;
+    node->vector.cap = DEFAULT_N_CMD_CAP;
     node->vector.tokens =
         malloc(sizeof *node->vector.tokens * node->vector.cap);
     if (node->vector.tokens == NULL)
@@ -87,7 +87,7 @@ ast_t *parse_pipe(ast_ctx_t *ctx, ast_t *l_node)
         return NULL;
     node->type = N_LST;
     node->tok = ctx->act_tok;
-    node->list.cap = 2;
+    node->list.cap = DEFAULT_N_LST_CAP;
     node->list.nodes = (ast_t **)malloc(sizeof(ast_t *) * node->list.cap);
     if ((void *)node->list.nodes == NULL)
         return NULL;
@@ -121,7 +121,6 @@ ast_t *parse_condition(ast_ctx_t *ctx)
     return ctx->ast;
 }
 
-static
 ast_t *parse_semi(ast_ctx_t *ctx)
 {
     ast_t *l_node = parse_condition(ctx);
@@ -149,7 +148,7 @@ ast_t *create_semi_node(ast_ctx_t *ctx, ast_t *l_node)
     if (node == NULL)
         return NULL;
     node->type = N_LST;
-    node->list.cap = 2;
+    node->list.cap = DEFAULT_N_LST_CAP;
     node->list.nodes = (ast_t **)malloc(sizeof(ast_t *) * node->list.cap);
     if ((void *)node->list.nodes == NULL)
         return NULL;
@@ -183,7 +182,10 @@ ast_t *parse_expression(ast_ctx_t *ctx)
 
     if (ctx->act_tok.type == T_EOF)
         return ctx->ast;
+    ctx->act_tok = get_next_token(ctx);
     skip_semi(ctx);
+    if (ctx->act_tok.type == T_IF)
+        return parse_if(ctx);
     l_node = parse_semi(ctx);
     if (l_node == NULL)
         return ctx->ast;
@@ -193,6 +195,5 @@ ast_t *parse_expression(ast_ctx_t *ctx)
             return NULL;
         ctx->ast = fill_semi_node(ctx, node);
     }
-    ctx->act_tok = get_next_token(ctx);
     return parse_expression(ctx);
 }
