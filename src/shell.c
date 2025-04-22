@@ -155,6 +155,8 @@ int shell(char **env_ptr)
     U_DEBUG_CALL(debug_env_entries, &env);
     signal(SIGINT, ignore_sigint);
     shell_result = shell_loop(isatty(STDIN_FILENO), &exec_ctx);
+    if (isatty(STDIN_FILENO))
+        WRITE_CONST(STDOUT_FILENO, "exit\n");
     free_env(exec_ctx.env);
     free_alias(exec_ctx.alias);
     return shell_result;
