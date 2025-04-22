@@ -30,4 +30,5 @@ int builtins_alias(ef_t *ef, char **args);
 int builtins_display_alias(alias_t *alias);
 int builtins_repeat(ef_t *ef, char **args);
 int builtins_yes(ef_t *ef, char **args);
+int builtins_foreach(ef_t *ef, char **args);
 #endif /* BUILTIND_H */
