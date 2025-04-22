@@ -38,7 +38,9 @@ const builtins_funcs_t BUILTINS[] = {
     { "history", &builtins_history},
     { "alias", &builtins_alias},
     { "yes", &builtins_yes },
-    { "foreach", &builtins_foreach }
+    { "foreach", &builtins_foreach },
+    { "set", &builtins_set },
+    { "unset", &builtins_unset }
 };
 
 const size_t BUILTINS_SZ = sizeof BUILTINS / sizeof *BUILTINS;
