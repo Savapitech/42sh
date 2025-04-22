@@ -44,15 +44,32 @@ ast_t *parse_or(ast_ctx_t *ctx, ast_t *l_node)
 }
 
 static
-bool fill_if_node(ast_ctx_t *ctx, ast_t *node, buff_t *buff)
+bool fill_else_node(ast_ctx_t *ctx, ast_t *node, buff_t *buff)
 {
-    if (!ensure_cond_cap(node))
+    ctx->str = buff->str;
+    node->cond.nodes2[node->cond.sz2] = parse_semi(ctx);
+    if (node->cond.nodes2[node->cond.sz2] == NULL)
         return false;
+    node->cond.sz2++;
+    if (!ensure_cond_cap2(node))
+        return false;
+    return true;
+}
+
+static
+bool fill_if_node(ast_ctx_t *ctx, ast_t *node, bool fill_else, buff_t *buff)
+{
+    if (strncmp(buff->str, "else", 4) == 0)
+            return true;
+    if (fill_else)
+        return fill_else_node(ctx, node, buff);
     ctx->str = buff->str;
     node->cond.nodes[node->cond.sz] = parse_semi(ctx);
     if (node->cond.nodes[node->cond.sz] == NULL)
         return false;
     node->cond.sz++;
+    if (!ensure_cond_cap(node))
+        return false;
     return true;
 }
 
@@ -61,6 +78,7 @@ ast_t *fill_if(ast_ctx_t *ctx, ast_t *node)
 {
     buff_t buff = { .str = NULL, 0 };
     char *old_buff = ctx->str;
+    bool fill_else = false;
 
     while (true) {
         if (isatty(STDIN_FILENO))
@@ -70,7 +88,9 @@ ast_t *fill_if(ast_ctx_t *ctx, ast_t *node)
         buff.str[strlen(buff.str) - 1] = '\0';
         if (strncmp(buff.str, "endif", 5) == 0)
             break;
-        if (!fill_if_node(ctx, node, &buff))
+        if (strncmp(buff.str, "else", 4) == 0)
+            fill_else = true;
+        if (!fill_if_node(ctx, node, fill_else, &buff))
             return NULL;
         buff = (buff_t){ .str = NULL, 0 };
     }
@@ -87,10 +107,13 @@ ast_t *parse_if(ast_ctx_t *ctx)
     node->tok = ctx->act_tok;
     node->type = N_COND;
     node->cond.cap = DEFAULT_N_COND_CAP;
-    node->cond.sz = 0;
+    node->cond.cap2 = DEFAULT_N_COND_CAP;
+    memset(&node->cond.sz, 0, sizeof node->cond.sz * 2);
     node->cond.nodes =
         (ast_t **)malloc(sizeof *node->cond.nodes * node->cond.cap);
-    if ((void *)node->cond.nodes == NULL)
+    node->cond.nodes2 =
+        (ast_t **)malloc(sizeof *node->cond.nodes * node->cond.cap2);
+    if ((void *)node->cond.nodes == NULL || (void *)node->cond.nodes2 == NULL)
         return NULL;
     node->cond.exp = parse_semi(ctx);
     if (node->cond.exp == NULL)

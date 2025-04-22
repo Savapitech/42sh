@@ -94,9 +94,11 @@ typedef struct ast_s {
             ast_t *condition;
         } loop;
         struct {
-            size_t sz;
-            size_t cap;
             ast_t *exp;
+            size_t sz;
+            size_t sz2;
+            size_t cap;
+            size_t cap2;
             ast_t **nodes;
             ast_t **nodes2;
         } cond;
@@ -127,6 +129,7 @@ ast_t *create_node(ast_ctx_t *ctx);
 bool ensure_node_cap(ast_t *node);
 bool ensure_list_cap(ast_t *node);
 bool ensure_cond_cap(ast_t *node);
+bool ensure_cond_cap2(ast_t *node);
 bool parser_eat(ast_ctx_t *ctx, token_type_t expected);
 ast_t *parse_loop(ast_ctx_t *ctx);
 void free_ast(ast_ctx_t *ctx);

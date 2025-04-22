@@ -59,6 +59,16 @@ int visit_then(ef_t *ef, ast_t *node)
     return result;
 }
 
+static
+int visit_else(ef_t *ef, ast_t *node)
+{
+    int result = RETURN_FAILURE;
+
+    for (size_t i = 0; i < node->cond.sz2; i++)
+        result = visit_expression(ef, node->cond.nodes2[i]);
+    return result;
+}
+
 int visit_if(ef_t *ef, ast_t *node)
 {
     int result = RETURN_FAILURE;
@@ -69,6 +79,6 @@ int visit_if(ef_t *ef, ast_t *node)
     result = visit_expression(ef, node->cond.exp);
     U_DEBUG("If exp result [%d]\n", result);
     if (result == RETURN_FAILURE)
-        return result;
+        return visit_else(ef, node);
     return visit_then(ef, node);
 }
