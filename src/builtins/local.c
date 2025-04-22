@@ -92,6 +92,7 @@ bool set_local(local_t *local, char *var, char *value)
     if (value_len > 0)
         u_strcpy(new_loc + key_len + 1, value);
     local->local_var[local->sz - 1] = new_loc;
+    local->local_var[local->sz] = NULL;
     return true;
 }
 
