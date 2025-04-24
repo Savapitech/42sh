@@ -80,9 +80,9 @@ char **parse_args(ef_t *ef, ast_t *node, env_t *env)
         if (ef->skip_sz > 0 && i >= ef->skip_i && i < ef->skip_i + ef->skip_sz)
             continue;
         node->vector.tokens[i].str[node->vector.tokens[i].sz] = '\0';
-        ensure_args_capacity(&args, sz, &cap);
         if (process_args(node->vector.tokens[i].str, &args, &sz, &cap) == -1)
             return NULL;
+        ensure_args_capacity(&args, sz + 1, &cap);
         args[sz] = handle_var_case(node, env, &i);
         if (args[sz] == NULL)
             return free(args), NULL;
