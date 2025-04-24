@@ -15,11 +15,14 @@
 #include "exec.h"
 #include "u_str.h"
 
+#include "debug.h"
+
 bool handle_out_redirect(ef_t *ef, ast_t *node, size_t i, size_t sz)
 {
     if (!(node->vector.tokens[i].type & (T_REDIRECT | T_APPEND)))
         return true;
-    if (i >= sz || node->vector.tokens[i + 1].type != T_ARG)
+    U_DEBUG("Redirect sz [%lu] i [%lu]\n", sz, i);
+    if (i + 1 >= sz || node->vector.tokens[i + 1].type != T_ARG)
         return (WRITE_CONST(STDERR_FILENO,
             "Missing name for redirect.\n"), false);
     ef->skip_i = ef->skip_i ?: i;
@@ -37,7 +40,7 @@ bool handle_in_redirect(ef_t *ef, ast_t *node, size_t i, size_t sz)
 {
     if (node->vector.tokens[i].type != T_IN_REDIRECT)
         return true;
-    if (i >= sz || node->vector.tokens[i + 1].type != T_ARG)
+    if (i + 1 >= sz || node->vector.tokens[i + 1].type != T_ARG)
         return (WRITE_CONST(STDERR_FILENO,
             "Missing name for redirect.\n"), false);
     ef->skip_i = ef->skip_i ?: i;
@@ -76,7 +79,7 @@ bool handle_heredoc(ef_t *ef, ast_t *node, size_t i, size_t sz)
 {
     if (node->vector.tokens[i].type != T_HEREDOC)
         return true;
-    if (i >= sz || node->vector.tokens[i + 1].type != T_ARG)
+    if (i + 1 >= sz || node->vector.tokens[i + 1].type != T_ARG)
         return (WRITE_CONST(STDERR_FILENO,
             "Missing name for redirect.\n"), false);
     ef->skip_i = ef->skip_i ?: i;

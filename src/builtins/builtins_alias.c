@@ -28,7 +28,6 @@ void free_alias(alias_t *alias)
 
 int builtins_display_alias(alias_t *alias)
 {
-    printf("Alias %d:\n", alias->size);
     for (size_t i = 0; i != alias->size; i++){
         printf("|| Alias: %s || ", alias->alias_array[i]);
         printf("Command: %s ||\n", alias->alias_to_replace[i]);
@@ -72,7 +71,7 @@ char *array_nto_strdup(char **array, int i)
 }
 
 static
-int add_alias(alias_t *alias, char **args)
+int add_alias_array(alias_t *alias, char **args)
 {
     char **new_alias_array =
         realloc(alias->alias_array, sizeof(char *) * alias->size);
@@ -88,6 +87,21 @@ int add_alias(alias_t *alias, char **args)
     alias->alias_to_replace = new_replace;
     alias->alias_array[alias->size - 1] = strdup(args[1]);
     alias->alias_to_replace[alias->size - 1] = array_nto_strdup(args, 2);
+    return RETURN_SUCCESS;
+}
+
+int add_alias(alias_t *alias, char **args)
+{
+    int replace = -1;
+
+    for (size_t i = 0; i != alias->size - 1; i++)
+        if (!strcmp(args[1], alias->alias_array[i]))
+            replace = (int)(i);
+    if (replace == -1)
+        return add_alias_array(alias, args);
+    alias->size--;
+    free(alias->alias_to_replace[replace]);
+    alias->alias_to_replace[replace] = array_nto_strdup(args, 2);
     return RETURN_SUCCESS;
 }
 
