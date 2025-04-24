@@ -52,7 +52,7 @@ bool process_args(ast_t *node, args_t *args, size_t *toks_i, ef_t *ef)
         return (process_globbing(tok.str, args));
     if (!ensure_args_capacity(args))
         return false;
-    args->args[args->sz] = handle_var_case(node, toks_i, ef->env);
+    args->args[args->sz] = handle_var_case(node, ef->exec_ctx, toks_i);
     if (args->args[args->sz] == NULL)
         return false;
     args->sz++;
