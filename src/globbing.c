@@ -19,7 +19,7 @@ bool check_glob_result(int val, char *bin_name)
 {
     if (val != 0){
         if (val == GLOB_NOMATCH)
-            dprintf(STDERR_FILENO, "%s; No match.\n", bin_name);
+            dprintf(STDERR_FILENO, "%s: No match.\n", bin_name);
         return false;
     }
     return true;
