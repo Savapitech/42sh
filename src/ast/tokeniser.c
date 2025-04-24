@@ -26,7 +26,6 @@ const tokens_list_t TOKENS_LIST[] = {
     { T_VAR, "$", 1, "T_VAR" },
     { T_APPEND, ">>", 2, "T_APPEND" },
     { T_REDIRECT, ">", 1, "T_REDIRECT" },
-    { T_AT, "@", 1, "T_AT" },
     { T_HEREDOC, "<<", 2, "T_HEREDOC" },
     { T_IN_REDIRECT, "<", 1, "T_IN_REDIRECT" },
     { T_WHILE, "while", 5, "T_WHILE"},
@@ -41,7 +40,7 @@ const size_t TOKENS_LIST_SZ = sizeof TOKENS_LIST / sizeof *TOKENS_LIST;
 
 void skip_semi(ast_ctx_t *ctx)
 {
-    while (ctx->act_tok.type & (T_SEMICOLON | T_AT))
+    while (ctx->act_tok.type == T_SEMICOLON)
         ctx->act_tok = get_next_token(ctx);
 }
 
