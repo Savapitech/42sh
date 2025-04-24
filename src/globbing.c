@@ -4,75 +4,62 @@
 ** File description:
 ** globbing
 */
-#include "globbing.h"
+
+#include <glob.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
-#include "u_str.h"
-#include "exec.h"
 #include <string.h>
+#include <unistd.h>
 
-int check_value(int val, globs_t *globs, char ***args)
+#include "exec.h"
+#include "globbing.h"
+#include "u_str.h"
+
+#include "debug.h"
+
+bool check_glob_result(int val, char *bin_name)
 {
     if (val != 0){
-        if (val == GLOB_NOMATCH){
-            write(2, *args[0], strlen(*args[0]));
-            WRITE_CONST(STDERR_FILENO, ": No match.\n");
-        }
-        globfree(&globs->globs);
-        return -1;
+        if (val == GLOB_NOMATCH)
+            dprintf(STDERR_FILENO, "%s; No match.\n", bin_name);
+        return false;
     }
-    return 0;
+    return true;
 }
 
-char **globbing(const char *pattern, char ***args)
+bool process_globbing(char *pattern, args_t *args)
 {
-    globs_t *globs = malloc(sizeof(globs_t));
+    glob_t globs;
+    int glob_result;
 
-    if (!globs)
-        return NULL;
-    globs->val = glob(pattern, GLOB_ERR, NULL, &globs->globs);
-    if (check_value(globs->val, globs, args) == -1)
-        return NULL;
-    globs->result_tab = malloc(sizeof(char *) * (globs->globs.gl_pathc + 1));
-    globs->found_tab = globs->globs.gl_pathv;
-    if (globs->found_tab == NULL || !globs->result_tab){
-        globfree(&globs->globs);
-        return NULL;
+    glob_result = glob(pattern, GLOB_ERR, NULL, &globs);
+    if (!check_glob_result(glob_result, args->args[0]))
+        return false;
+    for (size_t i = 0; i < globs.gl_pathc; i++) {
+        ensure_args_capacity(args);
+        args->args[args->sz] = strdup(globs.gl_pathv[i]);
+        if (args->args[args->sz] == NULL)
+            return globfree(&globs), false;
+        args->sz++;
     }
-    for (int i = 0; globs->found_tab[i] != NULL; i++)
-        globs->result_tab[i] = strdup(globs->found_tab[i]);
-    globs->result_tab[globs->globs.gl_pathc] = NULL;
-    globfree(&globs->globs);
-    return globs->result_tab;
+    globfree(&globs);
+    return true;
 }
 
-int process_glob_results(char **glob_results, char ***args,
-    size_t *sz, size_t *cap)
+bool process_args(ast_t *node, args_t *args, size_t toks_i, ef_t *ef)
 {
-    if (!glob_results)
-        return -1;
-    for (int j = 0; glob_results[j] != NULL; j++) {
-        ensure_args_capacity(args, *sz, cap);
-        (*args)[*sz] = strdup(glob_results[j]);
-        (*sz)++;
-        free(glob_results[j]);
-    }
-    free(glob_results);
-    return 0;
-}
+    token_t tok = node->vector.tokens[toks_i];
 
-int process_args(char *arg, char ***args, size_t *sz, size_t *cap)
-{
-    if (strchr(arg, '*')) {
-        if (process_glob_results(globbing(arg, args), args, sz, cap) == -1) {
-            free(*args);
-            return -1;
-        }
-    } else {
-        ensure_args_capacity(args, *sz, cap);
-        (*args)[*sz] = arg;
-        (*sz)++;
-    }
-    return 0;
+    U_DEBUG("tok [%s]\n", tok.str);
+    if (strchr(tok.str, '*') != NULL)
+        return (process_globbing(tok.str, args));
+    if (!ensure_args_capacity(args))
+        return false;
+    args->args[args->sz] = handle_var_case(node->vector.tokens,
+        node->vector.sz, toks_i, ef->env);
+    if (args->args[args->sz] == NULL)
+        return false;
+    args->sz++;
+    return true;
 }

@@ -5,9 +5,13 @@
 ** globbing
 */
 
-#ifndef INCLUDED_GLOBBING_H
-    #define INCLUDED_GLOBBING_H
+#ifndef GLOBBING_H
+    #define GLOBBING_H
     #include <glob.h>
+    #include <stdbool.h>
+
+    #include "ast.h"
+    #include "exec.h"
 
 typedef struct globs_s {
     glob_t globs;
@@ -16,8 +20,5 @@ typedef struct globs_s {
     int val;
 }globs_t;
 
-char **globbing(const char *pattern, char ***args);
-int process_glob_results(char **glob_results, char ***args,
-    size_t *sz, size_t *cap);
-int process_args(char *arg, char ***args, size_t *sz, size_t *cap);
-#endif
+bool process_args(ast_t *node, args_t *args, size_t toks_i, ef_t *ef);
+#endif /* GLOBBING_H */
