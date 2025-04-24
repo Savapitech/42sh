@@ -41,7 +41,6 @@ size_t update_command(char **buffer,
     buffer_len = u_strlen(*buffer);
     if (buffer_len < 2)
         return RETURN_FAILURE;
-    (*buffer)[buffer_len - 1] = '\0';
     if (parse_history(buffer, &buffer_len,
         buffer_sz, &exec_ctx->history_command) == 84)
         return RETURN_SUCCESS;

@@ -8,8 +8,10 @@
 #include <ctype.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <termios.h>
 #include <unistd.h>
 
 #include "common.h"
@@ -97,7 +99,7 @@ int8_t handle_line_buff(buff_t *buff, char *read_buff, ssize_t read_size)
 {
     if (*read_buff == CTRL('d')) {
         buff->sz = 0;
-        return WRITE_CONST(STDOUT_FILENO, "exit\n"), RETURN_SUCCESS;
+        return RETURN_SUCCESS;
     }
     if (str_printable(read_buff, read_size))
         write(STDOUT_FILENO, read_buff, read_size);

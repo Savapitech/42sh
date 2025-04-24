@@ -7,8 +7,7 @@
 
 #ifndef READLINE
     #define READLINE
-    #define CTRL(x) (x & 0xf)
-    #define BUFF_INIT_SZ 128
+    #define BUFF_INIT_SZ 16
     #include <stdbool.h>
 
     #include "u_str.h"

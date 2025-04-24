@@ -11,7 +11,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include "ast.h"
+#include "builtins_handler.h"
 #include "common.h"
 #include "debug.h"
 #include "env.h"
@@ -19,6 +19,7 @@
 #include "readline.h"
 #include "shell.h"
 #include "u_str.h"
+#include "visitor.h"
 
 __attribute__((unused))
 static
@@ -60,30 +61,48 @@ static
 bool change_shell_command(buff_t *buff, exec_ctx_t *exec_ctx)
 {
     char *tmp_buff = NULL;
-    size_t buff_len;
+    size_t buffer_len;
 
+    buff->sz = 0;
     if (!readline(buff))
         return true;
+    if (!buff->sz)
+        return true;
+    WRITE_CONST(STDOUT_FILENO, "\n");
     tmp_buff = buff->str;
-    buff_len = update_command(&tmp_buff, &buff->sz, exec_ctx);
-    if (!buff_len)
+    buffer_len = update_command(&tmp_buff, &buff->sz, exec_ctx);
+    if (buffer_len == 0)
         return false;
-    if (buff->sz < 1 || !u_str_is_alnum(tmp_buff)) {
+    if (buffer_len < 1 || !u_str_is_alnum(tmp_buff)) {
         check_basic_error(tmp_buff);
-        free(tmp_buff);
         return false;
     }
-    U_DEBUG("Buffer [%lu] [%s]\n", buff->sz, buff->str);
+    U_DEBUG("Buffer [%lu] [%s]\n", buffer_len, tmp_buff);
     visitor(tmp_buff, exec_ctx);
-    free(tmp_buff);
     return false;
+}
+
+static
+void init_shell_repl(exec_ctx_t *exec_ctx)
+{
+    struct termios repl_settings;
+
+    exec_ctx->is_running = true;
+    if (isatty(STDIN_FILENO)) {
+        tcgetattr(STDIN_FILENO, &repl_settings);
+        exec_ctx->saved_term_settings = repl_settings;
+        repl_settings.c_iflag = IXON;
+        repl_settings.c_lflag = ~(ECHO | ICANON);
+        tcsetattr(STDIN_FILENO, TCSANOW, &repl_settings);
+    }
 }
 
 static
 int shell_loop(int is_a_tty, exec_ctx_t *exec_ctx)
 {
-    buff_t buff = { .str = NULL, 0 };
+    buff_t buff = { .str = NULL, 0, .cap = BUFF_INIT_SZ };
 
+    init_shell_repl(exec_ctx);
     while (true) {
         write_prompt(is_a_tty);
         if (change_shell_command(&buff, exec_ctx))
@@ -93,6 +112,7 @@ int shell_loop(int is_a_tty, exec_ctx_t *exec_ctx)
     return free(buff.str), exec_ctx->history->last_exit_code;
 }
 
+static
 his_command_t *init_cmd_history(void)
 {
     his_command_t *cmd_history = malloc(sizeof(his_command_t) * 100);
@@ -123,21 +143,6 @@ bool error_in_init(exec_ctx_t *exec_ctx)
     return false;
 }
 
-alias_t init_alias(void)
-{
-    alias_t alias;
-
-    alias.size = 1;
-    alias.alias_array = malloc(sizeof(char *) * alias.size);
-    alias.alias_to_replace = malloc(sizeof(char *) * alias.size);
-    if (!alias.alias_array || !alias.alias_to_replace)
-        return alias;
-    alias.alias_array[0] = NULL;
-    alias.alias_to_replace[0] = NULL;
-    alias.size = 0;
-    return alias;
-}
-
 int shell(char **env_ptr)
 {
     alias_t alias = init_alias();
@@ -148,14 +153,15 @@ int shell(char **env_ptr)
         .history = &history, .history_command = cmd_history, .alias = &alias};
     int shell_result;
 
-    if (error_in_init(&exec_ctx) == true){
+    if (error_in_init(&exec_ctx) == true)
         return RETURN_FAILURE;
-    }
     U_DEBUG_CALL(debug_env_entries, &env);
     signal(SIGINT, ignore_sigint);
     shell_result = shell_loop(isatty(STDIN_FILENO), &exec_ctx);
-    if (isatty(STDIN_FILENO))
+    if (isatty(STDIN_FILENO)) {
         WRITE_CONST(STDOUT_FILENO, "exit\n");
+        tcsetattr(STDIN_FILENO, TCSANOW, &exec_ctx.saved_term_settings);
+    }
     free_env(exec_ctx.env);
     free_alias(exec_ctx.alias);
     return shell_result;
