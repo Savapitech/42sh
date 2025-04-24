@@ -1,0 +1,59 @@
+- [x] `:`
+- [x] `alias`
+- [ ] `alloc`
+- [ ]`astprint`
+- [x] `builtins`
+- [x] `cd`/`chdir`
+- [ ] `date`
+- [ ] `echo`
+- [x] `env`/`setenv`/`unsetenv` (`env` à completer)
+- [ ] `export`
+- [ ] `eval`/`exec`
+- [x] `exit`
+- [ ] `kill`
+- [ ] `limit`
+- [x] `printenv`
+- [x] `pushd`/`popd`
+- [ ] `printf`
+- [x] `repeat`
+- [ ] `source`/`.`
+- [ ] `termname`
+- [ ] `time`
+- [ ] `trap`
+- [ ] `wc`
+- [ ] `which`/`where`
+- [x] `yes`
+
+- [x] pipes
+- [x] redirections
+- [ ] line editing (move, del, multi-line)
+- [ ] input shortcut (^A,^E,^R,^V,^F,^B,...)
+- [ ] color highlighting in input
+- [ ] foreground/background jobs (`&`), (btln `fg`, `bg`,  `jobs`) 
+- [ ] while/for/foreach loops
+- [ ] if / cases
+- [x] `||`/`&&`
+- [ ] configuration file
+- [x] script with shebangs
+- [ ] `-c` eval argument
+- [ ] `-D` set env var at boot
+- [ ] `-e` exit on failure
+- [ ] `-n` (dry run mode)
+- [ ] `-h` help (open man?)
+- [ ] autocompletion of commands
+- [x] globbing (*)
+- [ ] globbing
+- [ ] var interpreter
+- [ ] inhibitor
+- [ ] magic quotes
+- [ ] parenthesis (sub-commands)
+- [ ] direnv/wakatime integration
+- [x] command history (`history` btln)
+- [ ] arithmetric expansion (`$(( x + 1 ))`)
+- [ ] brace expansion: `{a,b,c}` and `{1..10}`
+- [x] heredocs
+- [ ]  functions (`:() { :|:& }`)
+- [ ] special env vars: `$?`, `$$`, ...
+- [ ] git integration (branch)
+- [ ] `x`, `e`, `o` & pipefail modes
+- [ ] file inquiry operators (`-d`, `f`, ...)

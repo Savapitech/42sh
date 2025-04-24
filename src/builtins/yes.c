@@ -16,6 +16,7 @@
 #include "common.h"
 #include "exec.h"
 #include "u_str.h"
+#include "u_mem.h"
 
 static
 int len_buffer(char **args)
@@ -37,13 +38,15 @@ char *define_prompt(char **args)
     buffer = malloc(sizeof(char) * (len_buffer(args) + 1));
     if (buffer == NULL)
         return NULL;
+    u_bzero(buffer, len_buffer(args) + 1);
     strcpy(buffer, args[1]);
+    buffer[strlen(buffer)] = ' ';
     for (int i = 2; args[i]; i++){
         strcat(buffer, args[i]);
         if (args[i + 1] != NULL)
-            buffer[strlen(buffer) - 1] = ' ';
+            buffer[strlen(buffer)] = ' ';
     }
-    buffer[strlen(buffer) - 1] = '\n';
+    buffer[strlen(buffer)] = '\n';
     return buffer;
 }
 

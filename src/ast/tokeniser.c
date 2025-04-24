@@ -29,7 +29,10 @@ const tokens_list_t TOKENS_LIST[] = {
     { T_HEREDOC, "<<", 2, "T_HEREDOC" },
     { T_IN_REDIRECT, "<", 1, "T_IN_REDIRECT" },
     { T_WHILE, "while", 5, "T_WHILE"},
-    { T_FOREACH, "foreach", 7, "T_WHILE"},
+    { T_IF, "if", 2, "T_IF"},
+    { T_THEN, "then", 4, "T_THEN"},
+    { T_ELSE, "else", 4, "T_ELSE"},
+    { T_ENDIF, "endif", 5, "T_ENDIF"},
     { T_EOF, "\0", 1, "T_EOF" }
 };
 
@@ -49,11 +52,9 @@ bool parser_eat(ast_ctx_t *ctx, token_type_t expected)
     if (!(ctx->act_tok.type & expected)) {
         if (prev_tok_type == T_PIPE)
             WRITE_CONST(STDERR_FILENO, "Invalid null command.\n");
-        else {
-            WRITE_CONST(STDERR_FILENO, "Parse error near \"");
-            write(STDERR_FILENO, ctx->act_tok.str, ctx->act_tok.sz);
-            WRITE_CONST(STDERR_FILENO, "\"\n");
-        }
+        else
+            dprintf(STDERR_FILENO, "Parse error near \"%.*s\"\n",
+                (int)ctx->ast->tok.sz, ctx->ast->tok.str);
         return false;
     }
     return true;

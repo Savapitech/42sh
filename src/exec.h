@@ -52,5 +52,5 @@ bool ensure_args_capacity(args_t *args);
 int exec_the_args(ef_t *ef, char **args);
 void exit_child(int sig __attribute__((unused)));
 int visit_loop(ef_t *ef, ast_t *node);
-char *handle_var_case(ast_t *node, size_t *i, env_t *env);
+char *handle_var_case(ast_t *node, exec_ctx_t *ctx, size_t *i);
 #endif /* EXEC_H */

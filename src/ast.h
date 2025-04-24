@@ -13,6 +13,10 @@
     #include "builtins_handler.h"
 
     #define DEFAULT_AST_CAP 128
+    #define DEFAULT_N_LST_CAP 2
+    #define DEFAULT_N_CMD_CAP 2
+    #define DEFAULT_N_COND_CAP 2
+    #define IF_PROMPT "if? "
     #define T_ALL 0xff
 
 typedef enum {
@@ -31,18 +35,23 @@ typedef enum {
     T_APPEND = 1 << 12, // >>
     T_HEREDOC = 1 << 13, // <
     T_IN_REDIRECT = 1 << 14, // <
-    T_WHILE = 1 << 15, // while
-    T_FOREACH = 1 << 16, // foreach
-    T_EOF = 1 << 17, // \0
-    T_ARG = 1 << 18,
-    T_INVALID = 1 << 19
+    T_AT = 1 << 15, // <
+    T_WHILE = 1 << 16, // while
+    T_IF = 1 << 17, // if
+    T_THEN = 1 << 18, // then
+    T_ELSE = 1 << 19, // else
+    T_ENDIF = 1 << 20, // endif
+    T_EOF = 1 << 21, // \0
+    T_ARG = 1 << 22,
+    T_INVALID = 1 << 23
 } token_type_t;
 
 typedef enum {
     N_LST,
     N_CMD,
     N_BIN,
-    N_LOP
+    N_LOP,
+    N_COND
 } node_type_t;
 
 typedef struct {
@@ -83,6 +92,15 @@ typedef struct ast_s {
             char **buffers;
             ast_t *condition;
         } loop;
+        struct {
+            ast_t *exp;
+            size_t sz;
+            size_t sz2;
+            size_t cap;
+            size_t cap2;
+            ast_t **nodes;
+            ast_t **nodes2;
+        } cond;
     };
     token_t tok;
 } ast_t;
@@ -109,6 +127,8 @@ int visitor(char *buffer, exec_ctx_t *exec_ctx);
 ast_t *create_node(ast_ctx_t *ctx);
 bool ensure_node_cap(ast_t *node);
 bool ensure_list_cap(ast_t *node);
+bool ensure_cond_cap(ast_t *node);
+bool ensure_cond_cap2(ast_t *node);
 bool parser_eat(ast_ctx_t *ctx, token_type_t expected);
 ast_t *parse_loop(ast_ctx_t *ctx);
 void free_ast(ast_ctx_t *ctx);
@@ -117,7 +137,9 @@ void skip_semi(ast_ctx_t *ctx);
 
 // Outside needed parser
 ast_t *parse_cmd(ast_ctx_t *ctx);
+ast_t *parse_semi(ast_ctx_t *ctx);
 ast_t *parse_condition(ast_ctx_t *ctx);
 ast_t *parse_and(ast_ctx_t *ctx, ast_t *l_node);
 ast_t *parse_or(ast_ctx_t *ctx, ast_t *l_node);
+ast_t *parse_if(ast_ctx_t *ctx);
 #endif /* AST_H */

@@ -15,6 +15,7 @@ SRC := $(wildcard src/*.c)
 SRC += $(wildcard src/builtins/*.c)
 SRC += $(wildcard src/ast/*.c)
 SRC += $(wildcard src/utils/*.c)
+SRC += $(wildcard src/local/*.c)
 
 LIB_SRC := $(wildcard ulib/*.c)
 LIB_SRC += $(wildcard ulib/write/printf/*.c)
@@ -34,7 +35,7 @@ CFLAGS += -Wduplicated-cond -Wformat=2 -Wshadow -fno-builtin
 CFLAGS += -Wstrict-aliasing=0 -Wstrict-prototypes -Wunreachable-code
 CFLAGS += -Wwrite-strings -Werror=declaration-after-statement
 CFLAGS += -Werror=format-nonliteral -Werror=int-conversion -Werror=return-type
-CFLAGS += -Werror=vla-larger-than=0 -Wno-discarded-qualifiers
+CFLAGS += -Wno-discarded-qualifiers
 
 LDFLAGS += -L .
 LDLIBS := -lu
@@ -127,3 +128,13 @@ fclean:
 re:	fclean all
 
 .PHONY: all clean fclean re
+
+PREFIX ?=
+BINDIR ?= $(PREFIX)/bin
+
+.PHONY: install uninstall
+install: $(NAME_release)
+	install -Dm755 -t $(BINDIR) $(NAME_release)
+
+uninstall:
+	$(RM) $(BINDIR)/42sh
