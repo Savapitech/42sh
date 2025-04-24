@@ -38,6 +38,9 @@ const builtins_funcs_t BUILTINS[] = {
     { "history", &builtins_history},
     { "alias", &builtins_alias},
     { "yes", &builtins_yes },
+    { "foreach", &builtins_foreach },
+    { "set", &builtins_set },
+    { "unset", &builtins_unset },
     { "where", &builtins_where },
     { "which", &builtins_which }
 };
@@ -75,7 +78,7 @@ char **parse_args(ef_t *ef, ast_t *node, env_t *env)
         if (ef->skip_sz > 0 && i >= ef->skip_i && i < ef->skip_i + ef->skip_sz)
             continue;
         ensure_args_capacity(&args, sz, &cap);
-        args[sz] = handle_var_case(node, env, &i);
+        args[sz] = handle_var_case(node, ef->exec_ctx, &i);
         if (args[sz] == NULL)
             return free(args), NULL;
         sz++;

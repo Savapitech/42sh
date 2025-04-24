@@ -18,6 +18,8 @@
 #include "history.h"
 #include "shell.h"
 #include "u_str.h"
+#include "local.h"
+#include "loop.h"
 
 __attribute__((unused))
 static
@@ -145,7 +147,8 @@ int shell(char **env_ptr)
     env_t env = parse_env(env_ptr);
     history_t history = { .cmd_history = NULL, 0, .last_chdir = NULL};
     his_command_t *cmd_history = init_cmd_history();
-    exec_ctx_t exec_ctx = {.env = &env,
+    local_t local = create_local();
+    exec_ctx_t exec_ctx = {.env = &env, .local = &local,
         .history = &history, .history_command = cmd_history, .alias = &alias};
     int shell_result;
 
