@@ -15,7 +15,7 @@
 
 typedef struct {
     char **args;
-    size_t count;
+    size_t sz;
     size_t cap;
 } args_t;
 
@@ -48,9 +48,9 @@ typedef struct {
 
 __attribute__((nonnull))
 int execute(ef_t *ef);
-bool ensure_args_capacity(char ***args, size_t const sz, size_t *cap);
+bool ensure_args_capacity(args_t *args);
 int exec_the_args(ef_t *ef, char **args);
 void exit_child(int sig __attribute__((unused)));
 int visit_loop(ef_t *ef, ast_t *node);
-char *handle_var_case(ast_t *node, env_t *env, size_t *i);
+char *handle_var_case(token_t *tok, size_t sz, size_t i, env_t *env);
 #endif /* EXEC_H */
