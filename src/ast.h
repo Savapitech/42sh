@@ -9,7 +9,7 @@
     #define AST_H
     #include <stddef.h>
     #include <stdint.h>
-    #include "shell.h"
+
     #include "builtins_handler.h"
 
     #define DEFAULT_AST_CAP 128
@@ -31,12 +31,11 @@ typedef enum {
     T_APPEND = 1 << 12, // >>
     T_HEREDOC = 1 << 13, // <
     T_IN_REDIRECT = 1 << 14, // <
-    T_AT = 1 << 15, // <
-    T_WHILE = 1 << 16, // while
-    T_FOREACH = 1 << 17, // foreach
-    T_EOF = 1 << 18, // \0
-    T_ARG = 1 << 19,
-    T_INVALID = 1 << 20
+    T_WHILE = 1 << 15, // while
+    T_FOREACH = 1 << 16, // foreach
+    T_EOF = 1 << 17, // \0
+    T_ARG = 1 << 18,
+    T_INVALID = 1 << 19
 } token_type_t;
 
 typedef enum {

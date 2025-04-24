@@ -162,9 +162,9 @@ ast_t *create_semi_node(ast_ctx_t *ctx, ast_t *l_node)
 static
 ast_t *fill_semi_node(ast_ctx_t *ctx, ast_t *node)
 {
-    while (ctx->act_tok.type & (T_SEMICOLON | T_AT)) {
+    while (ctx->act_tok.type == T_SEMICOLON) {
         ctx->act_tok = get_next_token(ctx);
-        if (ctx->act_tok.type & (T_SEMICOLON | T_AT))
+        if (ctx->act_tok.type == T_SEMICOLON)
             continue;
         if (!ensure_list_cap(node))
             return false;
@@ -187,7 +187,7 @@ ast_t *parse_expression(ast_ctx_t *ctx)
     l_node = parse_semi(ctx);
     if (l_node == NULL)
         return ctx->ast;
-    if (ctx->act_tok.type & (T_SEMICOLON | T_AT)) {
+    if (ctx->act_tok.type == T_SEMICOLON) {
         node = create_semi_node(ctx, l_node);
         if (node == NULL)
             return NULL;
