@@ -29,14 +29,14 @@ bool search_cmd(ef_t *ef, char *arg)
         return free(alias_path.str), NULL;
     parse_alias(&alias_path.str, &alias_path.sz, ef->exec_ctx->alias);
     if (strcmp(arg, alias_path.str) != 0)
-        printf("%s is aliased to %s\n", arg, alias_path.str);
+        dprintf(ef->out_fd, "%s is aliased to %s\n", arg, alias_path.str);
     if (strcmp(arg, bin_path) != 0)
-        puts(bin_path);
+        dprintf(ef->out_fd, "%s\n", bin_path);
     for (size_t i = 0; i < BUILTINS_SZ; i++) {
         if (u_strlen(BUILTINS[i].name) != (int)strlen(arg))
             continue;
         if (u_strcmp(BUILTINS[i].name, arg) == 0)
-            printf("%s is a shell built-in\n", arg);
+            dprintf(ef->out_fd, "%s is a shell built-in\n", arg);
     }
     free(alias_path.str);
     return true;
