@@ -20,5 +20,5 @@ typedef struct globs_s {
     int val;
 }globs_t;
 
-bool process_args(ast_t *node, args_t *args, size_t toks_i, ef_t *ef);
+bool process_args(ast_t *node, args_t *args, size_t *toks_i, ef_t *ef);
 #endif /* GLOBBING_H */

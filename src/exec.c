@@ -78,8 +78,9 @@ char **parse_args(ef_t *ef, ast_t *node)
     for (size_t i = 0; i < node->vector.sz; i++) {
         if (ef->skip_sz > 0 && i >= ef->skip_i && i < ef->skip_i + ef->skip_sz)
             continue;
-        node->vector.tokens[i].str[node->vector.tokens[i].sz] = '\0';
-        if (!process_args(node, &args, i, ef))
+        if (node->vector.tokens[i].type == T_ARG)
+            node->vector.tokens[i].str[node->vector.tokens[i].sz] = '\0';
+        if (!process_args(node, &args, &i, ef))
             return free((void *)args.args), NULL;
     }
     if (!ensure_args_capacity(&args))
