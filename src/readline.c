@@ -122,13 +122,10 @@ bool readline(buff_t *buff)
         read_size = read(STDIN_FILENO, &read_buff, sizeof read_buff - 1);
         if (read_size < 0)
             return false;
-        if (read_size == 0) {
-            buff->sz = 0;
+        if (read_size == 0)
             return true;
-        }
         if (handle_line_buff(buff, read_buff, read_size) > -1)
             return true;
     }
-    U_DEBUG("buff count: %zu\n", buff->sz);
     return append_null_terminator(buff);
 }
