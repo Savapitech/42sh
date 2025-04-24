@@ -42,54 +42,50 @@ const builtins_funcs_t BUILTINS[] = {
 const size_t BUILTINS_SZ = sizeof BUILTINS / sizeof *BUILTINS;
 
 __attribute__((nonnull))
-bool ensure_args_capacity(char ***args, size_t const sz, size_t *cap)
+bool ensure_args_capacity(args_t *args)
 {
     char **new_ptr;
 
-    if (sz < *cap)
+    if (args->sz + 1 < args->cap)
         return true;
-    new_ptr = (char **)u_realloc((void *)*args, sizeof *args * sz,
-        sizeof *args * *cap << 1);
+    new_ptr = (char **)u_realloc((void *)args->args, sizeof *args->args *
+        args->sz, sizeof *args->args * args->cap << 1);
     if (!new_ptr)
         return false;
-    *cap <<= 1;
-    *args = new_ptr;
+    args->cap <<= 1;
+    args->args = new_ptr;
     return true;
 }
 
 static
-int set_args(char **args, ast_t *node)
+bool set_first_arg(char **args, ast_t *node)
 {
     if (!args)
-        return -1;
+        return false;
     node->tok.str[node->tok.sz] = '\0';
     args[0] = node->tok.str;
-    return 0;
+    return true;
 }
 
 static
-char **parse_args(ef_t *ef, ast_t *node, env_t *env)
+char **parse_args(ef_t *ef, ast_t *node)
 {
-    size_t sz = 1;
-    size_t cap = DEFAULT_ARGS_CAP;
-    char **args = (char **)malloc(sizeof *args * cap);
+    args_t args = { .args = (char **)malloc(sizeof *args.args
+        * DEFAULT_ARGS_CAP), .sz = 1, .cap = DEFAULT_ARGS_CAP };
 
-    if (set_args(args, node) == -1)
+    if (!set_first_arg(args.args, node))
         return NULL;
     for (size_t i = 0; i < node->vector.sz; i++) {
         if (ef->skip_sz > 0 && i >= ef->skip_i && i < ef->skip_i + ef->skip_sz)
             continue;
         node->vector.tokens[i].str[node->vector.tokens[i].sz] = '\0';
-        if (process_args(node->vector.tokens[i].str, &args, &sz, &cap) == -1)
-            return NULL;
-        ensure_args_capacity(&args, sz + 1, &cap);
-        args[sz] = handle_var_case(node, env, &i);
-        if (args[sz] == NULL)
-            return free(args), NULL;
+        if (!process_args(node, &args, i, ef))
+            return free((void *)args.args), NULL;
     }
-    ensure_args_capacity(&args, sz, &cap);
-    args[sz] = NULL;
-    return args;
+    if (!ensure_args_capacity(&args))
+        return NULL;
+    args.args[args.sz] = NULL;
+    return args.args;
 }
 
 static
@@ -215,7 +211,7 @@ int execute(ef_t *ef)
 {
     char **args;
 
-    args = parse_args(ef, ef->act_node, ef->env);
+    args = parse_args(ef, ef->act_node);
     if (!args)
         return RETURN_FAILURE;
     exec_the_args(ef, args);
