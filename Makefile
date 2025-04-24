@@ -128,3 +128,13 @@ fclean:
 re:	fclean all
 
 .PHONY: all clean fclean re
+
+PREFIX ?=
+BINDIR ?= $(PREFIX)/bin
+
+.PHONY: install uninstall
+install: $(NAME_release)
+	install -Dm755 -t $(BINDIR) $(NAME_release)
+
+uninstall:
+	$(RM) $(BINDIR)/42sh
