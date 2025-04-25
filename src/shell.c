@@ -68,7 +68,6 @@ bool change_shell_command(buff_t *buff, exec_ctx_t *exec_ctx)
         return true;
     if (!buff->sz)
         return true;
-    WRITE_CONST(STDOUT_FILENO, "\n");
     tmp_buff = buff->str;
     buffer_len = update_command(&tmp_buff, &buff->sz, exec_ctx);
     if (buffer_len == 0)

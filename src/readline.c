@@ -91,6 +91,8 @@ bool append_null_terminator(buff_t *buff)
         return false;
     buff->str[buff->sz] = '\0';
     buff->sz++;
+    if (isatty(STDIN_FILENO))
+        WRITE_CONST(STDOUT_FILENO, "\n");
     return true;
 }
 
@@ -117,7 +119,7 @@ bool readline(buff_t *buff)
 
     if (!ensure_buff_capacity(buff))
         return false;
-    while (*read_buff != '\n' && *read_buff != '\r') {
+    while (strchr(read_buff, '\n') == NULL && *read_buff != '\r') {
         memset(read_buff, '\0', sizeof read_buff);
         read_size = read(STDIN_FILENO, &read_buff, sizeof read_buff - 1);
         if (read_size < 0)
