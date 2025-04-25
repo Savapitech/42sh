@@ -107,8 +107,9 @@ int8_t handle_line_buff(buff_t *buff, char *read_buff, ssize_t read_size)
         write(STDOUT_FILENO, read_buff, read_size);
     if (!ensure_buff_av_capacity(buff, read_size))
         return RETURN_FAILURE;
-    buff->sz += strcpy_printable(buff->str + buff->sz,
+    strncpy(buff->str + buff->sz,
         read_buff, read_size);
+    buff->sz += read_size;
     return -1;
 }
 

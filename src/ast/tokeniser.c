@@ -34,6 +34,7 @@ const tokens_list_t TOKENS_LIST[] = {
     { T_THEN, "then", 4, "T_THEN"},
     { T_ELSE, "else", 4, "T_ELSE"},
     { T_ENDIF, "endif", 5, "T_ENDIF"},
+    { T_NEWLINE, "\n", 1, "T_NEWLINE"},
     { T_EOF, "\0", 1, "T_EOF" }
 };
 

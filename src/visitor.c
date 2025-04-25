@@ -148,7 +148,7 @@ int visit_expression(ef_t *ef, ast_t *node)
 
     if (node->type == N_LOP)
         result = visit_loop(ef, node);
-    if (node->tok.type == T_SEMICOLON)
+    if (node->tok.type & (T_SEMICOLON | T_NEWLINE))
         result = visit_semi(ef, node);
     if (node->tok.type & (T_IF | T_AND | T_OR))
         result = visit_condition(ef, node);
@@ -179,6 +179,8 @@ void remove_trailing_semi(char *str)
         if (str[len] != '\0' && str[len] != '\n' && str[len] != ';')
             break;
         if (str[len] == ';')
+            str[len] = '\0';
+        if (str[len] == '\n')
             str[len] = '\0';
     }
 }
