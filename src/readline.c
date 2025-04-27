@@ -103,7 +103,7 @@ int8_t handle_line_buff(buff_t *buff, char *read_buff, ssize_t read_size)
         buff->sz = 0;
         return RETURN_SUCCESS;
     }
-    if (str_printable(read_buff, read_size))
+    if (isatty(STDIN_FILENO) && str_printable(read_buff, read_size))
         write(STDOUT_FILENO, read_buff, read_size);
     if (!ensure_buff_av_capacity(buff, read_size))
         return RETURN_FAILURE;
