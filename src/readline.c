@@ -89,7 +89,7 @@ bool append_null_terminator(buff_t *buff)
 {
     if (!ensure_buff_av_capacity(buff, 1))
         return false;
-    buff->str[buff->sz] = '\0';
+    buff->str[buff->sz - 1] = '\0';
     buff->sz++;
     if (isatty(STDIN_FILENO))
         WRITE_CONST(STDOUT_FILENO, "\n");
@@ -115,7 +115,7 @@ int8_t handle_line_buff(buff_t *buff, char *read_buff, ssize_t read_size)
 
 bool readline(buff_t *buff)
 {
-    char read_buff[32] = "";
+    char read_buff[2] = "";
     ssize_t read_size = 0;
 
     if (!ensure_buff_capacity(buff))
