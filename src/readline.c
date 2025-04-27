@@ -15,24 +15,8 @@
 #include <unistd.h>
 
 #include "common.h"
-#include "debug.h"
 #include "readline.h"
 #include "u_str.h"
-
-static
-size_t strcpy_printable(char *dest, char const *src, size_t n)
-{
-    size_t count = 0;
-
-    for (size_t i = 0; i < n; i++) {
-        if (isprint(src[i])) {
-            *dest = src[i];
-            count++;
-            dest++;
-        }
-    }
-    return count;
-}
 
 static
 bool str_printable(char const *str, size_t size)
