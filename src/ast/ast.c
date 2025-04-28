@@ -170,10 +170,10 @@ ast_t *fill_semi_node(ast_ctx_t *ctx, ast_t *node)
         if (ctx->act_tok.type & (T_SEMICOLON | T_NEWLINE))
             continue;
         if (!ensure_list_cap(node))
-            return false;
+            return NULL;
         node->list.nodes[node->list.sz] = parse_semi(ctx);
         if (node->list.nodes[node->list.sz] == NULL)
-            return false;
+            return NULL;
         node->list.sz++;
     }
     return node;
