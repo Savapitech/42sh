@@ -40,10 +40,12 @@ const builtins_funcs_t BUILTINS[] = {
     { "alias", &builtins_alias},
     { "yes", &builtins_yes },
     { "foreach", &builtins_foreach },
+    { "while", &builtins_while },
     { "set", &builtins_set },
     { "unset", &builtins_unset },
     { "where", &builtins_where },
-    { "which", &builtins_which }
+    { "which", &builtins_which },
+    { "break", &builtins_break }
 };
 
 const size_t BUILTINS_SZ = sizeof BUILTINS / sizeof *BUILTINS;
