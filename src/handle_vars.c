@@ -6,6 +6,7 @@
 */
 
 #include <stdio.h>
+#include <unistd.h>
 
 #include "ast.h"
 #include "env.h"
@@ -22,7 +23,7 @@ char *handle_var_case(ast_t *node, exec_ctx_t *ctx, size_t *i)
         if (r_char == NULL)
             r_char = get_local_value(ctx->local, node->vector.tokens[*i].str);
         if (r_char == NULL) {
-            printf("%s: Undefined variable.\n",
+            dprintf(STDERR_FILENO, "%s: Undefined variable.\n",
                 node->vector.tokens[*i].str);
             return NULL;
         }

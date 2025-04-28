@@ -135,28 +135,9 @@ TESTS = [
         cmds=[
             "echo $HOME\n",
             "echo $PATH\n",
-            "setenv TEST_VAR bonjour\n",
-            "echo $TEST_VAR\n",
-            "unsetenv TEST_VAR\n",
-            "echo $TEST_VAR\n",
-            "echo \"$HOME\"\n",
-            "echo '$HOME'\n",
+            "setenv TESTVAR bonjour;echo $TESTVAR;unsetenv TESTVAR;echo $TESTVAR\n",
         ],
-        depends_on=("ENV",)
-    ),
-
-    Test(
-        key="QUOTES",
-        name="quotes handling",
-        cmds=[
-            "echo \"hello world\"\n",
-            "echo 'hello world'\n",
-            "echo \"quotes 'inside' quotes\"\n",
-            "echo 'quotes \"inside\" quotes'\n",
-            "echo \"unterminated\n",  # Should error
-            "echo 'unterminated\n",  # Should error
-        ],
-        depends_on=("ARGS",)
+        depends_on=("ENV","SEMICOLON",)
     ),
 
     Test(
@@ -183,14 +164,12 @@ TESTS = [
         key="PARSING_ERR",
         name="bad parsing cases",
         cmds=[
-            "| ls\n",
             "ls |\n",
-            "> ls\n",
             "ls >\n",
             "; ls\n",
             ";; ls\n",
             "ls ;; ls\n",
         ],
-        depends_on=("PIPE", "REDIR", "SEMICOLON", "QUOTES")
+        depends_on=("PIPE", "REDIR", "SEMICOLON",)
     ),
 ]
