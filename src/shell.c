@@ -73,12 +73,11 @@ bool change_shell_command(buff_t *buff, exec_ctx_t *exec_ctx)
     buffer_len = update_command(&tmp_buff, &buff->sz, exec_ctx);
     if (buffer_len == 0)
         return true;
-    if (buffer_len < 1 || !u_str_is_alnum(tmp_buff)) {
-        check_basic_error(tmp_buff);
-        return true;
-    }
+    if (buffer_len < 1 || !u_str_is_alnum(tmp_buff))
+        return check_basic_error(tmp_buff), true;
     U_DEBUG("Buffer [%lu] [%s]\n", buffer_len, tmp_buff);
-    if (visitor(tmp_buff, exec_ctx) == RETURN_FAILURE)
+    if (visitor(tmp_buff, exec_ctx) == RETURN_FAILURE
+        && !exec_ctx->history->last_exit_code)
         exec_ctx->history->last_exit_code = RETURN_FAILURE;
     return true;
 }
@@ -165,5 +164,5 @@ int shell(char **env_ptr)
         WRITE_CONST(STDOUT_FILENO, "exit\n");
         tcsetattr(STDIN_FILENO, TCSANOW, &exec_ctx.saved_term_settings);
     }
-    return free_env(exec_ctx.env), free_alias(exec_ctx.alias), shell_result;
+    return free_everything(&exec_ctx), shell_result;
 }
