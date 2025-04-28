@@ -53,7 +53,7 @@ jobs:
         run: make
 
       - name: Run tester
-        run: python3 validator.py
+        run: ./validator.py
 
   sync_repository:
     needs: [ check_the_repository_state ]
