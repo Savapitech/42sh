@@ -21,8 +21,8 @@
 
 typedef enum {
     T_SEMICOLON = 1 << 0, // ;
-    T_LEFT_QUOTE = 1 << 1, // "
-    T_RIGHT_QUOTE = 1 << 2, // "
+    T_QUOTES = 1 << 1, // "
+    T_DQUOTES = 1 << 2, // "
     T_AND = 1 << 3, // &&
     T_OR = 1 << 4, // ||
     T_PIPE = 1 << 5, // |
@@ -43,7 +43,7 @@ typedef enum {
     T_ENDIF = 1 << 20, // endif
     T_EOF = 1 << 21, // \0
     T_ARG = 1 << 22,
-    T_INVALID = 1 << 23
+    T_INVALID = 1 << 23,
 } token_type_t;
 
 typedef enum {
