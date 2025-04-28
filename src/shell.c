@@ -16,10 +16,9 @@
 #include "debug.h"
 #include "env.h"
 #include "history.h"
+#include "local.h"
 #include "shell.h"
 #include "u_str.h"
-#include "local.h"
-#include "loop.h"
 
 __attribute__((unused))
 static
@@ -75,7 +74,7 @@ bool change_shell_command(char **buffer, exec_ctx_t *exec_ctx,
         free(tmp_buff);
         return false;
     }
-    U_DEBUG("Buffer [%lu] [%s]\n", buffer_len, buffer);
+    U_DEBUG("Buffer [%lu] [%s]\n", buffer_len, tmp_buff);
     visitor(tmp_buff, exec_ctx);
     free(tmp_buff);
     return false;

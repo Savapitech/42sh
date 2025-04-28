@@ -41,9 +41,10 @@ typedef enum {
     T_THEN = 1 << 18, // then
     T_ELSE = 1 << 19, // else
     T_ENDIF = 1 << 20, // endif
-    T_EOF = 1 << 21, // \0
-    T_ARG = 1 << 22,
-    T_INVALID = 1 << 23
+    T_STAR = 1 << 21, // *
+    T_EOF = 1 << 22, // \0
+    T_ARG = 1 << 23,
+    T_INVALID = 1 << 24
 } token_type_t;
 
 typedef enum {
