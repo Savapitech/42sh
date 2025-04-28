@@ -64,7 +64,7 @@ bool change_shell_command(char **buffer, exec_ctx_t *exec_ctx,
     char *tmp_buff = NULL;
 
     if (getline(buffer, &buffer_sz, stdin) == -1)
-        return true;
+        return false;
     tmp_buff = (*buffer);
     buffer_len = update_command(&tmp_buff, &buffer_sz, exec_ctx);
     if (buffer_len == 0)
@@ -72,12 +72,13 @@ bool change_shell_command(char **buffer, exec_ctx_t *exec_ctx,
     if (buffer_len < 1 || !u_str_is_alnum(tmp_buff)) {
         check_basic_error(tmp_buff);
         free(tmp_buff);
-        return false;
+        return true;
     }
     U_DEBUG("Buffer [%lu] [%s]\n", buffer_len, tmp_buff);
-    visitor(tmp_buff, exec_ctx);
+    if (visitor(tmp_buff, exec_ctx) == RETURN_FAILURE)
+        exec_ctx->history->last_exit_code = RETURN_FAILURE;
     free(tmp_buff);
-    return false;
+    return true;
 }
 
 static
@@ -88,7 +89,7 @@ int shell_loop(int is_a_tty, exec_ctx_t *exec_ctx)
 
     while (true) {
         write_prompt(is_a_tty);
-        if (change_shell_command(&buffer, exec_ctx, buffer_sz) == true)
+        if (!change_shell_command(&buffer, exec_ctx, buffer_sz))
             return exec_ctx->history->last_exit_code;
     }
     free(exec_ctx->history_command);
@@ -144,16 +145,16 @@ int shell(char **env_ptr)
 {
     alias_t alias = init_alias();
     env_t env = parse_env(env_ptr);
-    history_t history = { .cmd_history = NULL, 0, .last_chdir = NULL};
+    history_t history = { .cmd_history = NULL, .last_exit_code = 0,
+        .last_chdir = NULL};
     his_command_t *cmd_history = init_cmd_history();
     local_t local = create_local();
     exec_ctx_t exec_ctx = {.env = &env, .local = &local,
         .history = &history, .history_command = cmd_history, .alias = &alias};
     int shell_result;
 
-    if (error_in_init(&exec_ctx) == true){
+    if (error_in_init(&exec_ctx) == true)
         return RETURN_FAILURE;
-    }
     U_DEBUG_CALL(debug_env_entries, &env);
     signal(SIGINT, ignore_sigint);
     shell_result = shell_loop(isatty(STDIN_FILENO), &exec_ctx);
