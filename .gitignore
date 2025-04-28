@@ -34,6 +34,7 @@ result
 # Cache
 .cache
 .fast
+__pycache__
 
 # Coverage
 *.gc??

@@ -13,6 +13,7 @@
     #include "alias.h"
     #include "env.h"
     #include "history.h"
+    #include "local.h"
     #include "shell.h"
 
 typedef struct {
@@ -22,6 +23,7 @@ typedef struct {
     alias_t *alias;
     bool is_running;
     struct termios saved_term_settings;
+    local_t *local;
 } exec_ctx_t;
 
 size_t update_command(char **buffer,

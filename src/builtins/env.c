@@ -49,7 +49,7 @@ int builtins_unsetenv(ef_t *ef, char **args)
     if (args[1] == NULL)
         return (WRITE_CONST(STDERR_FILENO, "unsetenv: Too few arguments.\n"),
             RETURN_FAILURE);
-    if (!unset_env(ef->env, args[1]))
-        return RETURN_FAILURE;
+    for (int i = 0; args[i]; i++)
+        unset_env(ef->env, args[1]);
     return RETURN_SUCCESS;
 }

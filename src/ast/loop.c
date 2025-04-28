@@ -80,12 +80,10 @@ ast_t *increase_buffers(ast_t *node, size_t *buffer_len)
 static
 ast_t *get_usr_loop_cmd(ast_t *node)
 {
-    char prompt[] = "foreach? ";
+    char prompt[] = "while? ";
     size_t buffer_len;
 
     node->loop.buffers = malloc(sizeof(char *) * node->loop.cap);
-    if (node->tok.type == T_WHILE)
-        strcpy(prompt, "while? ");
     node = get_first_cmd(node, prompt, &buffer_len);
     while (strcmp("end", node->loop.buffers[node->loop.sz - 1])){
         printf("%s", prompt);

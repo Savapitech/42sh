@@ -1,7 +1,7 @@
 - [x] `:`
 - [x] `alias`
 - [ ] `alloc`
-- [ ]`astprint`
+- [ ] `astprint`
 - [x] `builtins`
 - [x] `cd`/`chdir`
 - [ ] `date`
