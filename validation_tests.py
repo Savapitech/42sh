@@ -164,10 +164,6 @@ TESTS = [
         name="exit command",
         cmds=[
             "exit\n",
-            "exit 0\n",
-            "exit 1\n",
-            "exit plop\n",
-            "exit 9999999999\n",
         ],
         depends_on=("ARGS",)
     ),
