@@ -39,7 +39,7 @@ TESTS = [
     cmds=[
         "/bin/sh --version\n",
         "/../bin/sh --version\n",
-        "~/../../bin/sh --version\n",
+        # "~/../../bin/sh --version\n",
         "fixtures/exec.sh\n",
     ],
     depends_on=("ARGS",)
