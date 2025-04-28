@@ -19,7 +19,7 @@
     #define IF_PROMPT "if? "
     #define T_ALL 0xff
 
-typedef enum {
+typedef enum : size_t {
     T_SEMICOLON = 1 << 0, // ;
     T_LEFT_QUOTE = 1 << 1, // "
     T_RIGHT_QUOTE = 1 << 2, // "
