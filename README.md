@@ -21,7 +21,7 @@
 - [ ] `time`
 - [ ] `trap`
 - [ ] `wc`
-- [ ] `which`/`where`
+- [x] `which`/`where`
 - [x] `yes`
 
 - [x] pipes
@@ -41,8 +41,7 @@
 - [ ] `-n` (dry run mode)
 - [ ] `-h` help (open man?)
 - [ ] autocompletion of commands
-- [x] globbing (*)
-- [ ] globbing
+- [x] globbing
 - [ ] var interpreter
 - [ ] inhibitor
 - [ ] magic quotes

@@ -8,17 +8,21 @@
 
 #ifndef BUILTINS_HANDLER_H
     #define BUILTINS_HANDLER_H
+    #include <termios.h>
+
+    #include "alias.h"
     #include "env.h"
     #include "history.h"
-    #include "shell.h"
-    #include "alias.h"
     #include "local.h"
+    #include "shell.h"
 
 typedef struct {
     env_t *env;
     history_t *history;
     his_command_t *history_command;
     alias_t *alias;
+    bool is_running;
+    struct termios saved_term_settings;
     local_t *local;
 } exec_ctx_t;
 

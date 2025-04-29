@@ -4,29 +4,27 @@
 ** File description:
 ** parse_alias
 */
+
 #include <ctype.h>
-#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <string.h>
+#include <unistd.h>
 
-#include "utils.h"
-#include "common.h"
-#include "env.h"
-#include "exec.h"
-#include "u_mem.h"
-#include "u_str.h"
-#include "history.h"
 #include "alias.h"
+#include "common.h"
+#include "history.h"
+#include "utils.h"
 
-static int skip_blank(char *buffer, int i)
+static
+int skip_blank(char *buffer, int i)
 {
     for (; buffer[i] != 0 && isblank(buffer[i]); i++);
     return i;
 }
 
-static int skip_to_next_token(char *buffer, int i)
+static
+int skip_to_next_token(char *buffer, int i)
 {
     for (; buffer[i] != 0 && is_a_token(buffer, i) == false; i++);
     return i;
@@ -96,4 +94,19 @@ int parse_alias(char **buffer, size_t *buffer_len, alias_t *alias)
     while (need_to_replace == true)
         need_to_replace = replace_alias(buffer, alias);
     return RETURN_SUCCESS;
+}
+
+alias_t init_alias(void)
+{
+    alias_t alias;
+
+    alias.size = 1;
+    alias.alias_array = malloc(sizeof(char *) * alias.size);
+    alias.alias_to_replace = malloc(sizeof(char *) * alias.size);
+    if (!alias.alias_array || !alias.alias_to_replace)
+        return alias;
+    alias.alias_array[0] = NULL;
+    alias.alias_to_replace[0] = NULL;
+    alias.size = 0;
+    return alias;
 }
