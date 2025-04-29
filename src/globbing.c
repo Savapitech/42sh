@@ -29,15 +29,17 @@ bool process_globbing(char *pattern, args_t *args)
 {
     glob_t globs;
     int glob_result;
+    char *vl;
 
     glob_result = glob(pattern, GLOB_ERR, NULL, &globs);
     if (!check_glob_result(glob_result, args->args[0]))
         return false;
     for (size_t i = 0; i < globs.gl_pathc; i++) {
         ensure_args_capacity(args);
-        args->args[args->sz] = strdup(globs.gl_pathv[i]);
-        if (args->args[args->sz] == NULL)
+        vl = strdup(globs.gl_pathv[i]);
+        if (vl == NULL)
             return globfree(&globs), false;
+        args->args[args->sz] = vl;
         args->sz++;
     }
     globfree(&globs);

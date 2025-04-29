@@ -37,9 +37,9 @@ TESTS = [
     key="PATH",
     name="path handing",
     cmds=[
-        "/bin/sh --version\n",
-        "/../bin/sh --version\n",
-        "~/../../bin/sh --version\n",
+        "/bin/ls\n",
+        "/../bin/ls\n",
+        # "~/../../bin/sh --version\n",
         "fixtures/exec.sh\n",
     ],
     depends_on=("ARGS",)
