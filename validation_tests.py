@@ -182,4 +182,21 @@ TESTS = [
         ],
         depends_on=()
     ),
+
+    Test(
+        key="AND_OR",
+        name="and or",
+        cmds=[
+            "ls&&ls\n",
+            "aa&&ls\n",
+            "aa&&aa\n",
+            "ls&&aa\n",
+            "ls||ls\n",
+            "aa||ls\n",
+            "aa||aa\n",
+            "ls||aa\n",
+            "&&\n",
+        ],
+        depends_on=()
+    ),
 ]
