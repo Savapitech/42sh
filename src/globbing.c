@@ -52,16 +52,13 @@ bool process_args(ast_t *node, args_t *args, size_t *toks_i, ef_t *ef)
 
     if (!ensure_args_capacity(args))
         return false;
-    if (strchr(tok.str, '\\') != NULL) {
-        args->args[args->sz] = tok.str;
-        args->sz++;
-        return true;
-    }
     if (tok.type == T_STAR || strcspn(tok.str, "[]?") != strlen(tok.str))
         return (process_globbing(tok.str, args));
     args->args[args->sz] = handle_var_case(node, ef->exec_ctx, toks_i);
     if (args->args[args->sz] == NULL)
         return false;
+    if (strchr(tok.str, '\\') != NULL)
+        args->args[args->sz] = tok.str;
     args->sz++;
     return true;
 }
