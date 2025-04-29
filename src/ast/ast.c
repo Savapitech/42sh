@@ -186,8 +186,6 @@ ast_t *parse_expression(ast_ctx_t *ctx)
         return ctx->ast;
     ctx->act_tok = get_next_token(ctx);
     skip_semi(ctx);
-    if (ctx->act_tok.type == T_IF)
-        return parse_if(ctx);
     l_node = parse_semi(ctx);
     if (l_node == NULL)
         return ctx->ast;

@@ -45,6 +45,7 @@ const builtins_funcs_t BUILTINS[] = {
     { "where", &builtins_where },
     { "which", &builtins_which },
     { "expr", &builtins_expr },
+    { "if", &builtins_if },
     { "break", &builtins_break }
 };
 
