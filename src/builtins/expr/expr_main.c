@@ -13,15 +13,12 @@
 #include "exec.h"
 #include "expr.h"
 
-#include "debug.h"
-
 int builtins_expr(ef_t *ef, char **args)
 {
     int argc = 0;
     expr_state_t state;
     expr_val_t ret;
 
-    U_DEBUG("%s\n", args[1]);
     for (; args[argc] != NULL; argc++);
     if (argc < 2)
         return fprintf(stderr, "%s: missing operand\n", args[0]),
