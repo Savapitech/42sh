@@ -5,7 +5,6 @@
 ** _
 */
 
-#include <signal.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,6 +17,7 @@
 #include "history.h"
 #include "local.h"
 #include "readline.h"
+#include "repl.h"
 #include "shell.h"
 #include "u_str.h"
 #include "visitor.h"
@@ -76,21 +76,6 @@ bool change_shell_command(buff_t *buff, exec_ctx_t *exec_ctx)
 }
 
 static
-void init_shell_repl(exec_ctx_t *exec_ctx)
-{
-    struct termios repl_settings;
-
-    exec_ctx->is_running = true;
-    if (isatty(STDIN_FILENO)) {
-        tcgetattr(STDIN_FILENO, &repl_settings);
-        exec_ctx->saved_term_settings = repl_settings;
-        repl_settings.c_iflag = IXON;
-        repl_settings.c_lflag = ~(ECHO | ICANON);
-        tcsetattr(STDIN_FILENO, TCSANOW, &repl_settings);
-    }
-}
-
-static
 int shell_loop(int is_a_tty, exec_ctx_t *exec_ctx)
 {
     buff_t buff = { .str = NULL, 0, .cap = BUFF_INIT_SZ };
@@ -136,6 +121,7 @@ bool error_in_init(exec_ctx_t *exec_ctx)
     return false;
 }
 
+#include <signal.h>
 int shell(char **env_ptr)
 {
     alias_t alias = init_alias();
@@ -154,7 +140,7 @@ int shell(char **env_ptr)
     shell_result = shell_loop(isatty(STDIN_FILENO), &exec_ctx);
     if (isatty(STDIN_FILENO)) {
         WRITE_CONST(STDOUT_FILENO, "exit\n");
-        tcsetattr(STDIN_FILENO, TCSANOW, &exec_ctx.saved_term_settings);
+        restore_term_flags(&exec_ctx);
     }
     return free_everything(&exec_ctx), shell_result;
 }

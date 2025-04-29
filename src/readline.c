@@ -16,6 +16,7 @@
 
 #include "common.h"
 #include "readline.h"
+#include "repl.h"
 #include "u_str.h"
 
 static
@@ -78,28 +79,6 @@ bool append_null_terminator(buff_t *buff)
     if (isatty(STDIN_FILENO))
         WRITE_CONST(STDOUT_FILENO, "\n");
     return true;
-}
-
-static
-void ignore_sigint(void)
-{
-    WRITE_CONST(STDIN_FILENO, "\n");
-    WRITE_CONST(STDOUT_FILENO, SHELL_PROMPT);
-}
-
-static
-bool handle_keys(buff_t *buff, char *read_buff)
-{
-    switch (*read_buff) {
-        case CTRL('d'):
-            buff->sz = 0;
-            return true;
-        case CTRL('c'):
-            ignore_sigint();
-            return false;
-        default:
-            return false;
-    }
 }
 
 static
