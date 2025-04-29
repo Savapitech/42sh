@@ -81,12 +81,32 @@ bool append_null_terminator(buff_t *buff)
 }
 
 static
+void ignore_sigint(void)
+{
+    WRITE_CONST(STDIN_FILENO, "\n");
+    WRITE_CONST(STDOUT_FILENO, SHELL_PROMPT);
+}
+
+static
+bool handle_keys(buff_t *buff, char *read_buff)
+{
+    switch (*read_buff) {
+        case CTRL('d'):
+            buff->sz = 0;
+            return true;
+        case CTRL('c'):
+            ignore_sigint();
+            return false;
+        default:
+            return false;
+    }
+}
+
+static
 int8_t handle_line_buff(buff_t *buff, char *read_buff, ssize_t read_size)
 {
-    if (*read_buff == CTRL('d')) {
-        buff->sz = 0;
+    if (handle_keys(buff, read_buff))
         return RETURN_SUCCESS;
-    }
     if (isatty(STDIN_FILENO) && str_printable(read_buff, read_size))
         write(STDOUT_FILENO, read_buff, read_size);
     if (!ensure_buff_av_capacity(buff, read_size))

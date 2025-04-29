@@ -45,13 +45,6 @@ void check_basic_error(char const *buffer)
 }
 
 static
-void ignore_sigint(int sig __attribute__((unused)))
-{
-    WRITE_CONST(STDIN_FILENO, "\n");
-    WRITE_CONST(STDOUT_FILENO, SHELL_PROMPT);
-}
-
-static
 void write_prompt(int is_a_tty)
 {
     if (is_a_tty)
@@ -158,7 +151,6 @@ int shell(char **env_ptr)
     if (error_in_init(&exec_ctx) == true)
         return RETURN_FAILURE;
     U_DEBUG_CALL(debug_env_entries, &env);
-    signal(SIGINT, ignore_sigint);
     shell_result = shell_loop(isatty(STDIN_FILENO), &exec_ctx);
     if (isatty(STDIN_FILENO)) {
         WRITE_CONST(STDOUT_FILENO, "exit\n");
