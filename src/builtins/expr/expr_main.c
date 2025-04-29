@@ -7,10 +7,13 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "common.h"
 #include "exec.h"
 #include "expr.h"
+
+#include "debug.h"
 
 int builtins_expr(ef_t *ef, char **args)
 {
@@ -18,17 +21,17 @@ int builtins_expr(ef_t *ef, char **args)
     expr_state_t state;
     expr_val_t ret;
 
+    U_DEBUG("%s\n", args[1]);
     for (; args[argc] != NULL; argc++);
-    if (argc < 2) {
-        fprintf(stderr, "expr: missing operand\n");
-        return RETURN_FAILURE;
-    }
+    if (argc < 2)
+        return fprintf(stderr, "%s: missing operand\n", args[0]),
+            RETURN_FAILURE;
     state = (expr_state_t){ .args = &args[1] };
     ret = expr_run(&state, 0, 0);
-    if (ret.type == E_VAL_ERR) {
-        printf("expr: %s\n", ret.str);
-        return RETURN_FAILURE;
-    }
+    if (ret.type == E_VAL_ERR)
+        return printf("%s: %s\n", args[0], ret.str), RETURN_FAILURE;
+    if (ret.type == E_VAL_INT && strcmp("if", args[0]) == 0)
+        return ret.val;
     if (ret.type == E_VAL_INT)
         printf("%ld\n", ret.val);
     if (ret.type == E_VAL_STR)
