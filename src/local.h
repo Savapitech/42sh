@@ -17,8 +17,6 @@ typedef struct {
 } local_t;
 
 bool set_local(local_t *local, char *var, char *value);
-bool change_local(local_t *local, char *var, char *value);
-bool check_var(char *local, char *var);
 bool check_local_var(char *var, char *func_name);
 bool unset_local(local_t *local, char *var);
 char *get_local_value(local_t *local, char const *key);

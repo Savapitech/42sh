@@ -70,10 +70,11 @@ bool parser_eat(ast_ctx_t *ctx, token_type_t expected)
     return true;
 }
 
+static
 bool check_closable(token_t actual_token)
 {
     if (actual_token.type == 0)
-        return true;
+        return false;
     for (size_t i = 0; i < CLOSABLE_LIST_SZ; i++) {
         if (actual_token.type == CLOSABLE[i].type)
             return true;
@@ -89,8 +90,8 @@ void get_arg_token(ast_ctx_t *ctx, int *found_token, token_t acutal_tok)
         if (u_strncmp(ctx->str, acutal_tok.str, acutal_tok.sz) == 0){
             *found_token = 1;
             ctx->str++;
-            return;
         }
+        return;
     }
     for (size_t i = 0; i < TOKENS_LIST_SZ; i++) {
         if (u_strncmp(ctx->str, TOKENS_LIST[i].str,
@@ -136,7 +137,7 @@ token_t get_next_token(ast_ctx_t *ctx)
     while (*ctx->str != '\0' && isblank(*ctx->str))
         ctx->str++;
     actual_token = handle_token_type(ctx);
-    if (!check_closable(actual_token))
+    if (actual_token.type != 0 && !check_closable(actual_token))
         return actual_token;
     format_for_closable(ctx, &actual_token);
     start = ctx->str;
