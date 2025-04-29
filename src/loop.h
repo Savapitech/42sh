@@ -13,6 +13,8 @@
 typedef struct {
     size_t sz;
     size_t cap;
-    char **local_var;
+    char **cmds;
 } usr_cmd_t;
+
+usr_cmd_t *get_usr_loop_cmd(usr_cmd_t *usr_cmd, char prompt[]);
 #endif /* LOOP_H */

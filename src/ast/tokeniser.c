@@ -28,7 +28,6 @@ const tokens_list_t TOKENS_LIST[] = {
     { T_REDIRECT, ">", 1, "T_REDIRECT" },
     { T_HEREDOC, "<<", 2, "T_HEREDOC" },
     { T_IN_REDIRECT, "<", 1, "T_IN_REDIRECT" },
-    { T_WHILE, "while", 5, "T_WHILE"},
     { T_IF, "if", 2, "T_IF"},
     { T_THEN, "then", 4, "T_THEN"},
     { T_ELSE, "else", 4, "T_ELSE"},

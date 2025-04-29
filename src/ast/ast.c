@@ -111,8 +111,6 @@ ast_t *parse_condition(ast_ctx_t *ctx)
 
     if (l_node == NULL)
         return NULL;
-    if (ctx->act_tok.type & (T_WHILE))
-        ctx->ast = parse_loop(ctx);
     else {
         switch (ctx->act_tok.type) {
             case T_PIPE:

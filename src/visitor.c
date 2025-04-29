@@ -146,8 +146,6 @@ int visit_expression(ef_t *ef, ast_t *node)
 {
     int result = RETURN_FAILURE;
 
-    if (node->type == N_LOP)
-        result = visit_loop(ef, node);
     if (node->tok.type & (T_SEMICOLON | T_NEWLINE))
         result = visit_semi(ef, node);
     if (node->tok.type & (T_IF | T_AND | T_OR))
