@@ -47,7 +47,6 @@ char *find_alias(his_variable_t *variable, alias_t *alias, char *buffer)
             return NULL;
         if (strcmp(cmd, alias->alias_array[i]) == 0){
             new_cmd = cat_in_str(variable, buffer, alias->alias_to_replace[i]);
-            free(buffer);
             buffer = new_cmd;
         }
     }

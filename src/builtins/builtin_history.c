@@ -69,8 +69,6 @@ char *his_last_command(char *line,
         his_command[his_command->sz - 1].arg);
     new_str = cat_in_str(his_variable, line, new_line);
     printf("%s\n", new_line);
-    free(new_line);
-    free(line);
     return new_str;
 }
 
