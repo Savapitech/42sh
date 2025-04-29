@@ -20,10 +20,10 @@
 bool check_local_var(char *var, char *func_name)
 {
     if (!isalpha(var[0]))
-        return (fprintf(stdout, "%s: Variable name must begin"
+        return (fprintf(stderr, "%s: Variable name must begin"
             " with a letter.\n", func_name), RETURN_FAILURE);
     if (!u_str_is_only_alnum(var))
-        return (fprintf(stdout, "%s: Variable name must contain"
+        return (fprintf(stderr, "%s: Variable name must contain"
             " alphanumeric characters.\n", func_name), RETURN_FAILURE);
     return RETURN_SUCCESS;
 }

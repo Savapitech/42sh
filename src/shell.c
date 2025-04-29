@@ -11,15 +11,16 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include "ast.h"
+#include "builtins_handler.h"
 #include "common.h"
 #include "debug.h"
 #include "env.h"
 #include "history.h"
+#include "local.h"
+#include "readline.h"
 #include "shell.h"
 #include "u_str.h"
-#include "local.h"
-#include "loop.h"
+#include "visitor.h"
 
 __attribute__((unused))
 static
@@ -58,44 +59,60 @@ void write_prompt(int is_a_tty)
 }
 
 static
-bool change_shell_command(char **buffer, exec_ctx_t *exec_ctx,
-    size_t buffer_sz)
+bool change_shell_command(buff_t *buff, exec_ctx_t *exec_ctx)
 {
-    size_t buffer_len = 0;
     char *tmp_buff = NULL;
+    size_t buffer_len;
 
-    if (getline(buffer, &buffer_sz, stdin) == -1)
-        return true;
-    tmp_buff = (*buffer);
-    buffer_len = update_command(&tmp_buff, &buffer_sz, exec_ctx);
+    buff->sz = 0;
+    if (!readline(buff))
+        return false;
+    if (!buff->sz)
+        return false;
+    tmp_buff = buff->str;
+    buffer_len = update_command(&tmp_buff, &buff->sz, exec_ctx);
     if (buffer_len == 0)
-        return false;
-    if (buffer_len < 1 || !u_str_is_alnum(tmp_buff)) {
-        check_basic_error(tmp_buff);
-        free(tmp_buff);
-        return false;
+        return true;
+    if (buffer_len < 1 || !u_str_is_alnum(tmp_buff))
+        return check_basic_error(tmp_buff), true;
+    U_DEBUG("Buffer [%lu] [%s]\n", buffer_len, tmp_buff);
+    if (visitor(tmp_buff, exec_ctx) == RETURN_FAILURE
+        && !exec_ctx->history->last_exit_code)
+        exec_ctx->history->last_exit_code = RETURN_FAILURE;
+    return true;
+}
+
+static
+void init_shell_repl(exec_ctx_t *exec_ctx)
+{
+    struct termios repl_settings;
+
+    exec_ctx->is_running = true;
+    if (isatty(STDIN_FILENO)) {
+        tcgetattr(STDIN_FILENO, &repl_settings);
+        exec_ctx->saved_term_settings = repl_settings;
+        repl_settings.c_iflag = IXON;
+        repl_settings.c_lflag = ~(ECHO | ICANON);
+        tcsetattr(STDIN_FILENO, TCSANOW, &repl_settings);
     }
-    U_DEBUG("Buffer [%lu] [%s]\n", buffer_len, buffer);
-    visitor(tmp_buff, exec_ctx);
-    free(tmp_buff);
-    return false;
 }
 
 static
 int shell_loop(int is_a_tty, exec_ctx_t *exec_ctx)
 {
-    char *buffer = NULL;
-    size_t buffer_sz = 0;
+    buff_t buff = { .str = NULL, 0, .cap = BUFF_INIT_SZ };
 
+    init_shell_repl(exec_ctx);
     while (true) {
         write_prompt(is_a_tty);
-        if (change_shell_command(&buffer, exec_ctx, buffer_sz) == true)
+        if (!change_shell_command(&buff, exec_ctx))
             return exec_ctx->history->last_exit_code;
     }
     free(exec_ctx->history_command);
-    return (free(buffer), exec_ctx->history->last_exit_code);
+    return free(buff.str), exec_ctx->history->last_exit_code;
 }
 
+static
 his_command_t *init_cmd_history(void)
 {
     his_command_t *cmd_history = malloc(sizeof(his_command_t) * 100);
@@ -126,41 +143,26 @@ bool error_in_init(exec_ctx_t *exec_ctx)
     return false;
 }
 
-alias_t init_alias(void)
-{
-    alias_t alias;
-
-    alias.size = 1;
-    alias.alias_array = malloc(sizeof(char *) * alias.size);
-    alias.alias_to_replace = malloc(sizeof(char *) * alias.size);
-    if (!alias.alias_array || !alias.alias_to_replace)
-        return alias;
-    alias.alias_array[0] = NULL;
-    alias.alias_to_replace[0] = NULL;
-    alias.size = 0;
-    return alias;
-}
-
 int shell(char **env_ptr)
 {
     alias_t alias = init_alias();
     env_t env = parse_env(env_ptr);
-    history_t history = { .cmd_history = NULL, 0, .last_chdir = NULL};
+    history_t history = { .cmd_history = NULL, .last_exit_code = 0,
+        .last_chdir = NULL};
     his_command_t *cmd_history = init_cmd_history();
     local_t local = create_local();
     exec_ctx_t exec_ctx = {.env = &env, .local = &local,
         .history = &history, .history_command = cmd_history, .alias = &alias};
     int shell_result;
 
-    if (error_in_init(&exec_ctx) == true){
+    if (error_in_init(&exec_ctx) == true)
         return RETURN_FAILURE;
-    }
     U_DEBUG_CALL(debug_env_entries, &env);
     signal(SIGINT, ignore_sigint);
     shell_result = shell_loop(isatty(STDIN_FILENO), &exec_ctx);
-    if (isatty(STDIN_FILENO))
+    if (isatty(STDIN_FILENO)) {
         WRITE_CONST(STDOUT_FILENO, "exit\n");
-    free_env(exec_ctx.env);
-    free_alias(exec_ctx.alias);
-    return shell_result;
+        tcsetattr(STDIN_FILENO, TCSANOW, &exec_ctx.saved_term_settings);
+    }
+    return free_everything(&exec_ctx), shell_result;
 }

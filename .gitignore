@@ -46,3 +46,5 @@ unit_tests
 
 # AFL
 afl/generated
+
+out.txt

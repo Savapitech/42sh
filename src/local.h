@@ -14,6 +14,7 @@ typedef struct {
     size_t sz;
     size_t cap;
     char **local_var;
+    bool in_a_loop;
 } local_t;
 
 bool set_local(local_t *local, char *var, char *value);

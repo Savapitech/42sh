@@ -19,7 +19,7 @@
     #define IF_PROMPT "if? "
     #define T_ALL 0xff
 
-typedef enum {
+typedef enum : size_t {
     T_SEMICOLON = 1 << 0, // ;
     T_QUOTES = 1 << 1, // "
     T_DQUOTES = 1 << 2, // "
@@ -41,9 +41,11 @@ typedef enum {
     T_THEN = 1 << 18, // then
     T_ELSE = 1 << 19, // else
     T_ENDIF = 1 << 20, // endif
-    T_EOF = 1 << 21, // \0
-    T_ARG = 1 << 22,
-    T_INVALID = 1 << 23,
+    T_STAR = 1 << 21, // *
+    T_NEWLINE = 1 << 22, // \n
+    T_EOF = 1 << 23, // \0
+    T_ARG = 1 << 24,
+    T_INVALID = 1 << 25
 } token_type_t;
 
 typedef enum {

@@ -1,8 +1,12 @@
+#! /usr/bin/env nix-shell
+#! nix-shell -i python3 -p python3 tcsh
+
 from __future__ import annotations
 from dataclasses import dataclass
 
 import difflib
 import subprocess
+import sys
 
 
 @dataclass
@@ -84,21 +88,25 @@ class Test:
         print("\033[31m.\033[0m", end='') # ]]
         return cmd, result_42sh, result_tcsh
 
-    def run(self, test_map):
+    def run(self, test_map) -> bool:
         if self.has_run:
-            return
+            return True
 
         self.has_run = True
+
+        success = True
         for dep_name in self.depends_on:
             dep = test_map.get(dep_name)
 
             if dep is None:
-                print("\033[33mOKWarning\033[0m:" # ]]
+                print("\033[33mWarning\033[0m:" # ]]
                     "Missing dependency:", dep_name)
                 continue
 
             if not dep.has_run:
-                dep.run(test_map)
+                success &= dep.run(test_map)
+                if not success:
+                    return False
 
         print(self.name, end=" ")
         failures = []
@@ -108,19 +116,23 @@ class Test:
                 failures.append(failure)
         if not failures:
             print(" \033[32mOK\033[0m") # ]]
+            return True
         else:
             print()
         for fail in failures:
             print_diff(*fail)
+        return False
 
 def main():
     from validation_tests import TESTS
  
     test_map = {test.key: test for test in TESTS}
 
+    success = True
     for test in TESTS:
-        test.run(test_map=test_map)
+        success &= test.run(test_map=test_map)
 
+    return not success
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

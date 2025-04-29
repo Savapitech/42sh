@@ -29,15 +29,17 @@ bool process_globbing(char *pattern, args_t *args)
 {
     glob_t globs;
     int glob_result;
+    char *vl;
 
     glob_result = glob(pattern, GLOB_ERR, NULL, &globs);
     if (!check_glob_result(glob_result, args->args[0]))
         return false;
     for (size_t i = 0; i < globs.gl_pathc; i++) {
         ensure_args_capacity(args);
-        args->args[args->sz] = strdup(globs.gl_pathv[i]);
-        if (args->args[args->sz] == NULL)
+        vl = strdup(globs.gl_pathv[i]);
+        if (vl == NULL)
             return globfree(&globs), false;
+        args->args[args->sz] = vl;
         args->sz++;
     }
     globfree(&globs);
@@ -48,7 +50,11 @@ bool process_args(ast_t *node, args_t *args, size_t *toks_i, ef_t *ef)
 {
     token_t tok = node->vector.tokens[*toks_i];
 
-    if (strchr(tok.str, '*') != NULL)
+    if (strchr(tok.str, '\\') != NULL) {
+        args->args[args->sz] = tok.str;
+        return true;
+    }
+    if (tok.type == T_STAR || strcspn(tok.str, "[]?") != strlen(tok.str))
         return (process_globbing(tok.str, args));
     if (!ensure_args_capacity(args))
         return false;
