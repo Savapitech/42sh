@@ -146,12 +146,16 @@ int launch_bin(char *full_bin_path, char **args, ef_t *ef)
 
     if (pid == 0) {
         set_fd(ef);
+#if !defined(AFL_MODE)
         if (execve(full_bin_path, args, ef->env->env) < 0) {
             status = command_error(full_bin_path, args, errno);
             free_env(ef->env);
             free((void *)args);
             exit((free(ef->buffer), status));
         }
+#else
+        exit(0);
+#endif
     }
     if (!(ef->flags & F_PIPE) || ef->p_i == ef->p_sz - 1)
         waitpid(pid, &status, 0);
