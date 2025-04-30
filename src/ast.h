@@ -16,7 +16,6 @@
     #define DEFAULT_N_LST_CAP 2
     #define DEFAULT_N_CMD_CAP 2
     #define DEFAULT_N_COND_CAP 2
-    #define IF_PROMPT "if? "
     #define T_ALL 0xff
 
 typedef enum : size_t {

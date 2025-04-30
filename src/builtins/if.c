@@ -27,10 +27,42 @@ int get_argc(char **args)
 }
 
 static
+bool ensure_cmds_cap(char ***cmd, size_t sz, size_t *cap)
+{
+    char **tmp;
+
+    if (sz + 1 < *cap)
+        return true;
+    tmp = (char **)realloc((void *)*cmd, sizeof(**cmd) * *cap << 1);
+    if (tmp == nullptr)
+        return false;
+    *cap <<= 1;
+    *cmd = tmp;
+    return true;
+}
+
+static
 bool if_repl(ef_t *ef, char **args, char *cmd)
 {
+    buff_t buff = { .str = nullptr, 0 };
+    char **cmds;
+    size_t cap = DEFAULT_N_CMD_CAP;
+    size_t sz = 0;
+
     if (strcmp("then", cmd) != 0)
         return visitor(cmd, ef->exec_ctx), true;
+    cmds = (char **)malloc(cap * sizeof(char **));
+    if ((void *)cmds == NULL)
+        return false;
+    while (true) {
+        if (isatty(STDIN_FILENO))
+            WRITE_CONST(ef->out_fd, IF_PROMPT);
+        if (getline(&buff.str, &buff.sz, stdin) == -1)
+            break;
+        if (!ensure_cmds_cap(&cmds, sz, &cap))
+            return false;
+        cmds[sz] = strdup(buff.str);
+    }
     return true;
 }
 

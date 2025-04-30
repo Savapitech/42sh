@@ -8,6 +8,7 @@
 #ifndef COMMON_H
     #define COMMON_H
     #include "exec.h"
+    #define IF_PROMPT "if? "
 
 enum {
     RETURN_SUCCESS = 0,

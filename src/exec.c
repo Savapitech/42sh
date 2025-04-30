@@ -193,6 +193,7 @@ bool builtins_launcher(ef_t *ef, char **args)
         if (u_strlen(BUILTINS[i].name) != bin_l)
             continue;
         if (u_strcmp(BUILTINS[i].name, args[0]) == 0) {
+            restore_term_flags(ef->exec_ctx);
             ef->exec_ctx->history->last_exit_code =
                 BUILTINS[i].ptr(ef, args);
             return true;
