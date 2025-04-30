@@ -16,7 +16,6 @@
     #define DEFAULT_N_LST_CAP 2
     #define DEFAULT_N_CMD_CAP 2
     #define DEFAULT_N_COND_CAP 2
-    #define IF_PROMPT "if? "
     #define T_ALL 0xff
 
 typedef enum : size_t {
@@ -37,15 +36,11 @@ typedef enum : size_t {
     T_IN_REDIRECT = 1 << 14, // <
     T_AT = 1 << 15, // <
     T_WHILE = 1 << 16, // while
-    T_IF = 1 << 17, // if
-    T_THEN = 1 << 18, // then
-    T_ELSE = 1 << 19, // else
-    T_ENDIF = 1 << 20, // endif
-    T_STAR = 1 << 21, // *
-    T_NEWLINE = 1 << 22, // \n
-    T_EOF = 1 << 23, // \0
-    T_ARG = 1 << 24,
-    T_INVALID = 1 << 25
+    T_STAR = 1 << 18, // *
+    T_NEWLINE = 1 << 19, // \n
+    T_EOF = 1 << 20, // \0
+    T_ARG = 1 << 21,
+    T_INVALID = 1 << 22
 } token_type_t;
 
 typedef enum {

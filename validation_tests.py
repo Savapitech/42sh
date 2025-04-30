@@ -172,4 +172,31 @@ TESTS = [
         ],
         depends_on=("PIPE", "REDIR", "SEMICOLON",)
     ),
+
+    Test(
+        key="ALIAS",
+        name="alias",
+        cmds=[
+            "ll\nalias ll ls\nll\n",
+            "ll\n",
+        ],
+        depends_on=()
+    ),
+
+    Test(
+        key="AND_OR",
+        name="and or",
+        cmds=[
+            "ls&&ls\n",
+            "aa&&ls\n",
+            "aa&&aa\n",
+            "ls&&aa\n",
+            "ls||ls\n",
+            "aa||ls\n",
+            "aa||aa\n",
+            "ls||aa\n",
+            "&&\n",
+        ],
+        depends_on=()
+    ),
 ]

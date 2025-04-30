@@ -11,6 +11,7 @@
 #include <unistd.h>
 
 #include "ast.h"
+#include "common.h"
 #include "u_str.h"
 
 ast_t *parse_and(ast_ctx_t *ctx, ast_t *l_node)

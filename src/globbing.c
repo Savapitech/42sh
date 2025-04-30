@@ -25,7 +25,7 @@ bool check_glob_result(int val, char *bin_name)
     return true;
 }
 
-bool process_globbing(char *pattern, args_t *args)
+bool process_globbing(char *pattern, args_t *args, size_t *toks_i)
 {
     glob_t globs;
     int glob_result;
@@ -43,6 +43,7 @@ bool process_globbing(char *pattern, args_t *args)
         args->sz++;
     }
     globfree(&globs);
+    *toks_i += 1;
     return true;
 }
 
@@ -50,17 +51,15 @@ bool process_args(ast_t *node, args_t *args, size_t *toks_i, ef_t *ef)
 {
     token_t tok = node->vector.tokens[*toks_i];
 
-    if (strchr(tok.str, '\\') != NULL) {
-        args->args[args->sz] = tok.str;
-        return true;
-    }
-    if (tok.type == T_STAR || strcspn(tok.str, "[]?") != strlen(tok.str))
-        return (process_globbing(tok.str, args));
     if (!ensure_args_capacity(args))
         return false;
+    if (tok.type == T_STAR || strcspn(tok.str, "[]?") != strlen(tok.str))
+        return (process_globbing(tok.str, args, toks_i));
     handle_var_case(node, ef->exec_ctx, toks_i, args);
     if (args->args[args->sz] == NULL)
         return false;
+    if (strchr(tok.str, '\\') != NULL)
+        args->args[args->sz] = tok.str;
     args->sz++;
     return true;
 }

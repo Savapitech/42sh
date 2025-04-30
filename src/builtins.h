@@ -37,4 +37,6 @@ int builtins_unset(ef_t *ef, char **args);
 int builtins_where(ef_t *ef, char **args);
 int builtins_which(ef_t *ef, char **args);
 int builtins_break(ef_t *ef, char **args);
+int builtins_expr(ef_t *ef, char **args);
+int builtins_if(ef_t *ef, char **args);
 #endif /* BUILTIND_H */

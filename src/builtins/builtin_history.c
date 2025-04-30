@@ -62,15 +62,13 @@ char *his_last_command(char *line,
     char *new_str = NULL;
 
     if (his_command->sz == 0){
-        printf("%d: Event not found\n", his_command->sz);
+        fprintf(stderr, "%d: Event not found.\n", his_command->sz);
         return NULL;
     }
     new_line = concat_cmd_arg(his_command[his_command->sz - 1].command,
         his_command[his_command->sz - 1].arg);
     new_str = cat_in_str(his_variable, line, new_line);
     printf("%s\n", new_line);
-    free(new_line);
-    free(line);
     return new_str;
 }
 
@@ -82,7 +80,7 @@ char *his_last_same_command(char *line,
 
     for (int i = his_command->sz - 1; i > 0; i--) {
         if (his_command[i].command == NULL) {
-            printf("%s: Event not found\n", new_line);
+            fprintf(stderr, "%s: Event not found.\n", new_line);
             return new_str;
         }
         if (strncmp(his_command[i].command, new_line, strlen(new_line)) == 0) {
@@ -93,7 +91,7 @@ char *his_last_same_command(char *line,
             return new_str;
         }
     }
-    printf("%s: Event not found\n", new_line);
+    fprintf(stderr, "%s: Event not found.\n", new_line);
     return new_str;
 }
 
@@ -105,7 +103,7 @@ char *his_id_command(char *line,
     char *new_str = NULL;
 
     if (id < 0 || id > 100 || his_command[id].command == NULL){
-        printf("%d: Event not found\n", id + 1);
+        fprintf(stderr, "%d: Event not found.\n", id + 1);
         return new_str;
     }
     new_line = concat_cmd_arg(his_command[id].command, his_command[id].arg);

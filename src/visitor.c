@@ -111,8 +111,6 @@ int visit_list(ef_t *ef, ast_t *node)
 int visit_condition(ef_t *ef, ast_t *node)
 {
     switch (node->tok.type) {
-        case T_IF:
-            return visit_if(ef, node);
         case T_AND:
             return visit_and(ef, node);
         case T_OR:
@@ -148,7 +146,7 @@ int visit_expression(ef_t *ef, ast_t *node)
 
     if (node->tok.type & (T_SEMICOLON | T_NEWLINE))
         result = visit_semi(ef, node);
-    if (node->tok.type & (T_IF | T_AND | T_OR))
+    if (node->tok.type & (T_AND | T_OR))
         result = visit_condition(ef, node);
     if (node->tok.type == T_PIPE)
         result = visit_list(ef, node);
