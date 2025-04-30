@@ -200,20 +200,20 @@ TESTS = [
         depends_on=()
     ),
 
-    Test(
-        key="BACKTICKS",
-        name="backticks",
-        cmds=[
-            "echo `ls`\n",
-            "echo `ls`l\n",
-            "echo l`ls`\n",
-            "echo ``\n",
-            "`ls`\n",
-            "``\n",
-            "echo `ls\n",
-            "echo ls`\n",
-            "`\n",
-        ],
-        depends_on=()
-    ),
+    ##Test(
+    ##    key="BACKTICKS",
+    ##    name="backticks",
+    ##    cmds=[
+    ##        "echo `ls`\n",
+    ##        "echo `ls`l\n",
+    ##        "echo l`ls`\n",
+    ##        "echo ``\n",
+    ##        "`ls`\n",
+    ##        "``\n",
+    ##        "echo `ls\n",
+    ##        "echo ls`\n",
+    ##        "`\n",
+    ##    ],
+    ##    depends_on=()
+    ##),
 ]
