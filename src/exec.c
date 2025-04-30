@@ -66,28 +66,16 @@ bool ensure_args_capacity(args_t *args)
 }
 
 static
-bool set_first_arg(char **args, ast_t *node)
-{
-    if (!args)
-        return false;
-    node->tok.str[node->tok.sz] = '\0';
-    args[0] = node->tok.str;
-    return true;
-}
-
-static
 char **parse_args(ef_t *ef, ast_t *node)
 {
     args_t args = { .args = (char **)malloc(sizeof *args.args
-        * DEFAULT_ARGS_CAP), .sz = 1, .cap = DEFAULT_ARGS_CAP };
+        * DEFAULT_ARGS_CAP), .sz = 0, .cap = DEFAULT_ARGS_CAP };
 
-    if (!set_first_arg(args.args, node))
+    if (!args.args)
         return NULL;
     for (size_t i = 0; i < node->vector.sz; i++) {
         if (ef->skip_sz > 0 && i >= ef->skip_i && i < ef->skip_i + ef->skip_sz)
             continue;
-        if (node->vector.tokens[i].type == T_ARG)
-            node->vector.tokens[i].str[node->vector.tokens[i].sz] = '\0';
         if (!process_args(node, &args, &i, ef))
             return free((void *)args.args), NULL;
     }

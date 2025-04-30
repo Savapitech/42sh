@@ -82,10 +82,10 @@ char *handle_buffer(char *to_return, size_t *sz, size_t *i, char buf)
 }
 
 static
-bool skip_first_output(char **to_return, bool *skip_first, char buf)
+bool skip_first_output(char **to_return, int *skip_first, char buf)
 {
     if (buf == '\n' && !*skip_first){
-        *skip_first = true;
+        *skip_first = 1;
         free(*to_return);
         *to_return = NULL;
         return true;
@@ -97,7 +97,7 @@ static
 void put_output(int fd[2], args_t *args, char *to_return, size_t sz)
 {
     char buf;
-    bool skip_first = false;
+    int skip_first = 0;
 
     for (size_t i = 0; read(fd[0], &buf, 1) > 0; i++){
         if (strchr("$'", buf)){

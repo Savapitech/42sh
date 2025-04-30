@@ -9,6 +9,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 #include "ast.h"
 #include "env.h"
@@ -34,19 +35,57 @@ char *handle_variable(ast_t *node, exec_ctx_t *ctx, size_t *i)
 }
 
 static
-bool check_parentheses(ast_t *node, size_t *i, args_t *args)
+char *take_next_parenthese_arg(ast_t *node, size_t *in_str, size_t *i)
+{
+    size_t end = 0;
+    char *buff;
+
+    while (node->vector.tokens[*i].sz > *in_str &&
+        isblank(node->vector.tokens[*i].str[*in_str]))
+        *in_str = *in_str + 1;
+    for (; node->vector.tokens[*i].sz > *in_str &&
+        !isblank(node->vector.tokens[*i].str[*in_str + end]); end++);
+    buff = strndup(&node->vector.tokens[*i].str[*in_str], end);
+    *in_str += end;
+    return buff;
+}
+
+static
+bool handle_parentheses(ast_t *node, exec_ctx_t *ctx, size_t *i, args_t *args)
+{
+    size_t in_str = 0;
+    char *vl;
+
+    while (in_str < node->vector.tokens[*i].sz){
+        if (!ensure_args_capacity(args))
+            return false;
+        vl = take_next_parenthese_arg(node, &in_str, i);
+        if (vl == NULL)
+            return free((void *)args->args), false;
+        args->args[args->sz] = vl;
+        args->sz++;
+    }
+    args->args[args->sz] = NULL;
+    args->sz--;
+    return true;
+}
+
+static
+bool check_parentheses(ast_t *node, size_t *i, exec_ctx_t *ctx, args_t *args)
 {
     if (!strchr("()", node->vector.tokens[*i].str[0]))
         return true;
-    if (node->vector.tokens[*i].str[0] == '(' &&
-        node->vector.tokens[*i].str[node->vector.tokens[*i].sz] != ')')
+    if (strlen(node->vector.tokens[*i].str) == 1 ||
+        (node->vector.tokens[*i].str[0] == '(' &&
+        node->vector.tokens[*i].str[node->vector.tokens[*i].sz - 1] != ')'))
         return (fprintf(stderr, "Too many ('s.\n"), true);
     if (node->vector.tokens[*i].str[0] == ')')
         return (fprintf(stderr, "Too many )'s.\n"), true);
     node->vector.tokens[*i].str[node->vector.tokens[*i].sz - 1] = '\0';
-    if (isblank(&node->vector.tokens[*i].str[1]))
-        return (fprintf(stderr, "Invalid null command.\n"), true);
-    args->args[args->sz] = strdup(&node->vector.tokens[*i].str[1]);
+    node->vector.tokens[*i].str = &node->vector.tokens[*i].str[1];
+    node->vector.tokens[*i].sz -= 2;
+    if (!handle_parentheses(node, ctx, i, args))
+        return true;
     return false;
 }
 
@@ -57,9 +96,8 @@ bool check_quotes(ast_t *node, size_t *i, exec_ctx_t *ctx, args_t *args)
 
     if (!strchr("\'\"`", node->vector.tokens[*i].str[0]))
         return true;
-    if (be_matched !=
-        node->vector.tokens[*i].str[node->vector.tokens[*i].sz - 1]
-        || strlen(node->vector.tokens[*i].str) == 1)
+    if (strlen(node->vector.tokens[*i].str) == 1 || be_matched !=
+        node->vector.tokens[*i].str[node->vector.tokens[*i].sz - 1])
         return (fprintf(stderr, "Unmatched \'%c\'.\n", be_matched), true);
     node->vector.tokens[*i].str[node->vector.tokens[*i].sz - 1] = '\0';
     if (be_matched == '`'){
@@ -74,10 +112,11 @@ bool check_for_closable(ast_t *node, exec_ctx_t *ctx, size_t *i, args_t *args)
 {
     if (!strchr("\'\"`()", node->vector.tokens[*i].str[0]))
         return false;
-    if (!check_parentheses(node, i, args))
+    if (!check_parentheses(node, i, ctx, args))
         return true;
     else if (!check_quotes(node, i, ctx, args))
         return true;
+    args->args[args->sz] = NULL;
     return true;
 }
 
@@ -89,6 +128,6 @@ void handle_var_case(ast_t *node, exec_ctx_t *ctx, size_t *i, args_t *args)
     }
     if (check_for_closable(node, ctx, i, args))
         return;
-    node->vector.tokens[*i].str[node->vector.tokens[*i].sz] = '\0';
-    args->args[args->sz] = node->vector.tokens[*i].str;
+    args->args[args->sz] = strndup(node->vector.tokens[*i].str,
+        node->vector.tokens[*i].sz);
 }
