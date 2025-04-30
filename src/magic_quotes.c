@@ -62,9 +62,6 @@ char *add_to_args(char *to_return, args_t *args, size_t *sz, size_t i)
     if (to_return == NULL)
         return NULL;
     to_return[i] = '\0';
-    for (int j = 0; to_return[j]; j++)
-        if (to_return[j] == '\n')
-            to_return = &to_return[j];
     if (!ensure_args_capacity(args))
         return (free(to_return), NULL);
     args->args[args->sz] = to_return;
@@ -82,38 +79,22 @@ char *handle_buffer(char *to_return, size_t *sz, size_t *i, char buf)
 }
 
 static
-bool skip_first_output(char **to_return, int *skip_first, char buf)
-{
-    if (buf == '\n' && !*skip_first){
-        *skip_first = 1;
-        free(*to_return);
-        *to_return = NULL;
-        return true;
-    }
-    return false;
-}
-
-static
 void put_output(int fd[2], args_t *args, char *to_return, size_t sz)
 {
     char buf;
-    int skip_first = 0;
 
     for (size_t i = 0; read(fd[0], &buf, 1) > 0; i++){
         if (strchr("$'", buf)){
             i--;
             continue;
         }
-        if (buf == '\n' && skip_first){
+        if (buf == '\n'){
             to_return = add_to_args(to_return, args, &sz, i);
             continue;
         }
-        if (skip_first_output(&to_return, &skip_first, buf))
-            continue;
         to_return = handle_buffer(to_return, &sz, &i, buf);
     }
-    if (to_return != NULL)
-        free(to_return);
+    args->sz--;
 }
 
 static
@@ -125,7 +106,6 @@ void get_output(int fd[2], args_t *args)
     if (to_return == NULL)
         return;
     put_output(fd, args, to_return, sz);
-    args->sz -= 2;
 }
 
 char *handle_magic_quotes(ast_t *node, exec_ctx_t *ctx,
