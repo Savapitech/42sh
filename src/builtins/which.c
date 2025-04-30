@@ -17,6 +17,13 @@
 #include "path.h"
 #include "u_str.h"
 
+const char *OOTHER_BUILTINS[] = {
+    "echo"
+};
+
+const size_t OOTHER_BUILTINS_SZ = sizeof OOTHER_BUILTINS
+/ sizeof *OOTHER_BUILTINS;
+
 static
 bool search_builtin(ef_t *ef, char *arg)
 {
@@ -24,8 +31,13 @@ bool search_builtin(ef_t *ef, char *arg)
         if (u_strlen(BUILTINS[i].name) != (int)strlen(arg))
             continue;
         if (u_strcmp(BUILTINS[i].name, arg) == 0)
-            return dprintf(ef->out_fd, "%s: shell built-in command.\n",
-                arg), true;
+            return dprintf(ef->out_fd, "%s is a shell built-in\n", arg), true;
+    }
+    for (size_t i = 0; i < OOTHER_BUILTINS_SZ; i++) {
+        if (u_strlen(OOTHER_BUILTINS[i]) != (int)strlen(arg))
+            continue;
+        if (u_strcmp(OOTHER_BUILTINS[i], arg) == 0)
+            return dprintf(ef->out_fd, "%s is a shell built-in\n", arg), true;
     }
     return false;
 }
