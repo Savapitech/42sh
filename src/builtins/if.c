@@ -26,6 +26,7 @@ int get_argc(char **args)
     return i;
 }
 
+static
 bool if_repl(ef_t *ef, char **args, char *cmd)
 {
     if (strcmp("then", cmd) != 0)
@@ -50,7 +51,7 @@ int builtins_if(ef_t *ef, char **args)
     result = builtins_expr(ef, args);
     U_DEBUG("If expr result [%d]\n", result);
     if (result == -1)
-        return RETURN_FAILURE;
+        return free(cmd), RETURN_FAILURE;
     if (result)
         if (!if_repl(ef, args, cmd))
             return free(cmd), RETURN_FAILURE;
