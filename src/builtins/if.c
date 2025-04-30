@@ -20,7 +20,12 @@ int builtins_if(ef_t *ef, char **args)
     if (args[1] == NULL)
         return WRITE_CONST(STDERR_FILENO, "if: Too few arguments.\n"),
             RETURN_FAILURE;
+    if (args[2] == NULL)
+        return WRITE_CONST(STDERR_FILENO, "if: Empty if\n"), RETURN_FAILURE;
     result = builtins_expr(ef, args);
     U_DEBUG("If expr result [%d]\n", result);
+    if (result) {
+        visitor(args[2], ef->exec_ctx);
+    }
     return RETURN_SUCCESS;
 }
