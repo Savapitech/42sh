@@ -21,12 +21,11 @@ int builtins_expr(ef_t *ef[[gnu::unused]], char **args)
 
     for (; args[argc] != NULL; argc++);
     if (argc < 2)
-        return fprintf(stderr, "%s: missing operand\n", args[0]),
-            RETURN_FAILURE;
+        return fprintf(stderr, "%s: missing operand\n", args[0]), -1;
     state = (expr_state_t){ .args = &args[1] };
     ret = expr_run(&state, 0, 0);
     if (ret.type == E_VAL_ERR)
-        return printf("%s: %s\n", args[0], ret.str), RETURN_FAILURE;
+        return printf("%s: %s\n", args[0], ret.str), -1;
     if (ret.type == E_VAL_INT && strcmp("if", args[0]) == 0)
         return ret.val;
     if (ret.type == E_VAL_INT)
