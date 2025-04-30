@@ -16,6 +16,7 @@
 
 #include "common.h"
 #include "readline.h"
+#include "repl.h"
 #include "u_str.h"
 
 static
@@ -83,10 +84,8 @@ bool append_null_terminator(buff_t *buff)
 static
 int8_t handle_line_buff(buff_t *buff, char *read_buff, ssize_t read_size)
 {
-    if (*read_buff == CTRL('d')) {
-        buff->sz = 0;
+    if (handle_keys(buff, read_buff))
         return RETURN_SUCCESS;
-    }
     if (isatty(STDIN_FILENO) && str_printable(read_buff, read_size))
         write(STDOUT_FILENO, read_buff, read_size);
     if (!ensure_buff_av_capacity(buff, read_size))

@@ -21,6 +21,7 @@
 #include "exec.h"
 #include "globbing.h"
 #include "path.h"
+#include "repl.h"
 #include "u_mem.h"
 #include "u_str.h"
 
@@ -145,12 +146,12 @@ int launch_bin(char *full_bin_path, char **args, ef_t *ef)
     pid_t pid = fork();
 
     if (pid == 0) {
+        restore_term_flags(ef->exec_ctx);
         set_fd(ef);
         if (execve(full_bin_path, args, ef->env->env) < 0) {
             status = command_error(full_bin_path, args, errno);
             free_env(ef->env);
-            free((void *)args);
-            exit((free(ef->buffer), status));
+            exit(((free((void *)args), free(ef->buffer)), status));
         }
     }
     if (!(ef->flags & F_PIPE) || ef->p_i == ef->p_sz - 1)
@@ -227,6 +228,7 @@ int execute(ef_t *ef)
         return RETURN_FAILURE;
     exec_the_args(ef, args);
     free((void *)args);
+    init_shell_repl(ef->exec_ctx);
     return ef->exec_ctx->history->last_exit_code
         != 0 ? RETURN_FAILURE : RETURN_SUCCESS;
 }

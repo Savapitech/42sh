@@ -5,7 +5,6 @@
 ** _
 */
 
-#include <signal.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,6 +17,7 @@
 #include "history.h"
 #include "local.h"
 #include "readline.h"
+#include "repl.h"
 #include "shell.h"
 #include "u_str.h"
 #include "visitor.h"
@@ -42,13 +42,6 @@ void check_basic_error(char const *buffer)
         WRITE_CONST(STDERR_FILENO, "Invalid null command.\n");
     if (*buffer == '>' || *buffer == '<')
         WRITE_CONST(STDERR_FILENO, "Missing name for redirect.\n");
-}
-
-static
-void ignore_sigint(int sig __attribute__((unused)))
-{
-    WRITE_CONST(STDIN_FILENO, "\n");
-    WRITE_CONST(STDOUT_FILENO, SHELL_PROMPT);
 }
 
 static
@@ -80,21 +73,6 @@ bool change_shell_command(buff_t *buff, exec_ctx_t *exec_ctx)
         && !exec_ctx->history->last_exit_code)
         exec_ctx->history->last_exit_code = RETURN_FAILURE;
     return true;
-}
-
-static
-void init_shell_repl(exec_ctx_t *exec_ctx)
-{
-    struct termios repl_settings;
-
-    exec_ctx->is_running = true;
-    if (isatty(STDIN_FILENO)) {
-        tcgetattr(STDIN_FILENO, &repl_settings);
-        exec_ctx->saved_term_settings = repl_settings;
-        repl_settings.c_iflag = IXON;
-        repl_settings.c_lflag = ~(ECHO | ICANON);
-        tcsetattr(STDIN_FILENO, TCSANOW, &repl_settings);
-    }
 }
 
 static
@@ -143,6 +121,7 @@ bool error_in_init(exec_ctx_t *exec_ctx)
     return false;
 }
 
+#include <signal.h>
 int shell(char **env_ptr)
 {
     alias_t alias = init_alias();
@@ -158,11 +137,10 @@ int shell(char **env_ptr)
     if (error_in_init(&exec_ctx) == true)
         return RETURN_FAILURE;
     U_DEBUG_CALL(debug_env_entries, &env);
-    signal(SIGINT, ignore_sigint);
     shell_result = shell_loop(isatty(STDIN_FILENO), &exec_ctx);
     if (isatty(STDIN_FILENO)) {
         WRITE_CONST(STDOUT_FILENO, "exit\n");
-        tcsetattr(STDIN_FILENO, TCSANOW, &exec_ctx.saved_term_settings);
+        restore_term_flags(&exec_ctx);
     }
     return free_everything(&exec_ctx), shell_result;
 }
