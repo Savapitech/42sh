@@ -13,7 +13,7 @@
 #include "exec.h"
 #include "expr.h"
 
-int builtins_expr(ef_t *ef, char **args)
+int builtins_expr(ef_t *ef[[gnu::unused]], char **args)
 {
     int argc = 0;
     expr_state_t state;
