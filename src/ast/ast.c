@@ -51,7 +51,8 @@ ast_t *fill_cmd_node(ast_ctx_t *ctx)
     if (node->vector.tokens == NULL)
         return NULL;
     node->tok = ctx->act_tok;
-    node->vector.sz = 0;
+    node->vector.tokens[0] = ctx->act_tok;
+    node->vector.sz = 1;
     return parse_arg(ctx, node);
 }
 

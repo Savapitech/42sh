@@ -15,10 +15,10 @@
 void print_ast(ast_t *ast, ast_ctx_t *ctx, size_t depth)
 {
     for (size_t i = 0; i < depth; i++)
-        printf(" ");
+        fprintf(stderr, " ");
     if (depth)
-        printf("- ");
-    printf("(%.*s)\n", (int)ast->tok.sz, ast->tok.str);
+        fprintf(stderr, "- ");
+    fprintf(stderr, "(%.*s)\n", (int)ast->tok.sz, ast->tok.str);
     if (ast->type == N_BIN) {
         print_ast(ast->binary.left, ctx, depth + 1);
         print_ast(ast->binary.right, ctx, depth + 1);

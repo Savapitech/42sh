@@ -20,8 +20,8 @@
 
 typedef enum : size_t {
     T_SEMICOLON = 1 << 0, // ;
-    T_LEFT_QUOTE = 1 << 1, // "
-    T_RIGHT_QUOTE = 1 << 2, // "
+    T_QUOTES = 1 << 1, // "
+    T_DQUOTES = 1 << 2, // "
     T_AND = 1 << 3, // &&
     T_OR = 1 << 4, // ||
     T_PIPE = 1 << 5, // |
@@ -36,7 +36,6 @@ typedef enum : size_t {
     T_IN_REDIRECT = 1 << 14, // <
     T_AT = 1 << 15, // <
     T_WHILE = 1 << 16, // while
-    T_FOREACH = 1 << 17, // foreach
     T_STAR = 1 << 18, // *
     T_NEWLINE = 1 << 19, // \n
     T_EOF = 1 << 20, // \0
