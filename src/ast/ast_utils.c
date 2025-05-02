@@ -24,7 +24,7 @@ void print_ast(ast_t *ast, ast_ctx_t *ctx, size_t depth)
         print_ast(ast->binary.right, ctx, depth + 1);
     }
     if (ast->type == N_CMD) {
-        for (size_t i = 0; i < ast->vector.sz; i++)
+        for (size_t i = 1; i < ast->vector.sz; i++)
             fprintf(stderr, "%*s - (%.*s)\n", (int)depth, "",
                 (int)ast->vector.tokens[i].sz, ast->vector.tokens[i].str);
     }

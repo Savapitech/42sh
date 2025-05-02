@@ -141,7 +141,7 @@ token_t get_next_token(ast_ctx_t *ctx)
     while ((*ctx->str && !found_token && (!isblank(*ctx->str) ||
         check_closable(actual_token))))
         get_arg_token(ctx, &found_token, actual_token);
-    U_DEBUG("Token T_ARG          [%.*s]%d\n", (int)(ctx->str - start), start);
+    U_DEBUG("Token T_ARG          [%.*s]\n", (int)(ctx->str - start), start);
     return (token_t){ .type = T_ARG, .str = start,
         .sz = (size_t)(ctx->str - start) };
 }

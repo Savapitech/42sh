@@ -29,7 +29,7 @@ ast_t *parse_arg(ast_ctx_t *ctx, ast_t *node)
     if (ctx->act_tok.type & (T_ARG | T_REDIRECT | T_APPEND |
         T_IN_REDIRECT | T_HEREDOC | T_VAR | T_STAR)) {
         if (!ensure_node_cap(node))
-            return NULL;
+            return nullptr;
         node->vector.tokens[node->vector.sz] = ctx->act_tok;
         node->vector.sz++;
         return parse_arg(ctx, node);
@@ -43,13 +43,13 @@ ast_t *fill_cmd_node(ast_ctx_t *ctx)
     ast_t *node = create_node(ctx);
 
     if (node == NULL)
-        return NULL;
+        return nullptr;
     node->type = N_CMD;
     node->vector.cap = DEFAULT_N_CMD_CAP;
     node->vector.tokens =
         malloc(sizeof *node->vector.tokens * node->vector.cap);
     if (node->vector.tokens == NULL)
-        return NULL;
+        return nullptr;
     node->tok = ctx->act_tok;
     node->vector.tokens[0] = ctx->act_tok;
     node->vector.sz = 1;
@@ -67,9 +67,9 @@ ast_t *parse_cmd(ast_ctx_t *ctx)
 {
     if (ctx->act_tok.type != T_ARG) {
         if (ctx->act_tok.type & (T_WHILE))
-            return NULL;
+            return nullptr;
         if (!parser_eat(ctx, T_ARG))
-            return NULL;
+            return nullptr;
     }
     return fill_cmd_node(ctx);
 }
@@ -91,20 +91,20 @@ ast_t *parse_pipe(ast_ctx_t *ctx, ast_t *l_node)
     ast_t *node = create_node(ctx);
 
     if (node == NULL)
-        return NULL;
+        return nullptr;
     node->type = N_LST;
     node->tok = ctx->act_tok;
     node->list.cap = DEFAULT_N_LST_CAP;
     node->list.nodes = (ast_t **)malloc(sizeof(ast_t *) * node->list.cap);
     if ((void *)node->list.nodes == NULL)
-        return NULL;
+        return nullptr;
     node->list.sz = 1;
     node->list.nodes[0] = l_node;
     if (!parser_eat(ctx, T_ARG))
-        return NULL;
+        return nullptr;
     while (ctx->act_tok.type & (T_ARG | T_PIPE))
         if (!parse_pipe_childs(ctx, node))
-            return NULL;
+            return nullptr;
     return node;
 }
 
@@ -113,36 +113,41 @@ ast_t *parse_condition(ast_ctx_t *ctx)
     ast_t *l_node = parse_cmd(ctx);
 
     if (l_node == NULL)
-        return NULL;
-    else {
-        switch (ctx->act_tok.type) {
-            case T_PIPE:
-                ctx->ast = parse_pipe(ctx, l_node);
-                break;
-            default:
-                return l_node;
-        }
-    }
-    return ctx->ast;
-}
-
-ast_t *parse_semi(ast_ctx_t *ctx)
-{
-    ast_t *l_node = parse_condition(ctx);
-
-    if (l_node == NULL)
-        return NULL;
+        return nullptr;
     switch (ctx->act_tok.type) {
-        case T_AND:
-            ctx->ast = parse_and(ctx, l_node);
-            break;
-        case T_OR:
-            ctx->ast = parse_or(ctx, l_node);
+        case T_PIPE:
+            ctx->ast = parse_pipe(ctx, l_node);
             break;
         default:
             return l_node;
     }
     return ctx->ast;
+}
+
+ast_t *parse_condition_and(ast_ctx_t *ctx)
+{
+    ast_t *l_node = parse_condition(ctx);
+
+    if (l_node == NULL)
+        return nullptr;
+    if (ctx->act_tok.type == T_AND) {
+        ctx->ast = parse_and(ctx, l_node);
+        return ctx->ast;
+    }
+    return l_node;
+}
+
+ast_t *parse_semi(ast_ctx_t *ctx)
+{
+    ast_t *l_node = parse_condition_and(ctx);
+
+    if (l_node == NULL)
+        return nullptr;
+    if (ctx->act_tok.type == T_OR) {
+        ctx->ast = parse_or(ctx, l_node);
+        return ctx->ast;
+    }
+    return l_node;
 }
 
 static
@@ -151,12 +156,12 @@ ast_t *create_semi_node(ast_ctx_t *ctx, ast_t *l_node)
     ast_t *node = create_node(ctx);
 
     if (node == NULL)
-        return NULL;
+        return nullptr;
     node->type = N_LST;
     node->list.cap = DEFAULT_N_LST_CAP;
     node->list.nodes = (ast_t **)malloc(sizeof(ast_t *) * node->list.cap);
     if ((void *)node->list.nodes == NULL)
-        return NULL;
+        return nullptr;
     node->list.sz = 1;
     node->list.nodes[0] = l_node;
     node->tok = ctx->act_tok;
@@ -171,10 +176,10 @@ ast_t *fill_semi_node(ast_ctx_t *ctx, ast_t *node)
         if (ctx->act_tok.type & (T_SEMICOLON | T_NEWLINE))
             continue;
         if (!ensure_list_cap(node))
-            return NULL;
+            return nullptr;
         node->list.nodes[node->list.sz] = parse_semi(ctx);
         if (node->list.nodes[node->list.sz] == NULL)
-            return NULL;
+            return nullptr;
         node->list.sz++;
     }
     return node;
@@ -195,7 +200,7 @@ ast_t *parse_expression(ast_ctx_t *ctx)
     if (ctx->act_tok.type & (T_SEMICOLON | T_NEWLINE)) {
         node = create_semi_node(ctx, l_node);
         if (node == NULL)
-            return NULL;
+            return nullptr;
         ctx->ast = fill_semi_node(ctx, node);
     }
     return parse_expression(ctx);
