@@ -124,19 +124,6 @@ ast_t *parse_condition(ast_ctx_t *ctx)
     return ctx->ast;
 }
 
-ast_t *parse_condition_and(ast_ctx_t *ctx)
-{
-    ast_t *l_node = parse_condition(ctx);
-
-    if (l_node == NULL)
-        return nullptr;
-    if (ctx->act_tok.type == T_AND) {
-        ctx->ast = parse_and(ctx, l_node);
-        return ctx->ast;
-    }
-    return l_node;
-}
-
 ast_t *parse_semi(ast_ctx_t *ctx)
 {
     ast_t *l_node = parse_condition_and(ctx);
