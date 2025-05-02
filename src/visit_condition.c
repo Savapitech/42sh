@@ -35,8 +35,10 @@ int visit_or(ef_t *ef, ast_t *node)
         return WRITE_CONST(STDERR_FILENO, "Invalid null l/r command.\n"),
             RETURN_FAILURE;
     result = visit_condition(ef, node->binary.left);
-    if (result)
+    if (result) {
+        ef->history->last_exit_code = 0;
         result = visit_condition(ef, node->binary.right);
+    }
     return result;
 }
 
