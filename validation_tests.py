@@ -196,6 +196,11 @@ TESTS = [
             "aa||aa\n",
             "ls||aa\n",
             "&&\n",
+            "ls && ls || ls && ls\n",
+            "ls && ls a || ls && ls\n",
+            "ls && ls || ls && ls a\n",
+            "ls && ls || ls && a\n",
+            "ls aa && ls || ls\n",
         ],
         depends_on=()
     ),
