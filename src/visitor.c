@@ -116,7 +116,7 @@ int visit_condition(ef_t *ef, ast_t *node)
         case T_OR:
             return visit_or(ef, node);
         default:
-            return RETURN_FAILURE;
+            return visit_list(ef, node);
     }
 }
 
