@@ -186,7 +186,7 @@ int visitor(char *buffer, exec_ctx_t *exec_ctx)
     ast_ctx_t ctx = { 0, .str = buffer,
         .cap = u_strlen(buffer) + 10 + DEFAULT_AST_CAP,
         .ast = malloc(sizeof *ctx.ast *
-            (u_strlen(buffer) + 10 + DEFAULT_AST_CAP)) };
+            (u_strlen(buffer) + 10 + DEFAULT_AST_CAP)), .parsed_tok = 0 };
     ef_t ef = { .buffer = buffer, .env = exec_ctx->env,
         .history = exec_ctx->history, .ctx
         = &ctx, .pout_fd = STDOUT_FILENO, .flags = 0,

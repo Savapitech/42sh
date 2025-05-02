@@ -16,22 +16,28 @@
 #include "local.h"
 #include "exec.h"
 
-static
-char *handle_variable(ast_t *node, exec_ctx_t *ctx, size_t *i)
-{
-    char *r_char;
 
-    (*i)++;
-    node->vector.tokens[*i].str[node->vector.tokens[*i].sz] = '\0';
-    r_char = get_env_value(ctx->env, node->vector.tokens[*i].str);
+static
+char *get_values(exec_ctx_t *ctx, char *key)
+{
+    char *r_char = NULL;
+
+    r_char = get_env_value(ctx->env, key);
     if (r_char == NULL)
-        r_char = get_local_value(ctx->local, node->vector.tokens[*i].str);
+        r_char = get_local_value(ctx->local, key);
     if (r_char == NULL) {
-        fprintf(stderr, "%s: Undefined variable.\n",
-            node->vector.tokens[*i].str);
+        fprintf(stderr, "%s: Undefined variable.\n", key);
         return NULL;
     }
     return r_char;
+}
+
+static
+char *handle_variable(ast_t *node, exec_ctx_t *ctx, size_t *i)
+{
+    (*i)++;
+    node->vector.tokens[*i].str[node->vector.tokens[*i].sz] = '\0';
+    return get_values(ctx, node->vector.tokens[*i].str);
 }
 
 static
@@ -43,7 +49,7 @@ char *take_next_parenthese_arg(ast_t *node, size_t *in_str, size_t *i)
     while (node->vector.tokens[*i].sz > *in_str &&
         isblank(node->vector.tokens[*i].str[*in_str]))
         *in_str = *in_str + 1;
-    for (; node->vector.tokens[*i].sz > *in_str &&
+    for (; node->vector.tokens[*i].sz > *in_str + end &&
         !isblank(node->vector.tokens[*i].str[*in_str + end]); end++);
     buff = strndup(&node->vector.tokens[*i].str[*in_str], end);
     *in_str += end;
@@ -90,6 +96,27 @@ bool check_parentheses(ast_t *node, size_t *i, exec_ctx_t *ctx, args_t *args)
 }
 
 static
+bool handle_quotes(ast_t *node, size_t *i, exec_ctx_t *ctx, args_t *args)
+{
+    char *key = strdup(strchr(node->vector.tokens[*i].str, '$') + 1);
+    char *var = NULL;
+    int end_key = 0;
+
+    if (key == NULL){
+        args->args[args->sz] = strdup(&node->vector.tokens[*i].str[1]);
+        return false;
+    }
+    for (; key[end_key] && !isblank(key[end_key]); end_key++);
+    key[end_key] = '\0';
+    var = get_values(ctx, key);
+    if (var == NULL)
+        return free(key), true;
+    free(key);
+    args->args[args->sz] = var;
+    return false;
+}
+
+static
 bool check_quotes(ast_t *node, size_t *i, exec_ctx_t *ctx, args_t *args)
 {
     char be_matched = node->vector.tokens[*i].str[0];
@@ -104,6 +131,8 @@ bool check_quotes(ast_t *node, size_t *i, exec_ctx_t *ctx, args_t *args)
         handle_magic_quotes(node, ctx, i, args);
         return false;
     }
+    if (be_matched == '\"')
+        return handle_quotes(node, i, ctx, args);
     args->args[args->sz] = strdup(&node->vector.tokens[*i].str[1]);
     return false;
 }
