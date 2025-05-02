@@ -43,7 +43,7 @@ char *take_next_parenthese_arg(ast_t *node, size_t *in_str, size_t *i)
     while (node->vector.tokens[*i].sz > *in_str &&
         isblank(node->vector.tokens[*i].str[*in_str]))
         *in_str = *in_str + 1;
-    for (; node->vector.tokens[*i].sz > *in_str &&
+    for (; node->vector.tokens[*i].sz > *in_str + end &&
         !isblank(node->vector.tokens[*i].str[*in_str + end]); end++);
     buff = strndup(&node->vector.tokens[*i].str[*in_str], end);
     *in_str += end;

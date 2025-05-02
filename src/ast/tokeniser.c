@@ -118,11 +118,16 @@ token_t handle_token_type(ast_ctx_t *ctx)
 
 void format_for_closable(ast_ctx_t *ctx, token_t *actual_token)
 {
-    if (actual_token->type != 0)
+    if (actual_token->type == T_RIGHT_PARENT)
+        *actual_token = handle_token_type(ctx);
+    if (actual_token->type == T_LEFT_PARENT &&
+        ctx->parsed_tok == 1)
+        *actual_token = (token_t){ 0, NULL, 0 };
+    if (actual_token->type == T_LEFT_PARENT
+        && ctx->parsed_tok != 1)
+        *actual_token = (token_t){ T_RIGHT_PARENT, ")", 1};
+    if (check_closable(*actual_token))
         ctx->str -= actual_token->sz;
-    if (actual_token->type == T_LEFT_PARENT)
-        *actual_token =
-        (token_t){ T_RIGHT_PARENT, ")", 1};
 }
 
 token_t get_next_token(ast_ctx_t *ctx)
@@ -131,12 +136,13 @@ token_t get_next_token(ast_ctx_t *ctx)
     int found_token = 0;
     token_t actual_token;
 
+    ctx->parsed_tok++;
     while (*ctx->str != '\0' && isblank(*ctx->str))
         ctx->str++;
     actual_token = handle_token_type(ctx);
+    format_for_closable(ctx, &actual_token);
     if (actual_token.type != 0 && !check_closable(actual_token))
         return actual_token;
-    format_for_closable(ctx, &actual_token);
     start = ctx->str;
     while ((*ctx->str && !found_token && (!isblank(*ctx->str) ||
         check_closable(actual_token))))

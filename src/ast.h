@@ -18,7 +18,7 @@
     #define DEFAULT_N_COND_CAP 2
     #define T_ALL 0xff
 
-typedef enum : size_t {
+typedef enum size_t {
     T_SEMICOLON = 1 << 0, // ;
     T_QUOTES = 1 << 1, // "
     T_DQUOTES = 1 << 2, // "
@@ -110,6 +110,7 @@ typedef struct {
     ast_t *ast;
     token_t act_tok;
     ast_t *first_node;
+    size_t parsed_tok;
 } ast_ctx_t;
 
 
