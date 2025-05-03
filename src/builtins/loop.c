@@ -19,12 +19,13 @@
 #include "ast.h"
 #include "builtins.h"
 #include "common.h"
+#include "debug.h"
 #include "exec.h"
 #include "local.h"
 #include "loop.h"
 #include "u_str.h"
 
-void exit_child(int sig __attribute__((unused)))
+void exit_child(int sig[[gnu::unused]])
 {
     _exit(sig);
 }
@@ -68,7 +69,7 @@ int foreach_loop(ef_t *ef, char **args, usr_cmd_t *usr_cmds)
     int status = 0;
     char **save_cmds = arraydup(usr_cmds->cmds);
 
-    if ((void *)save_cmds == NULL)
+    if ((void *)save_cmds == nullptr)
         exit(84);
     for (int i = 2; args[i]; i++){
         if (!set_local(ef->exec_ctx->local, args[1], args[i]))
@@ -82,17 +83,25 @@ int foreach_loop(ef_t *ef, char **args, usr_cmd_t *usr_cmds)
 }
 
 static
-int while_loop(ef_t *ef, usr_cmd_t *usr_cmds)
+int while_loop(ef_t *ef, usr_cmd_t *usr_cmds, char **args)
 {
     int status = 0;
     char **save_cmds = arraydup(usr_cmds->cmds);
+    int expr_result;
 
-    if ((void *)save_cmds == NULL)
+    if ((void *)save_cmds == nullptr)
         exit(84);
-    while (true){
+    expr_result = builtins_expr(ef, args);
+    if (expr_result == -1)
+        return RETURN_FAILURE;
+    while (expr_result != 0) {
+        U_DEBUG("While expr result [%d]\n", expr_result);
         status = do_a_lap(ef, usr_cmds->cmds);
         free_array(usr_cmds->cmds);
         usr_cmds->cmds = arraydup(save_cmds);
+        expr_result = builtins_expr(ef, args);
+        if (expr_result == -1)
+            return RETURN_FAILURE;
     }
     free_array(save_cmds);
     return status;
@@ -103,7 +112,7 @@ int choose_loop(ef_t *ef, char **args, usr_cmd_t *usr_cmd, char const *prompt)
 {
     if (strcmp(prompt, "foreach") == 0)
         return foreach_loop(ef, args, usr_cmd);
-    return while_loop(ef, usr_cmd);
+    return while_loop(ef, usr_cmd, args);
 }
 
 static
@@ -113,14 +122,14 @@ void launch_loop(ef_t *ef, char **args, char const *prompt)
     usr_cmd_t *usr_cmds = malloc(sizeof(usr_cmd_t));
 
     ef->exec_ctx->local->in_a_loop = true;
-    if (usr_cmds == NULL)
+    if (usr_cmds == nullptr)
         exit(84);
     usr_cmds->cap = 2;
     usr_cmds->sz = 0;
     signal(SIGINT, exit_child);
     signal(EOF, exit_child);
     usr_cmds = get_usr_loop_cmd(usr_cmds, prompt);
-    if (usr_cmds == NULL)
+    if (usr_cmds == nullptr)
         exit(84);
     status = choose_loop(ef, args, usr_cmds, prompt);
     free_array(usr_cmds->cmds);

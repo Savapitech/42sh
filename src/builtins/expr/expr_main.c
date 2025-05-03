@@ -6,7 +6,6 @@
 */
 
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
 #include "common.h"
@@ -19,14 +18,15 @@ int builtins_expr(ef_t *ef[[gnu::unused]], char **args)
     expr_state_t state;
     expr_val_t ret;
 
-    for (; args[argc] != NULL; argc++);
+    for (; args[argc] != nullptr; argc++);
     if (argc < 2)
         return fprintf(stderr, "%s: missing operand\n", args[0]), -1;
     state = (expr_state_t){ .args = &args[1] };
     ret = expr_run(&state, 0, 0);
     if (ret.type == E_VAL_ERR)
         return printf("%s: %s\n", args[0], ret.str), -1;
-    if (ret.type == E_VAL_INT && strcmp("if", args[0]) == 0)
+    if (ret.type == E_VAL_INT && (strcmp("if", args[0]) == 0 ||
+        strcmp("while", args[0]) == 0))
         return ret.val;
     if (ret.type == E_VAL_INT)
         printf("%ld\n", ret.val);
