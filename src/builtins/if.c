@@ -21,7 +21,7 @@ int get_argc(char **args)
 {
     int i = 0;
 
-    for (; args[i]; i++);
+    for (; args[i] != nullptr; i++);
     return i;
 }
 
@@ -118,12 +118,14 @@ void exec_block(cmd_block_t *blk, ef_t *ef)
 }
 
 static
-bool handle_if_logic(ef_t *ef, bool cond)
+bool handle_if_logic(ef_t *ef, bool cond, char *last)
 {
     if_ctx_t ctx = {.buff = &(buff_t){ .str = nullptr, .sz = 0 }, .ef = ef};
     cmd_block_t then_blk;
     cmd_block_t else_blk;
 
+    if (strcmp("then", last) != 0)
+        return cond ? visitor(last, ef->exec_ctx), true : true;
     if (!init_block(&then_blk) || !init_block(&else_blk))
         return false;
     if (!read_if_blocks(&ctx, &then_blk, &else_blk))
@@ -147,7 +149,7 @@ int builtins_if(ef_t *ef, char **args)
         return WRITE_CONST(STDERR_FILENO, "if: Too few arguments.\n"),
             RETURN_FAILURE;
     if (args[2] == NULL)
-        return WRITE_CONST(STDERR_FILENO, "if: Empty if\n"), RETURN_FAILURE;
+        return WRITE_CONST(STDERR_FILENO, "if: Empty if.\n"), RETURN_FAILURE;
     last = strdup(args[get_argc(args) - 1]);
     if (!last)
         return RETURN_FAILURE;
@@ -156,7 +158,7 @@ int builtins_if(ef_t *ef, char **args)
     U_DEBUG("If expr result [%d]\n", result);
     if (result == -1)
         return free(last), RETURN_FAILURE;
-    if (!handle_if_logic(ef, result != 0))
+    if (!handle_if_logic(ef, result != 0, last))
         return free(last), RETURN_FAILURE;
     return free(last), RETURN_SUCCESS;
 }

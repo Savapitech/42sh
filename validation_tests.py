@@ -215,4 +215,18 @@ TESTS = [
         ],
         depends_on=()
     ),
+
+    Test(
+        key="IF",
+        name="if",
+        cmds=[
+            "if 1 ls\n",
+            "if 0 ls\n",
+            "if 1 then\necho YES\nelse\necho NO\nendif\n",
+            "if 0 then\necho YES\nelse\necho NO\nendif\n",
+            "if\n",
+            "if 0\n",
+        ],
+        depends_on=()
+    ),
 ]
