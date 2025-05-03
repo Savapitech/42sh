@@ -4,26 +4,25 @@
 ** File description:
 ** foreach
 */
+
+#include <fcntl.h>
+#include <signal.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
-#include <signal.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
-#include <fcntl.h>
+#include <unistd.h>
 
 #include "ast.h"
 #include "builtins.h"
 #include "common.h"
 #include "exec.h"
-#include "redirects.h"
-#include "u_str.h"
-#include "u_mem.h"
-#include "loop.h"
 #include "local.h"
+#include "loop.h"
+#include "u_str.h"
 
 void exit_child(int sig __attribute__((unused)))
 {
@@ -31,7 +30,7 @@ void exit_child(int sig __attribute__((unused)))
 }
 
 static
-bool checking_for_error(ef_t *ef, char **args)
+bool checking_for_error(char **args)
 {
     if (my_array_len(args) < 3)
         return (WRITE_CONST(STDERR_FILENO, "foreach: Too few arguments.\n"),
@@ -42,7 +41,7 @@ bool checking_for_error(ef_t *ef, char **args)
 }
 
 static
-bool checking_while_error(ef_t *ef, char **args)
+bool checking_while_error(char **args)
 {
     if (my_array_len(args) < 2)
         return (WRITE_CONST(STDERR_FILENO, "while: Too few arguments.\n"),
@@ -69,7 +68,7 @@ int foreach_loop(ef_t *ef, char **args, usr_cmd_t *usr_cmds)
     int status = 0;
     char **save_cmds = arraydup(usr_cmds->cmds);
 
-    if (save_cmds == NULL)
+    if ((void *)save_cmds == NULL)
         exit(84);
     for (int i = 2; args[i]; i++){
         if (!set_local(ef->exec_ctx->local, args[1], args[i]))
@@ -88,7 +87,7 @@ int while_loop(ef_t *ef, usr_cmd_t *usr_cmds)
     int status = 0;
     char **save_cmds = arraydup(usr_cmds->cmds);
 
-    if (save_cmds == NULL)
+    if ((void *)save_cmds == NULL)
         exit(84);
     while (true){
         status = do_a_lap(ef, usr_cmds->cmds);
@@ -100,7 +99,7 @@ int while_loop(ef_t *ef, usr_cmd_t *usr_cmds)
 }
 
 static
-int choose_loop(ef_t *ef, char **args, usr_cmd_t *usr_cmd, char prompt[])
+int choose_loop(ef_t *ef, char **args, usr_cmd_t *usr_cmd, char const *prompt)
 {
     if (strcmp(prompt, "foreach") == 0)
         return foreach_loop(ef, args, usr_cmd);
@@ -108,7 +107,7 @@ int choose_loop(ef_t *ef, char **args, usr_cmd_t *usr_cmd, char prompt[])
 }
 
 static
-void launch_loop(ef_t *ef, char **args, char prompt[])
+void launch_loop(ef_t *ef, char **args, char const *prompt)
 {
     int status = RETURN_FAILURE;
     usr_cmd_t *usr_cmds = malloc(sizeof(usr_cmd_t));
@@ -134,7 +133,7 @@ int builtins_foreach(ef_t *ef, char **args)
     int status = 0;
     pid_t pid;
 
-    if (checking_for_error(ef, args))
+    if (checking_for_error(args))
         return RETURN_FAILURE;
     pid = fork();
     if (pid == 0)
@@ -152,7 +151,7 @@ int builtins_while(ef_t *ef, char **args)
     int status = 0;
     pid_t pid;
 
-    if (checking_while_error(ef, args))
+    if (checking_while_error(args))
         return RETURN_FAILURE;
     pid = fork();
     if (pid == 0)

@@ -16,5 +16,5 @@ typedef struct {
     char **cmds;
 } usr_cmd_t;
 
-usr_cmd_t *get_usr_loop_cmd(usr_cmd_t *usr_cmd, char prompt[]);
+usr_cmd_t *get_usr_loop_cmd(usr_cmd_t *usr_cmd, char const *prompt);
 #endif /* LOOP_H */
