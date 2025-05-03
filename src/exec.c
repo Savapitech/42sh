@@ -13,13 +13,13 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+#include "args.h"
 #include "ast.h"
 #include "builtins.h"
 #include "common.h"
 #include "debug.h"
 #include "env.h"
 #include "exec.h"
-#include "globbing.h"
 #include "path.h"
 #include "repl.h"
 #include "u_mem.h"

@@ -12,8 +12,8 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "args.h"
 #include "exec.h"
-#include "globbing.h"
 
 bool check_glob_result(int val, char *bin_name)
 {
@@ -31,7 +31,7 @@ bool process_globbing(char *pattern, args_t *args, size_t *toks_i)
     int glob_result;
     char *vl;
 
-    glob_result = glob(pattern, GLOB_ERR, NULL, &globs);
+    glob_result = glob(pattern, GLOB_ERR, nullptr, &globs);
     if (!check_glob_result(glob_result, args->args[0]))
         return false;
     for (size_t i = 0; i < globs.gl_pathc; i++) {
