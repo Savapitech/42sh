@@ -81,8 +81,7 @@ all: $(NAME_release)
 
 .PHONY: tests_run
 tests_run: $(NAME_test)
-	- find fixtures -name "*.sh" | xargs -i \
-		sh -c 'cat {} | env -i PATH="$(dir $(shell which ls))" ./$^'
+	@ - python3 validator.py ./$(NAME_test)
 
 .PHONY: cov
 cov: tests_run
