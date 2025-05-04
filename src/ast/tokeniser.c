@@ -30,8 +30,6 @@ const tokens_list_t TOKENS_LIST[] = {
     { T_IN_REDIRECT, "<", 1, "T_IN_REDIRECT" },
     { T_BACKSLASH, "\\", 1, "T_BACKSLASH" },
     { T_NEWLINE, "\n", 1, "T_NEWLINE"},
-    { T_TILDE, "~", 1, "T_TILDE"},
-    { T_STAR, "*", 1, "T_STAR"},
     { T_EOF, "\0", 1, "T_EOF" }
 };
 

@@ -15,8 +15,12 @@
 #include "ast.h"
 
 static
-bool parse_special_args(ast_ctx_t *ctx, ast_t *node)
+bool parse_special_args(ast_ctx_t *ctx)
 {
+    if (memchr(ctx->act_tok.str, '~', ctx->act_tok.sz) != NULL)
+        ctx->act_tok.type = T_TILDE;
+    if (memchr(ctx->act_tok.str, '*', ctx->act_tok.sz) != NULL)
+        ctx->act_tok.type = T_STAR;
     return true;
 }
 
@@ -26,7 +30,7 @@ ast_t *parse_arg(ast_ctx_t *ctx, ast_t *node)
     ctx->act_tok = get_next_token(ctx);
     if (ctx->act_tok.type & (T_SEMICOLON | T_NEWLINE))
         return node;
-    if (!parse_special_args(ctx, node))
+    if (!parse_special_args(ctx))
         return nullptr;
     if (ctx->act_tok.type == T_BACKSLASH) {
         ctx->act_tok = get_next_token(ctx);

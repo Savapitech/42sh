@@ -13,7 +13,9 @@
 #include <unistd.h>
 
 #include "args.h"
+#include "debug.h"
 #include "exec.h"
+#include "utils.h"
 
 bool check_glob_result(int val, char *bin_name)
 {
@@ -48,17 +50,24 @@ bool process_globbing(char *pattern, args_t *args, size_t *toks_i)
 }
 
 static
-bool handle_tilde(ef_t *ef, args_t *args, size_t *toks_i)
+bool handle_tilde(ef_t *ef, token_t *tok, args_t *args, size_t *toks_i)
 {
     char *home;
+    char *final_str;
+    size_t tilde_pos = strcspn(tok->str, "~");
 
+    tok->str[tok->sz] = '\0';
     if (!ensure_args_capacity(args))
         return false;
     home = get_env_value(ef->env, "HOME");
     if (home != NULL)
-        args->args[args->sz] = get_env_value(ef->env, "HOME");
+        final_str = get_env_value(ef->env, "HOME");
     else
-        args->args[args->sz] = strdup("");
+        final_str = strdup("");
+    args->args[args->sz] = insert_str(tok->str, final_str, tilde_pos);
+    U_DEBUG("Tilde handling [%s] pos [%lu]\n", final_str, tilde_pos);
+    if (args->args[args->sz] == NULL)
+        return false;
     args->sz++;
     *toks_i += 1;
     return true;
@@ -73,7 +82,7 @@ bool process_args(ast_t *node, args_t *args, size_t *toks_i, ef_t *ef)
     if (tok.type == T_STAR || strcspn(tok.str, "[]?") != strlen(tok.str))
         return (process_globbing(tok.str, args, toks_i));
     if (tok.type == T_TILDE)
-        return handle_tilde(ef, args, toks_i);
+        return handle_tilde(ef, &tok, args, toks_i);
     handle_var_case(node, ef->exec_ctx, toks_i, args);
     if (args->args[args->sz] == NULL)
         return false;
