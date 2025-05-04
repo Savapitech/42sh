@@ -98,20 +98,23 @@ bool check_parentheses(ast_t *node, size_t *i, exec_ctx_t *ctx, args_t *args)
 static
 bool handle_quotes(ast_t *node, size_t *i, exec_ctx_t *ctx, args_t *args)
 {
-    char *key = strdup(strchr(node->vector.tokens[*i].str, '$') + 1);
+    char *key = strchr(node->vector.tokens[*i].str, '$');
     char *var = NULL;
     int end_key = 0;
 
     if (key == NULL){
-        args->args[args->sz] = strdup(&node->vector.tokens[*i].str[1]);
+        args->args[args->sz] = strdup(node->vector.tokens[*i].str);
         return false;
     }
+    key = strdup(&key[1]);
+    if (key == NULL)
+        return true;
     for (; key[end_key] && !isblank(key[end_key]); end_key++);
     key[end_key] = '\0';
     var = get_values(ctx, key);
-    if (var == NULL)
-        return free(key), true;
     free(key);
+    if (var == NULL)
+        return true;
     args->args[args->sz] = var;
     return false;
 }
@@ -127,6 +130,8 @@ bool check_quotes(ast_t *node, size_t *i, exec_ctx_t *ctx, args_t *args)
         node->vector.tokens[*i].str[node->vector.tokens[*i].sz - 1])
         return (fprintf(stderr, "Unmatched \'%c\'.\n", be_matched), true);
     node->vector.tokens[*i].str[node->vector.tokens[*i].sz - 1] = '\0';
+    memmove(&node->vector.tokens[*i].str[0],
+        &node->vector.tokens[*i].str[1], strlen(node->vector.tokens[*i].str));
     if (be_matched == '`'){
         handle_magic_quotes(node, ctx, i, args);
         return false;

@@ -24,8 +24,6 @@ void exec_magic(ast_t *node, exec_ctx_t *ctx, size_t *i, int fd[2])
     pid_t pid = 0;
 
     node->vector.tokens[*i].str[node->vector.tokens[*i].sz - 1] = '\0';
-    memmove(&node->vector.tokens[*i].str[0],
-        &node->vector.tokens[*i].str[1], strlen(node->vector.tokens[*i].str));
     pid = fork();
     if (pid == 0){
         close(fd[0]);
