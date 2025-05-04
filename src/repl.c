@@ -6,16 +6,33 @@
 */
 
 #include <signal.h>
+#include <stdio.h>
 #include <termios.h>
 #include <unistd.h>
 
 #include "exec.h"
 #include "u_str.h"
+#include "vt100_esc_codes.h"
+
+void print_shell_prompt(exec_ctx_t *exec_ctx)
+{
+    env_t *env_ptr = exec_ctx->env;
+    char const *ps1 = get_env_value(env_ptr, "PS1");
+
+    if (ps1 == nullptr) {
+        printf(BLUE "┌─[" GREEN "%s" BLUE "] " RESET "-" BLUE " [" RESET "%s"
+            BLUE "]\n└─[" PURPLE "$" BLUE "] " RESET,
+            get_env_value(env_ptr, "USER"),
+            get_env_value(env_ptr, "PWD"));
+    } else
+        printf("%s", ps1);
+}
 
 void init_shell_repl(exec_ctx_t *exec_ctx)
 {
     struct termios repl_settings;
 
+    setvbuf(stdout, nullptr, _IONBF, 0);
     signal(SIGINT, SIG_IGN);
     exec_ctx->is_running = true;
     if (isatty(STDIN_FILENO)) {
@@ -33,20 +50,20 @@ void restore_term_flags(exec_ctx_t *exec_ctx)
 }
 
 static
-void ignore_sigint(void)
+void ignore_sigint(exec_ctx_t *exec_ctx)
 {
     WRITE_CONST(STDIN_FILENO, "\n");
-    WRITE_CONST(STDOUT_FILENO, SHELL_PROMPT);
+    print_shell_prompt(exec_ctx);
 }
 
-bool handle_keys(buff_t *buff, char *read_buff)
+bool handle_keys(exec_ctx_t *exec_ctx, buff_t *buff, char const *read_buff)
 {
     switch (*read_buff) {
         case CTRL('d'):
             buff->sz = 0;
             return true;
         case CTRL('c'):
-            ignore_sigint();
+            ignore_sigint(exec_ctx);
             return false;
         default:
             return false;

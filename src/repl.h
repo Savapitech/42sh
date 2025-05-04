@@ -12,5 +12,6 @@
 
 void init_shell_repl(exec_ctx_t *exec_ctx);
 void restore_term_flags(exec_ctx_t *exec_ctx);
-bool handle_keys(buff_t *buff, char *read_buff);
+bool handle_keys(exec_ctx_t *exec_ctx, buff_t *buff, char const *read_buff);
+void print_shell_prompt(exec_ctx_t *exec_ctx);
 #endif /* REPL_H */

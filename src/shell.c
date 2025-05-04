@@ -44,10 +44,10 @@ void check_basic_error(char const *buffer)
 }
 
 static
-void write_prompt(int is_a_tty)
+void write_prompt(int is_a_tty, exec_ctx_t *exec_ctx)
 {
     if (is_a_tty)
-        WRITE_CONST(STDOUT_FILENO, SHELL_PROMPT);
+        print_shell_prompt(exec_ctx);
 }
 
 static
@@ -57,7 +57,7 @@ bool change_shell_command(buff_t *buff, exec_ctx_t *exec_ctx)
     size_t buffer_len;
 
     buff->sz = 0;
-    if (!readline(buff))
+    if (!readline(exec_ctx, buff))
         return false;
     if (!buff->sz)
         return false;
@@ -81,7 +81,7 @@ int shell_loop(int is_a_tty, exec_ctx_t *exec_ctx)
 
     init_shell_repl(exec_ctx);
     while (true) {
-        write_prompt(is_a_tty);
+        write_prompt(is_a_tty, exec_ctx);
         if (!change_shell_command(&buff, exec_ctx))
             return exec_ctx->history->last_exit_code;
     }

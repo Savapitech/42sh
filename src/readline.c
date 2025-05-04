@@ -82,9 +82,10 @@ bool append_null_terminator(buff_t *buff)
 }
 
 static
-int8_t handle_line_buff(buff_t *buff, char *read_buff, ssize_t read_size)
+int8_t handle_line_buff(exec_ctx_t *exec_ctx, buff_t *buff, char *read_buff,
+    ssize_t read_size)
 {
-    if (handle_keys(buff, read_buff))
+    if (handle_keys(exec_ctx, buff, read_buff))
         return RETURN_SUCCESS;
     if (isatty(STDIN_FILENO) && str_printable(read_buff, read_size))
         write(STDOUT_FILENO, read_buff, read_size);
@@ -96,7 +97,7 @@ int8_t handle_line_buff(buff_t *buff, char *read_buff, ssize_t read_size)
     return -1;
 }
 
-bool readline(buff_t *buff)
+bool readline(exec_ctx_t *exec_ctx, buff_t *buff)
 {
     char read_buff[2] = "";
     ssize_t read_size = 0;
@@ -110,7 +111,7 @@ bool readline(buff_t *buff)
             return false;
         if (read_size == 0)
             return true;
-        if (handle_line_buff(buff, read_buff, read_size) > -1)
+        if (handle_line_buff(exec_ctx, buff, read_buff, read_size) > -1)
             return true;
     }
     return append_null_terminator(buff);

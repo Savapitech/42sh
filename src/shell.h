@@ -7,9 +7,6 @@
 
 #ifndef SHELL_H
     #define SHELL_H
-    #include "vt100_esc_codes.h"
-
-    #define SHELL_PROMPT RED "|> " RESET
 
 typedef struct {
     char **cmd_history;
