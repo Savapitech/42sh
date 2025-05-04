@@ -16,8 +16,6 @@
 #include "local.h"
 #include "exec.h"
 
-
-static
 char *get_values(exec_ctx_t *ctx, char *key)
 {
     char *r_char = NULL;
@@ -92,30 +90,6 @@ bool check_parentheses(ast_t *node, size_t *i, exec_ctx_t *ctx, args_t *args)
     node->vector.tokens[*i].sz -= 2;
     if (!handle_parentheses(node, ctx, i, args))
         return true;
-    return false;
-}
-
-static
-bool handle_quotes(ast_t *node, size_t *i, exec_ctx_t *ctx, args_t *args)
-{
-    char *key = strchr(node->vector.tokens[*i].str, '$');
-    char *var = NULL;
-    int end_key = 0;
-
-    if (key == NULL){
-        args->args[args->sz] = strdup(node->vector.tokens[*i].str);
-        return false;
-    }
-    key = strdup(&key[1]);
-    if (key == NULL)
-        return true;
-    for (; key[end_key] && !isblank(key[end_key]); end_key++);
-    key[end_key] = '\0';
-    var = get_values(ctx, key);
-    free(key);
-    if (var == NULL)
-        return true;
-    args->args[args->sz] = var;
     return false;
 }
 
