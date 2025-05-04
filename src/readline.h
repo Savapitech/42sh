@@ -13,5 +13,5 @@
     #include "exec.h"
     #include "u_str.h"
 
-bool readline(exec_ctx_t *exec_ctx, buff_t *buff);
+bool readline(exec_ctx_t *exec_ctx, buff_t *buff, int fd);
 #endif /* READLINE */

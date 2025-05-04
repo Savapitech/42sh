@@ -14,6 +14,7 @@
 #include "common.h"
 #include "debug.h"
 #include "exec.h"
+#include "repl.h"
 #include "u_str.h"
 
 static
@@ -87,13 +88,13 @@ bool handle_if_buff(if_ctx_t *ctx, cmd_block_t *then_blk,
 }
 
 static
-bool read_if_blocks(if_ctx_t *ctx, cmd_block_t *then_blk,
+bool read_if_blocks(ef_t *ef, if_ctx_t *ctx, cmd_block_t *then_blk,
     cmd_block_t *else_blk)
 {
     bool in_else = false;
 
     while (true) {
-        if (isatty(STDIN_FILENO))
+        if (isatty(ef->exec_ctx->read_fd))
             WRITE_CONST(ctx->ef->out_fd, IF_PROMPT);
         if (getline(&ctx->buff->str, &ctx->buff->sz, stdin) == -1)
             return false;
@@ -128,7 +129,7 @@ bool handle_if_logic(ef_t *ef, bool cond, char *last)
         return cond ? visitor(last, ef->exec_ctx), true : true;
     if (!init_block(&then_blk) || !init_block(&else_blk))
         return false;
-    if (!read_if_blocks(&ctx, &then_blk, &else_blk))
+    if (!read_if_blocks(ef, &ctx, &then_blk, &else_blk))
         return false;
     if (cond)
         exec_block(&then_blk, ef);

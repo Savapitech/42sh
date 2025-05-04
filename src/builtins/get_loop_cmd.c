@@ -17,6 +17,7 @@
 
 #include "common.h"
 #include "loop.h"
+#include "repl.h"
 #include "u_mem.h"
 #include "u_str.h"
 
@@ -62,9 +63,10 @@ usr_cmd_t *handle_end(usr_cmd_t *us, char const *prompt)
 }
 
 static
-usr_cmd_t *get_first_cmd(usr_cmd_t *usr, char const *prompt, size_t *bf_len)
+usr_cmd_t *get_first_cmd(exec_ctx_t *exec_ctx, usr_cmd_t *usr,
+    char const *prompt, size_t *bf_len)
 {
-    if (isatty(STDIN_FILENO))
+    if (isatty(exec_ctx->read_fd))
         printf("%s? ", prompt);
     usr->cmds[usr->sz] = nullptr;
     getline(&(usr->cmds[usr->sz]), bf_len, stdin);
@@ -74,7 +76,8 @@ usr_cmd_t *get_first_cmd(usr_cmd_t *usr, char const *prompt, size_t *bf_len)
     return usr;
 }
 
-usr_cmd_t *get_usr_loop_cmd(usr_cmd_t *usr_cmd, char const *prompt)
+usr_cmd_t *get_usr_loop_cmd(exec_ctx_t *exec_ctx, usr_cmd_t *usr_cmd,
+    char const *prompt)
 {
     size_t buffer_len;
 
@@ -83,9 +86,9 @@ usr_cmd_t *get_usr_loop_cmd(usr_cmd_t *usr_cmd, char const *prompt)
     usr_cmd->cmds = (char **)malloc(sizeof(char *) * usr_cmd->cap);
     if ((void *)usr_cmd->cmds == NULL)
         return nullptr;
-    usr_cmd = get_first_cmd(usr_cmd, prompt, &buffer_len);
+    usr_cmd = get_first_cmd(exec_ctx, usr_cmd, prompt, &buffer_len);
     while (strcmp("end", usr_cmd->cmds[usr_cmd->sz - 1]) != 0){
-        if (isatty(STDIN_FILENO))
+        if (isatty(exec_ctx->read_fd))
             printf("%s? ", prompt);
         if (usr_cmd->sz >= usr_cmd->cap)
             usr_cmd = buffers_realloc(usr_cmd);

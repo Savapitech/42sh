@@ -24,6 +24,9 @@ typedef struct {
     bool is_running;
     struct termios saved_term_settings;
     local_t *local;
+    opt_t *opt;
+    int read_fd;
+    int isatty;
 } exec_ctx_t;
 
 size_t update_command(char **buffer,

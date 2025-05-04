@@ -12,6 +12,7 @@
 
 #include "common.h"
 #include "exec.h"
+#include "repl.h"
 #include "u_str.h"
 #include "vt100_esc_codes.h"
 
@@ -44,7 +45,7 @@ void init_shell_repl(exec_ctx_t *exec_ctx)
     setvbuf(stdout, nullptr, _IONBF, 0);
     signal(SIGINT, SIG_IGN);
     exec_ctx->is_running = true;
-    if (isatty(STDIN_FILENO)) {
+    if (isatty(exec_ctx->read_fd)) {
         WRITE_CONST(STDOUT_FILENO, BLINKING_VERTICAL_CURSOR);
         tcgetattr(STDIN_FILENO, &repl_settings);
         exec_ctx->saved_term_settings = repl_settings;

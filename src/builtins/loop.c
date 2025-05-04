@@ -128,7 +128,7 @@ void launch_loop(ef_t *ef, char **args, char const *prompt)
     usr_cmds->sz = 0;
     signal(SIGINT, exit_child);
     signal(EOF, exit_child);
-    usr_cmds = get_usr_loop_cmd(usr_cmds, prompt);
+    usr_cmds = get_usr_loop_cmd(ef->exec_ctx, usr_cmds, prompt);
     if (usr_cmds == nullptr)
         exit(84);
     status = choose_loop(ef, args, usr_cmds, prompt);

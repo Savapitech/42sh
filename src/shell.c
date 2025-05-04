@@ -5,6 +5,7 @@
 ** _
 */
 
+#include <fcntl.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -58,7 +59,7 @@ bool change_shell_command(buff_t *buff, exec_ctx_t *exec_ctx)
     size_t buffer_len;
 
     buff->sz = 0;
-    if (!readline(exec_ctx, buff))
+    if (!readline(exec_ctx, buff, exec_ctx->read_fd))
         return false;
     if (!buff->sz)
         return false;
@@ -120,6 +121,19 @@ bool error_in_init(exec_ctx_t *exec_ctx)
     return false;
 }
 
+static
+int get_read_fd(opt_t *opt)
+{
+    int fd;
+
+    if (opt->script_file == NULL)
+        return STDIN_FILENO;
+    fd = open(opt->script_file, O_RDONLY);
+    if (fd < 0)
+        return perror(opt->script_file), -1;
+    return fd;
+}
+
 int shell(opt_t *opt, char **env_ptr)
 {
     alias_t alias = init_alias();
@@ -128,15 +142,16 @@ int shell(opt_t *opt, char **env_ptr)
         .last_chdir = nullptr};
     his_command_t *cmd_history = init_cmd_history();
     local_t local = create_local();
-    exec_ctx_t exec_ctx = {.env = &env, .local = &local,
-        .history = &history, .history_command = cmd_history, .alias = &alias};
+    exec_ctx_t exec_ctx = {.env = &env, .local = &local, .opt = opt,
+        .read_fd = get_read_fd(opt), .history = &history,
+        .history_command = cmd_history, .alias = &alias};
     int shell_result;
 
-    if (error_in_init(&exec_ctx))
+    if (exec_ctx.read_fd == -1 || (int)error_in_init(&exec_ctx))
         return RETURN_FAILURE;
     U_DEBUG_CALL(debug_env_entries, &env);
-    shell_result = shell_loop(isatty(STDIN_FILENO), &exec_ctx);
-    if (isatty(STDIN_FILENO)) {
+    shell_result = shell_loop(isatty(exec_ctx.read_fd), &exec_ctx);
+    if (isatty(exec_ctx.read_fd)) {
         WRITE_CONST(STDOUT_FILENO, "exit\n");
         restore_term_flags(&exec_ctx);
     }
