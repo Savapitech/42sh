@@ -4,13 +4,12 @@
 ** File description:
 ** repeat
 */
-#include <stdlib.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <string.h>
+
 #include <fcntl.h>
-#include <sys/wait.h>
 #include <signal.h>
+#include <stdlib.h>
+#include <sys/wait.h>
+#include <unistd.h>
 
 #include "builtins.h"
 #include "common.h"
@@ -18,7 +17,7 @@
 #include "u_str.h"
 
 static
-bool checking_error(ef_t *ef, char **args, long *nb_loop)
+bool checking_error(char **args, long *nb_loop)
 {
     char *end;
 
@@ -39,7 +38,7 @@ int builtins_repeat(ef_t *ef, char **args)
     int status = 0;
     pid_t pid;
 
-    if (checking_error(ef, args, &nb_loop))
+    if (checking_error(args, &nb_loop))
         return RETURN_FAILURE;
     pid = fork();
     if (pid == 0){
