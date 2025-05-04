@@ -33,6 +33,7 @@ bool process_globbing(char *pattern, args_t *args, size_t *toks_i)
     int glob_result;
     char *vl;
 
+    U_DEBUG("Globbing pattern [%s]\n", pattern);
     glob_result = glob(pattern, GLOB_ERR, nullptr, &globs);
     if (!check_glob_result(glob_result, args->args[0]))
         return false;
@@ -45,7 +46,6 @@ bool process_globbing(char *pattern, args_t *args, size_t *toks_i)
         args->sz++;
     }
     globfree(&globs);
-    *toks_i += 1;
     return true;
 }
 
@@ -57,8 +57,6 @@ bool handle_tilde(ef_t *ef, token_t *tok, args_t *args)
     size_t tilde_pos = strcspn(tok->str, "~");
 
     tok->str[tok->sz] = '\0';
-    if (!ensure_args_capacity(args))
-        return false;
     home = get_env_value(ef->env, "HOME");
     if (home != NULL)
         final_str = get_env_value(ef->env, "HOME");
@@ -78,8 +76,10 @@ bool process_args(ast_t *node, args_t *args, size_t *toks_i, ef_t *ef)
 
     if (!ensure_args_capacity(args))
         return false;
-    if (tok.type == T_STAR || strcspn(tok.str, "[]?") != strlen(tok.str))
+    if (tok.type == T_STAR || strcspn(tok.str, "[]?") != strlen(tok.str)) {
+        tok.str[tok.sz] = '\0';
         return (process_globbing(tok.str, args, toks_i));
+    }
     if (tok.type == T_TILDE)
         return handle_tilde(ef, &tok, args);
     handle_var_case(node, ef->exec_ctx, toks_i, args);
