@@ -28,6 +28,7 @@ const tokens_list_t TOKENS_LIST[] = {
     { T_REDIRECT, ">", 1, "T_REDIRECT" },
     { T_HEREDOC, "<<", 2, "T_HEREDOC" },
     { T_IN_REDIRECT, "<", 1, "T_IN_REDIRECT" },
+    { T_BACKSLASH, "\\", 1, "T_BACKSLASH" },
     { T_NEWLINE, "\n", 1, "T_NEWLINE"},
     { T_STAR, "*", 1, "T_STAR"},
     { T_EOF, "\0", 1, "T_EOF" }

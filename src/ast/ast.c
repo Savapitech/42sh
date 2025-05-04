@@ -18,9 +18,9 @@ static
 ast_t *parse_arg(ast_ctx_t *ctx, ast_t *node)
 {
     ctx->act_tok = get_next_token(ctx);
-    if (ctx->act_tok.type == T_SEMICOLON)
+    if (ctx->act_tok.type & (T_SEMICOLON | T_NEWLINE))
         return node;
-    if (*ctx->act_tok.str == '\\') {
+    if (ctx->act_tok.type == T_BACKSLASH) {
         ctx->act_tok = get_next_token(ctx);
         if (ctx->act_tok.type == T_EOF)
             return node;

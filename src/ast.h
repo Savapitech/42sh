@@ -37,10 +37,11 @@ typedef enum size_t {
     T_AT = 1 << 15, // <
     T_WHILE = 1 << 16, // while
     T_STAR = 1 << 18, // *
-    T_NEWLINE = 1 << 19, // \n
-    T_EOF = 1 << 20, // \0
-    T_ARG = 1 << 21,
-    T_INVALID = 1 << 22
+    T_BACKSLASH = 1 << 19,
+    T_NEWLINE = 1 << 20, // \n
+    T_EOF = 1 << 21, // \0
+    T_ARG = 1 << 22,
+    T_INVALID = 1 << 23
 } token_type_t;
 
 typedef enum {
