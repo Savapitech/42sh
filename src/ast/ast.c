@@ -62,6 +62,8 @@ ast_t *fill_cmd_node(ast_ctx_t *ctx)
         malloc(sizeof *node->vector.tokens * node->vector.cap);
     if (node->vector.tokens == NULL)
         return nullptr;
+    if (!parse_special_args(ctx))
+        return nullptr;
     node->tok = ctx->act_tok;
     node->vector.tokens[0] = ctx->act_tok;
     node->vector.sz = 1;
