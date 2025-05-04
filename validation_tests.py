@@ -303,4 +303,14 @@ TESTS = [
         depends_on=("ALIAS",)
     ),
 
+    Test(
+        key="BUILTIN_ERR",
+        name="invalid builtin usage",
+        cmds=[
+            "cd too many args here\n",
+            "unsetenv\n",
+            "setenv ONLYKEY\n",
+            ],
+        depends_on=("CD", "ENV")
+    ),
 ]
