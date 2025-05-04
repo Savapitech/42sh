@@ -229,4 +229,19 @@ TESTS = [
         ],
         depends_on=()
     ),
+
+    Test(
+        key="EXPR",
+        name="expr builtin command",
+        cmds=[
+            "expr 1 + 2",
+            "expr 4 - 2",
+            "expr 3 \\* 5",
+            "expr 5 = 5",
+            "expr 5 \\< 10",
+            "expr 5 \\> 3",
+            "expr\n",
+        ],
+        depends_on=("ARGS",)
+    ),
 ]
