@@ -200,7 +200,7 @@ int visitor(char *buffer, exec_ctx_t *exec_ctx)
         return RETURN_FAILURE;
     result = visitor_launcher(&ef);
     if (ef.flags & F_EXIT)
-        builtins_exit(&ef, NULL);
+        builtins_exit(&ef, nullptr);
     free_ast(&ctx);
     return result == -1 ? RETURN_FAILURE : result;
 }
