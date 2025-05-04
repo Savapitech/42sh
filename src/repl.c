@@ -10,9 +10,11 @@
 #include <termios.h>
 #include <unistd.h>
 
+#include "common.h"
 #include "exec.h"
 #include "u_str.h"
 #include "vt100_esc_codes.h"
+
 
 void print_shell_prompt(exec_ctx_t *exec_ctx)
 {
@@ -23,7 +25,7 @@ void print_shell_prompt(exec_ctx_t *exec_ctx)
     if (ps1 == nullptr) {
         if (gethostname(hostname, 64) < 0)
             return;
-        printf(BLUE "┌─[" GREEN "%s" RESET "@" CYAN "%s" BLUE "] "
+        printf(BLUE PROMPT_HEADER GREEN "%s" RESET "@" CYAN "%s" BLUE "] "
             RESET "-" BLUE " [" RESET "%s" BLUE
             "] " RESET "-" BLUE " [" YELLOW "%d" BLUE
             "]\n└─[" PURPLE "$" BLUE "] " RESET,

@@ -9,6 +9,7 @@
     #define COMMON_H
     #include "exec.h"
 
+    #define PROMPT_HEADER "┌─["
     #define IF_PROMPT "if? "
 
 enum {
