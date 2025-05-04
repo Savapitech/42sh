@@ -124,7 +124,7 @@ TESTS = [
             "echo kek | grep kek\n",
             "ls | grep Makefile\n",
             "who | wc -l\n",
-            "ls | | cat\n",  # Syntax error
+            "ls | | cat\n",
         ],
         depends_on=("ARGS",)
     ),
@@ -268,4 +268,39 @@ TESTS = [
             ],
         depends_on=("REDIR",)
     ),
+
+    Test(
+        key="REPEAT",
+        name="repeat loop",
+        cmds=[
+            "repeat 3 echo plop\n",
+            "repeat 3\n",
+            "repeat\n",
+            ],
+        depends_on=("ARGS",)
+    ),
+
+    Test(
+        key="FOREACH",
+        name="foreach loop",
+        cmds=[
+            "foreach i (1 2 3)\necho $i\nend\n",
+            "foreach i",
+            "foreach",
+        ],
+        depends_on=("ARGS",)
+    ),
+
+    Test(
+        key="WHICH",
+        name="which/where commands",
+        cmds=[
+            "which ls\n",
+            "which cd\n",
+            "alias ll ls\nwhere ll\n",
+            #"alias ll ls\nwhich ll\n",
+        ],
+        depends_on=("ALIAS",)
+    ),
+
 ]
