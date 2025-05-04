@@ -200,6 +200,41 @@ TESTS = [
         depends_on=()
     ),
 
+    Test(
+        key="QUOTES",
+        name="quotes handling",
+        cmds=[
+            "echo 'plop'\n",
+            "echo \"plop\"\n",
+            "echo 'plop kek'\n",
+            "echo \"plop kek\"\n",
+            "echo 'plop\"kek'\"\n",
+            "echo \"plop'kek\"'\n",
+            "echo \"Hello $USER\"\n",
+            "echo 'Hello $USER'\n",
+            "echo Hello $USER\n",
+            "echo \"$USER\"\n",
+            "echo '$USER'\n",
+            ],
+        depends_on=("ENV_EXPANSION",)
+    ),
+
+    Test(
+        key="VAR_INTERP",
+        name="variable assignment and interpolation",
+        cmds=[
+            "setenv FOO bar\n",
+            "echo $FOO\n",
+            "echo '$FOO'\n",
+            "echo \"$FOO\"\n",
+            "setenv BAR 'quoted value'\n",
+            "echo $BAR\n",
+            "unsetenv FOO\n",
+            "echo $FOO\n",
+        ],
+        depends_on=("ENV", "QUOTES")
+    ),
+
     ##Test(
     ##    key="BACKTICKS",
     ##    name="backticks",
