@@ -18,12 +18,19 @@ void print_shell_prompt(exec_ctx_t *exec_ctx)
 {
     env_t *env_ptr = exec_ctx->env;
     char const *ps1 = get_env_value(env_ptr, "PS1");
+    char hostname[64];
 
     if (ps1 == nullptr) {
-        printf(BLUE "┌─[" GREEN "%s" BLUE "] " RESET "-" BLUE " [" RESET "%s"
-            BLUE "]\n└─[" PURPLE "$" BLUE "] " RESET,
+        if (gethostname(hostname, 64))
+            return;
+        printf(BLUE "┌─[" GREEN "%s" RESET "@" CYAN "%s" BLUE "] "
+            RESET "-" BLUE " [" RESET "%s" BLUE
+            "] " RESET "-" BLUE " [" YELLOW "%d" BLUE
+            "]\n└─[" PURPLE "$" BLUE "] " RESET,
             get_env_value(env_ptr, "USER"),
-            get_env_value(env_ptr, "PWD"));
+            hostname,
+            get_env_value(env_ptr, "PWD"),
+            exec_ctx->history_command->sz);
     } else
         printf("%s", ps1);
 }
