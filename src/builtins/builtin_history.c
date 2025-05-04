@@ -12,6 +12,7 @@
 #include <string.h>
 
 #include "history.h"
+#include "u_str.h"
 #include "utils.h"
 
 /*
