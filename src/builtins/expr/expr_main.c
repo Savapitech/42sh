@@ -20,7 +20,8 @@ int builtins_expr(ef_t *ef[[gnu::unused]], char **args)
 
     for (; args[argc] != nullptr; argc++);
     if (argc < 2)
-        return fprintf(stderr, "%s: missing operand\n", args[0]), -1;
+        return fprintf(stderr, "%s: missing operand\nTry 'expr --help' for"
+            " more information.", args[0]), -1;
     state = (expr_state_t){ .args = &args[1] };
     ret = expr_run(&state, 0, 0);
     if (ret.type == E_VAL_ERR)
