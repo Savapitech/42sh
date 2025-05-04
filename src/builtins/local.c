@@ -11,6 +11,7 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "builtins_handler.h"
 #include "common.h"
 #include "u_mem.h"
 #include "u_str.h"

@@ -20,6 +20,7 @@
 #include "repl.h"
 #include "shell.h"
 #include "u_str.h"
+#include "utils.h"
 
 __attribute__((unused))
 static
@@ -119,7 +120,7 @@ bool error_in_init(exec_ctx_t *exec_ctx)
     return false;
 }
 
-int shell(char **env_ptr)
+int shell(opt_t *opt, char **env_ptr)
 {
     alias_t alias = init_alias();
     env_t env = parse_env(env_ptr);

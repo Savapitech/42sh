@@ -7,6 +7,7 @@
 
 #ifndef SHELL_H
     #define SHELL_H
+    #include "common.h"
 
 typedef struct {
     char **cmd_history;
@@ -14,5 +15,5 @@ typedef struct {
     char *last_chdir;
 } history_t;
 
-int shell(char **env);
+int shell(opt_t *opt, char **env);
 #endif /* SHELL_H */

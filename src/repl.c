@@ -45,6 +45,7 @@ void init_shell_repl(exec_ctx_t *exec_ctx)
     signal(SIGINT, SIG_IGN);
     exec_ctx->is_running = true;
     if (isatty(STDIN_FILENO)) {
+        WRITE_CONST(STDOUT_FILENO, BLINKING_VERTICAL_CURSOR);
         tcgetattr(STDIN_FILENO, &repl_settings);
         exec_ctx->saved_term_settings = repl_settings;
         repl_settings.c_iflag = IXON;
