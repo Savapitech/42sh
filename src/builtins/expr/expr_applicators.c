@@ -99,6 +99,30 @@ expr_val_t apply_gt(expr_val_t *left, expr_val_t *right)
     return res;
 }
 
+static
+expr_val_t apply_eq(expr_val_t *left, expr_val_t *right)
+{
+    expr_val_t res = { .type = E_VAL_INT };
+
+    if (left->type == E_VAL_INT && right->type == E_VAL_INT)
+        res.val = left->val == right->val;
+    else
+        res.val = !strcmp(left->p, right->p);
+    return res;
+}
+
+static
+expr_val_t apply_neq(expr_val_t *left, expr_val_t *right)
+{
+    expr_val_t res = { .type = E_VAL_INT };
+
+    if (left->type == E_VAL_INT && right->type == E_VAL_INT)
+        res.val = left->val != right->val;
+    else
+        res.val = strcmp(left->p, right->p);
+    return res;
+}
+
 const expr_op_precedence_t OPERATOR_PRECEDENCE[] = {
     { .name = "+", .prec = 2, apply_add },
     { .name = "-", .prec = 2, apply_sub },
@@ -106,6 +130,8 @@ const expr_op_precedence_t OPERATOR_PRECEDENCE[] = {
     { .name = "/", .prec = 3, apply_div },
     { .name = "<", .prec = 1, apply_lt },
     { .name = ">", .prec = 1, apply_gt },
+    { .name = "==", .prec = 1, apply_eq },
+    { .name = "!=", .prec = 1, apply_neq },
 };
 
 const size_t OPERATOR_PRECEDENCE_COUNT = COUNT_OF(OPERATOR_PRECEDENCE);
