@@ -39,7 +39,7 @@ TESTS = [
     cmds=[
         "/bin/ls\n",
         "/../bin/ls\n",
-        # "~/../../bin/sh --version\n",
+        "~/../../bin/ls\n",
         "fixtures/exec.sh\n",
     ],
     depends_on=("ARGS",)
@@ -240,6 +240,15 @@ TESTS = [
             #"expr 5 = 5",
             #"expr 5 \\< 10",
             #"expr 5 \\> 3",
+        ],
+        depends_on=("ARGS",)
+    ),
+
+    Test(
+        key="TILDE",
+        name="tilde",
+        cmds=[
+            "echo ~",
         ],
         depends_on=("ARGS",)
     ),
