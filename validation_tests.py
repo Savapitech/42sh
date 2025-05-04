@@ -252,4 +252,20 @@ TESTS = [
         ],
         depends_on=("ARGS",)
     ),
+
+    Test(
+        key="GLOB",
+        name="globbing",
+        cmds=[
+            "ls *\n",
+            "echo *.nix\n",
+            "echo *file*\n", 
+            "echo fixtures/*.sh\n",
+            "echo doesnotexist*\n",
+            "ls *.c *.h\n",
+            "echo *.txt > out.txt\n",
+            "cat < out.txt\n",
+            ],
+        depends_on=("REDIR",)
+    ),
 ]
