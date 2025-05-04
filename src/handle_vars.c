@@ -112,7 +112,7 @@ bool check_quotes(ast_t *node, size_t *i, exec_ctx_t *ctx, args_t *args)
     }
     if (be_matched == '\"')
         return handle_quotes(node, i, ctx, args);
-    args->args[args->sz] = strdup(&node->vector.tokens[*i].str[1]);
+    args->args[args->sz] = strdup(node->vector.tokens[*i].str);
     return false;
 }
 
