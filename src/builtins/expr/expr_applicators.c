@@ -130,6 +130,7 @@ const expr_op_precedence_t OPERATOR_PRECEDENCE[] = {
     { .name = "/", .prec = 3, apply_div },
     { .name = "<", .prec = 1, apply_lt },
     { .name = ">", .prec = 1, apply_gt },
+    { .name = "=", .prec = 1, apply_eq },
     { .name = "==", .prec = 1, apply_eq },
     { .name = "!=", .prec = 1, apply_neq },
 };
