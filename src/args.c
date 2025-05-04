@@ -58,8 +58,6 @@ bool process_args(ast_t *node, args_t *args, size_t *toks_i, ef_t *ef)
     handle_var_case(node, ef->exec_ctx, toks_i, args);
     if (args->args[args->sz] == NULL)
         return false;
-    if (strchr(tok.str, '\\') != NULL)
-        args->args[args->sz] = tok.str;
     args->sz++;
     return true;
 }
