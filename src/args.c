@@ -50,7 +50,7 @@ bool process_globbing(char *pattern, args_t *args, size_t *toks_i)
 }
 
 static
-bool handle_tilde(ef_t *ef, token_t *tok, args_t *args, size_t *toks_i)
+bool handle_tilde(ef_t *ef, token_t *tok, args_t *args)
 {
     char *home;
     char *final_str;
@@ -69,7 +69,6 @@ bool handle_tilde(ef_t *ef, token_t *tok, args_t *args, size_t *toks_i)
     if (args->args[args->sz] == NULL)
         return false;
     args->sz++;
-    *toks_i += 1;
     return true;
 }
 
@@ -82,7 +81,7 @@ bool process_args(ast_t *node, args_t *args, size_t *toks_i, ef_t *ef)
     if (tok.type == T_STAR || strcspn(tok.str, "[]?") != strlen(tok.str))
         return (process_globbing(tok.str, args, toks_i));
     if (tok.type == T_TILDE)
-        return handle_tilde(ef, &tok, args, toks_i);
+        return handle_tilde(ef, &tok, args);
     handle_var_case(node, ef->exec_ctx, toks_i, args);
     if (args->args[args->sz] == NULL)
         return false;
