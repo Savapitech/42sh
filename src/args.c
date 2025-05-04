@@ -47,6 +47,23 @@ bool process_globbing(char *pattern, args_t *args, size_t *toks_i)
     return true;
 }
 
+static
+bool handle_tilde(ef_t *ef, args_t *args, size_t *toks_i)
+{
+    char *home;
+
+    if (!ensure_args_capacity(args))
+        return false;
+    home = get_env_value(ef->env, "HOME");
+    if (home != NULL)
+        args->args[args->sz] = get_env_value(ef->env, "HOME");
+    else
+        args->args[args->sz] = strdup("");
+    args->sz++;
+    *toks_i += 1;
+    return true;
+}
+
 bool process_args(ast_t *node, args_t *args, size_t *toks_i, ef_t *ef)
 {
     token_t tok = node->vector.tokens[*toks_i];
@@ -55,6 +72,8 @@ bool process_args(ast_t *node, args_t *args, size_t *toks_i, ef_t *ef)
         return false;
     if (tok.type == T_STAR || strcspn(tok.str, "[]?") != strlen(tok.str))
         return (process_globbing(tok.str, args, toks_i));
+    if (tok.type == T_TILDE)
+        return handle_tilde(ef, args, toks_i);
     handle_var_case(node, ef->exec_ctx, toks_i, args);
     if (args->args[args->sz] == NULL)
         return false;
