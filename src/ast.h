@@ -143,4 +143,5 @@ ast_t *parse_and(ast_ctx_t *ctx, ast_t *l_node);
 ast_t *parse_or(ast_ctx_t *ctx, ast_t *l_node);
 ast_t *parse_if(ast_ctx_t *ctx);
 ast_t *parse_condition_and(ast_ctx_t *ctx);
+ast_t *parse_pipe(ast_ctx_t *ctx, ast_t *l_node);
 #endif /* AST_H */

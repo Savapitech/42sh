@@ -15,11 +15,19 @@
 #include "ast.h"
 
 static
+bool parse_special_args(ast_ctx_t *ctx, ast_t *node)
+{
+    return true;
+}
+
+static
 ast_t *parse_arg(ast_ctx_t *ctx, ast_t *node)
 {
     ctx->act_tok = get_next_token(ctx);
     if (ctx->act_tok.type & (T_SEMICOLON | T_NEWLINE))
         return node;
+    if (!parse_special_args(ctx, node))
+        return nullptr;
     if (ctx->act_tok.type == T_BACKSLASH) {
         ctx->act_tok = get_next_token(ctx);
         if (ctx->act_tok.type == T_EOF)
@@ -106,22 +114,6 @@ ast_t *parse_pipe(ast_ctx_t *ctx, ast_t *l_node)
         if (!parse_pipe_childs(ctx, node))
             return nullptr;
     return node;
-}
-
-ast_t *parse_condition(ast_ctx_t *ctx)
-{
-    ast_t *l_node = parse_cmd(ctx);
-
-    if (l_node == NULL)
-        return nullptr;
-    switch (ctx->act_tok.type) {
-        case T_PIPE:
-            ctx->ast = parse_pipe(ctx, l_node);
-            break;
-        default:
-            return l_node;
-    }
-    return ctx->ast;
 }
 
 ast_t *parse_semi(ast_ctx_t *ctx)
