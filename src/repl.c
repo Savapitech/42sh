@@ -21,7 +21,7 @@ void print_shell_prompt(exec_ctx_t *exec_ctx)
     char hostname[64];
 
     if (ps1 == nullptr) {
-        if (gethostname(hostname, 64))
+        if (gethostname(hostname, 64) < 0)
             return;
         printf(BLUE "┌─[" GREEN "%s" RESET "@" CYAN "%s" BLUE "] "
             RESET "-" BLUE " [" RESET "%s" BLUE
