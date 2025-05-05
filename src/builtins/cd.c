@@ -73,6 +73,7 @@ int builtins_cd_chdir(ef_t *ef, char **args, char *path)
     }
     free(ef->exec_ctx->history->last_chdir);
     ef->exec_ctx->history->last_chdir = act_pwd;
+    set_env(ef->env, "PWD", path);
     return RETURN_SUCCESS;
 }
 
