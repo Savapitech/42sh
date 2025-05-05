@@ -47,8 +47,9 @@ int is_two_char_cmd(char *line, int coord_x)
             return 1;
         case '*':
             return 2;
+        default:
+            return -1;
     }
-    return -1;
 }
 
 static
