@@ -17,7 +17,7 @@ env:
 
 jobs:
   check_the_repository_state:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
       - name: Get branch name
@@ -58,7 +58,7 @@ jobs:
   sync_repository:
     needs: [ check_the_repository_state ]
     if: ${{ !github.event.pull_request }}
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - name: Checkout
         uses: actions/checkout@v4
