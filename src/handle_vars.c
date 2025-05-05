@@ -16,8 +16,6 @@
 #include "local.h"
 #include "exec.h"
 
-
-static
 char *get_values(exec_ctx_t *ctx, char *key)
 {
     char *r_char = NULL;
@@ -96,27 +94,6 @@ bool check_parentheses(ast_t *node, size_t *i, exec_ctx_t *ctx, args_t *args)
 }
 
 static
-bool handle_quotes(ast_t *node, size_t *i, exec_ctx_t *ctx, args_t *args)
-{
-    char *key = strdup(strchr(node->vector.tokens[*i].str, '$') + 1);
-    char *var = NULL;
-    int end_key = 0;
-
-    if (key == NULL){
-        args->args[args->sz] = strdup(&node->vector.tokens[*i].str[1]);
-        return false;
-    }
-    for (; key[end_key] && !isblank(key[end_key]); end_key++);
-    key[end_key] = '\0';
-    var = get_values(ctx, key);
-    if (var == NULL)
-        return free(key), true;
-    free(key);
-    args->args[args->sz] = var;
-    return false;
-}
-
-static
 bool check_quotes(ast_t *node, size_t *i, exec_ctx_t *ctx, args_t *args)
 {
     char be_matched = node->vector.tokens[*i].str[0];
@@ -127,13 +104,15 @@ bool check_quotes(ast_t *node, size_t *i, exec_ctx_t *ctx, args_t *args)
         node->vector.tokens[*i].str[node->vector.tokens[*i].sz - 1])
         return (fprintf(stderr, "Unmatched \'%c\'.\n", be_matched), true);
     node->vector.tokens[*i].str[node->vector.tokens[*i].sz - 1] = '\0';
+    memmove(&node->vector.tokens[*i].str[0],
+        &node->vector.tokens[*i].str[1], strlen(node->vector.tokens[*i].str));
     if (be_matched == '`'){
         handle_magic_quotes(node, ctx, i, args);
         return false;
     }
     if (be_matched == '\"')
         return handle_quotes(node, i, ctx, args);
-    args->args[args->sz] = strdup(&node->vector.tokens[*i].str[1]);
+    args->args[args->sz] = strdup(node->vector.tokens[*i].str);
     return false;
 }
 
