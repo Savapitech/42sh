@@ -5,6 +5,10 @@
 ## ./Makefile
 ##
 
+ifeq ($(USE_42),1)
+SHELL := /home/savalet/epitech/42sh/d
+endif
+
 MAKEFLAGS += -j
 
 BIN_NAME := 42sh
@@ -30,7 +34,7 @@ BUILD_DIR := .build
 CC := gcc
 
 CFLAGS += -Wall -Wextra -Werror=write-strings -iquote ulib -iquote src
-CFLAGS += -Wno-unused-parameter -Wunused-result -fanalyzer
+CFLAGS += -Wno-unused-parameter -Wunused-result
 CFLAGS += -Wp,-U_FORTIFY_SOURCE -Wcast-qual -Wduplicated-branches
 CFLAGS += -Wduplicated-cond -Wformat=2 -Wshadow -fno-builtin
 CFLAGS += -Wstrict-aliasing=0 -Wstrict-prototypes -Wunreachable-code
@@ -73,7 +77,7 @@ $$(NAME_$(strip $1)): $$(LIB_NAME_$(strip $1)) $$(OBJ_$(strip $1))
 endef
 
 $(eval $(call mk-profile, release, SRC, , $(BIN_NAME)))
-$(eval $(call mk-profile, debug, SRC, -D U_DEBUG_MODE -g3, debug))
+$(eval $(call mk-profile, debug, SRC, -D U_DEBUG_MODE -fanalyzer -g3, debug))
 $(eval $(call mk-profile, test, SRC, --coverage, test))
 $(eval $(call mk-profile, afl, SRC, -D AFL_MODE, afl_runner))
 
