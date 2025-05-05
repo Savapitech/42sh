@@ -81,9 +81,9 @@ int shell_loop(int is_a_tty, exec_ctx_t *exec_ctx)
 {
     buff_t buff = { .str = nullptr, 0, .cap = BUFF_INIT_SZ };
 
+    init_shell_repl(exec_ctx);
     if (exec_ctx->opt->cmd != nullptr)
         return visitor(exec_ctx->opt->cmd, exec_ctx);
-    init_shell_repl(exec_ctx);
     while (true) {
         write_prompt(is_a_tty, exec_ctx);
         if (!change_shell_command(&buff, exec_ctx))
@@ -153,7 +153,7 @@ int shell(opt_t *opt, char **env_ptr)
         return RETURN_FAILURE;
     U_DEBUG_CALL(debug_env_entries, &env);
     shell_result = shell_loop(isatty(exec_ctx.read_fd), &exec_ctx);
-    if (isatty(exec_ctx.read_fd)) {
+    if (opt->cmd == NULL && isatty(exec_ctx.read_fd)) {
         WRITE_CONST(STDOUT_FILENO, "exit\n");
         restore_term_flags(&exec_ctx);
     }
