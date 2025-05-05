@@ -18,7 +18,7 @@ stdenv.mkDerivation {
   '';
 
   meta = {
-    description = "Epitech shell";
+    description = "Epitech 42sh";
     license = [ ];
     mainProgram = "42sh";
     platforms = lib.platforms.unix;
