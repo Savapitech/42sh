@@ -7,6 +7,7 @@
 
 #include <getopt.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "common.h"
 #include "debug.h"
@@ -30,7 +31,7 @@ bool parse_args(opt_t *opt, int ac, char **av)
             case 'h':
                 exit((print_usages(stdout, av[0]), RETURN_SUCCESS));
             case 'c':
-                opt->cmd = optarg;
+                opt->cmd = strdup(optarg);
                 break;
             default:
                 return print_usages(stderr, av[0]), false;
@@ -49,7 +50,7 @@ int main(int ac, char **av, char **env)
 {
     opt_t opt = { 0, .script_file = nullptr, .cmd = nullptr };
 
-    U_DEBUG_MSG("Debug mode activated.\n");
+    U_DEBUG_MSG("Debug mode altivated.\n");
     if (!parse_args(&opt, ac, av))
         return RETURN_FAILURE;
     return shell(&opt, env);

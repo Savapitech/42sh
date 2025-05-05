@@ -81,6 +81,8 @@ int shell_loop(int is_a_tty, exec_ctx_t *exec_ctx)
 {
     buff_t buff = { .str = nullptr, 0, .cap = BUFF_INIT_SZ };
 
+    if (exec_ctx->opt->cmd != nullptr)
+        return visitor(exec_ctx->opt->cmd, exec_ctx);
     init_shell_repl(exec_ctx);
     while (true) {
         write_prompt(is_a_tty, exec_ctx);

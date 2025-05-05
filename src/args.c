@@ -76,7 +76,7 @@ bool process_args(ast_t *node, args_t *args, size_t *toks_i, ef_t *ef)
 
     if (!ensure_args_capacity(args))
         return false;
-    if (tok.type == T_STAR || strcspn(tok.str, "[]?") != strlen(tok.str)) {
+    if (tok.type == T_STAR) {
         tok.str[tok.sz] = '\0';
         return (process_globbing(tok.str, args, toks_i));
     }
