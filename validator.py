@@ -82,10 +82,10 @@ class Test:
             result_tcsh.exit_code = 84
 
         if result_42sh == result_tcsh:
-            print("\033[32m.\033[0m", end='') # ]]
+            print("\033[32m.\033[0m", end='', flush=True) # ]]
             return None
 
-        print("\033[31m.\033[0m", end='') # ]]
+        print("\033[31m.\033[0m", end='', flush=True) # ]]
         return cmd, result_42sh, result_tcsh
 
     def run(self, test_map, tested_bin) -> bool:
