@@ -28,8 +28,8 @@ const tokens_list_t TOKENS_LIST[] = {
     { T_REDIRECT, ">", 1, "T_REDIRECT" },
     { T_HEREDOC, "<<", 2, "T_HEREDOC" },
     { T_IN_REDIRECT, "<", 1, "T_IN_REDIRECT" },
+    { T_BACKSLASH, "\\", 1, "T_BACKSLASH" },
     { T_NEWLINE, "\n", 1, "T_NEWLINE"},
-    { T_STAR, "*", 1, "T_STAR"},
     { T_EOF, "\0", 1, "T_EOF" }
 };
 
@@ -147,7 +147,7 @@ token_t get_next_token(ast_ctx_t *ctx)
     while ((*ctx->str && !found_token && (!isblank(*ctx->str) ||
         check_closable(actual_token))))
         get_arg_token(ctx, &found_token, actual_token);
-    U_DEBUG("Token T_ARG          [%.*s]%d\n", (int)(ctx->str - start), start);
+    U_DEBUG("Token T_ARG          [%.*s]\n", (int)(ctx->str - start), start);
     return (token_t){ .type = T_ARG, .str = start,
         .sz = (size_t)(ctx->str - start) };
 }

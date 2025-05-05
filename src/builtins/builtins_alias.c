@@ -4,15 +4,14 @@
 ** File description:
 ** history
 */
-#include <string.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
 
-#include "common.h"
-#include "env.h"
-#include "exec.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include "alias.h"
+#include "common.h"
+#include "exec.h"
 #include "utils.h"
 
 void free_alias(alias_t *alias)

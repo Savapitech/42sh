@@ -4,19 +4,20 @@
 ** File description:
 ** yes
 */
-#include <stdlib.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <string.h>
+
 #include <fcntl.h>
-#include <sys/wait.h>
 #include <signal.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/wait.h>
+#include <unistd.h>
 
 #include "builtins.h"
 #include "common.h"
 #include "exec.h"
-#include "u_str.h"
 #include "u_mem.h"
+#include "u_str.h"
 
 static
 int len_buffer(char **args)
@@ -31,13 +32,13 @@ int len_buffer(char **args)
 static
 char *define_prompt(char **args)
 {
-    char *buffer = NULL;
+    char *buffer = nullptr;
 
     if (args[1] == NULL)
         return u_strdup("y\n");
     buffer = malloc(sizeof(char) * (len_buffer(args) + 1));
     if (buffer == NULL)
-        return NULL;
+        return nullptr;
     u_bzero(buffer, len_buffer(args) + 1);
     strcpy(buffer, args[1]);
     buffer[strlen(buffer)] = ' ';
@@ -58,14 +59,12 @@ int builtins_yes(ef_t *ef, char **args)
     if (buffer == NULL)
         return RETURN_FAILURE;
     pid = fork();
-    if (pid == 0){
-        while (true){
-            signal(SIGINT, exit_child);
+    if (pid == 0) {
+        signal(SIGINT, exit_child);
+        while (true)
             write(ef->out_fd, buffer, strlen(buffer));
-        }
-        exit(RETURN_SUCCESS);
     } else
-        wait(NULL);
+        wait(nullptr);
     free(buffer);
     return RETURN_SUCCESS;
 }

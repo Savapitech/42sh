@@ -37,10 +37,12 @@ typedef enum size_t {
     T_AT = 1 << 15, // <
     T_WHILE = 1 << 16, // while
     T_STAR = 1 << 18, // *
-    T_NEWLINE = 1 << 19, // \n
-    T_EOF = 1 << 20, // \0
-    T_ARG = 1 << 21,
-    T_INVALID = 1 << 22
+    T_BACKSLASH = 1 << 19,
+    T_NEWLINE = 1 << 20, // \n
+    T_TILDE = 1 << 21, // ~
+    T_EOF = 1 << 22, // \0
+    T_ARG = 1 << 23,
+    T_INVALID = 1 << 24
 } token_type_t;
 
 typedef enum {
@@ -140,4 +142,6 @@ ast_t *parse_condition(ast_ctx_t *ctx);
 ast_t *parse_and(ast_ctx_t *ctx, ast_t *l_node);
 ast_t *parse_or(ast_ctx_t *ctx, ast_t *l_node);
 ast_t *parse_if(ast_ctx_t *ctx);
+ast_t *parse_condition_and(ast_ctx_t *ctx);
+ast_t *parse_pipe(ast_ctx_t *ctx, ast_t *l_node);
 #endif /* AST_H */

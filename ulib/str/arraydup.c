@@ -9,16 +9,16 @@
 
 char **arraydup(char **array)
 {
-    char **dup_array = NULL;
+    char **dup_array = nullptr;
     int i = 0;
 
-    if (array == NULL)
-        return NULL;
-    dup_array = malloc(sizeof(char *) * (my_array_len(array) + 1));
-    if (dup_array == NULL)
-        return NULL;
-    for (; array[i] != NULL; i++)
+    if (array == nullptr)
+        return nullptr;
+    dup_array = (char **)malloc(sizeof(char *) * (my_array_len(array) + 1));
+    if (dup_array == nullptr)
+        return nullptr;
+    for (; array[i] != nullptr; i++)
         dup_array[i] = u_strdup(array[i]);
-    dup_array[i] = NULL;
+    dup_array[i] = nullptr;
     return dup_array;
 }

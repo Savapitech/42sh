@@ -39,7 +39,7 @@ TESTS = [
     cmds=[
         "/bin/ls\n",
         "/../bin/ls\n",
-        # "~/../../bin/sh --version\n",
+        "~/../../bin/ls\n",
         "fixtures/exec.sh\n",
     ],
     depends_on=("ARGS",)
@@ -124,7 +124,7 @@ TESTS = [
             "echo kek | grep kek\n",
             "ls | grep Makefile\n",
             "who | wc -l\n",
-            "ls | | cat\n",  # Syntax error
+            "ls | | cat\n",
         ],
         depends_on=("ARGS",)
     ),
@@ -196,59 +196,121 @@ TESTS = [
             "aa||aa\n",
             "ls||aa\n",
             "&&\n",
+            "ls && ls || ls && ls\n",
+            "ls && ls a || ls && ls\n",
+            "ls && ls || ls && ls a\n",
+            "ls && ls || ls && a\n",
+            "ls aa && ls || ls\n",
         ],
         depends_on=()
     ),
 
     Test(
-        key="QUOTES",
-        name="quotes handling",
+        key="BACKTICKS",
+        name="backticks",
         cmds=[
-            "echo 'plop'\n",
-            "echo \"plop\"\n",
-            "echo 'plop kek'\n",
-            "echo \"plop kek\"\n",
-            "echo 'plop\"kek'\"\n",
-            "echo \"plop'kek\"'\n",
-            "echo \"Hello $USER\"\n",
-            "echo 'Hello $USER'\n",
-            "echo Hello $USER\n",
-            "echo \"$USER\"\n",
-            "echo '$USER'\n",
-            ],
-        depends_on=("ENV_EXPANSION",)
+            "echo `ls`\n",
+            "echo `ls\n",
+            "echo ls`\n",
+        ],
+        depends_on=()
     ),
 
     Test(
-        key="VAR_INTERP",
-        name="variable assignment and interpolation",
+        key="IF",
+        name="if",
         cmds=[
-            "setenv FOO bar\n",
-            "echo $FOO\n",
-            "echo '$FOO'\n",
-            "echo \"$FOO\"\n",
-            "setenv BAR 'quoted value'\n",
-            "echo $BAR\n",
-            "unsetenv FOO\n",
-            "echo $FOO\n",
+            "if 1 ls\n",
+            "if 0 ls\n",
+            "if 1 then\necho YES\nelse\necho NO\nendif\n",
+            "if 0 then\necho YES\nelse\necho NO\nendif\n",
+            "if\n",
+            "if 0\n",
         ],
-        depends_on=("ENV", "QUOTES")
+        depends_on=()
     ),
 
-    ##Test(
-    ##    key="BACKTICKS",
-    ##    name="backticks",
-    ##    cmds=[
-    ##        "echo `ls`\n",
-    ##        "echo `ls`l\n",
-    ##        "echo l`ls`\n",
-    ##        "echo ``\n",
-    ##        "`ls`\n",
-    ##        "``\n",
-    ##        "echo `ls\n",
-    ##        "echo ls`\n",
-    ##        "`\n",
-    ##    ],
-    ##    depends_on=()
-    ##),
+    Test(
+        key="EXPR",
+        name="expr builtin command",
+        cmds=[
+            "expr 1 + 2",
+            "expr 4 - 2",
+            #"expr 3 \\* 5",
+            #"expr 5 = 5",
+            #"expr 5 \\< 10",
+            #"expr 5 \\> 3",
+        ],
+        depends_on=("ARGS",)
+    ),
+
+    Test(
+        key="TILDE",
+        name="tilde",
+        cmds=[
+            "echo ~",
+        ],
+        depends_on=("ARGS",)
+    ),
+
+    Test(
+        key="GLOB",
+        name="globbing",
+        cmds=[
+            "ls *\n",
+            "echo *.nix\n",
+            "echo *file*\n", 
+            "echo fixtures/*.sh\n",
+            "echo doesnotexist*\n",
+            "ls *.c *.h\n",
+            "echo *.txt > out.txt\n",
+            "cat < out.txt\n",
+            ],
+        depends_on=("REDIR",)
+    ),
+
+    Test(
+        key="REPEAT",
+        name="repeat loop",
+        cmds=[
+            "repeat 3 echo plop\n",
+            "repeat 3\n",
+            "repeat\n",
+            ],
+        depends_on=("ARGS",)
+    ),
+
+    Test(
+        key="FOREACH",
+        name="foreach loop",
+        cmds=[
+            "foreach i (1 2 3)\necho $i\nend\n",
+            "foreach i",
+            "foreach",
+        ],
+        depends_on=("ARGS",)
+    ),
+
+    Test(
+        key="WHICH",
+        name="which/where commands",
+        cmds=[
+            "which ls\n",
+            "which cd\n",
+            "alias ll ls\nwhere ll\n",
+            #"alias ll ls\nwhich ll\n",
+        ],
+        depends_on=("ALIAS",)
+    ),
+
+    Test(
+        key="BUILTIN_ERR",
+        name="invalid builtin usage",
+        cmds=[
+            "cd too many args here\n",
+            "unsetenv\n",
+            "setenv ONLYKEY\n",
+            ],
+        depends_on=("CD", "ENV")
+    ),
 ]

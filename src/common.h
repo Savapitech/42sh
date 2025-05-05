@@ -7,7 +7,9 @@
 
 #ifndef COMMON_H
     #define COMMON_H
-    #include "exec.h"
+    #include <stdint.h>
+
+    #define PROMPT_HEADER "┌─["
     #define IF_PROMPT "if? "
 
 enum {
@@ -15,5 +17,9 @@ enum {
     RETURN_FAILURE = 1
 };
 
-void free_everything(exec_ctx_t *exec_ctx);
+typedef struct {
+    uint8_t flags;
+    char *script_file;
+    char *cmd;
+} opt_t;
 #endif /* COMMON_H */

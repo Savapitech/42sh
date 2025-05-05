@@ -11,6 +11,9 @@
     #define ESC "\033"
     #define CFMT(n) ESC "[" #n "m"
 
+    // special
+    #define BLINKING_VERTICAL_CURSOR ESC "[5 q"
+
     // move
     #define MOVE_RIGHT(n) ESC "[" #n "C"
 

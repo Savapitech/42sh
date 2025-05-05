@@ -116,7 +116,7 @@ int visit_condition(ef_t *ef, ast_t *node)
         case T_OR:
             return visit_or(ef, node);
         default:
-            return RETURN_FAILURE;
+            return visit_list(ef, node);
     }
 }
 
@@ -200,7 +200,7 @@ int visitor(char *buffer, exec_ctx_t *exec_ctx)
         return RETURN_FAILURE;
     result = visitor_launcher(&ef);
     if (ef.flags & F_EXIT)
-        builtins_exit(&ef, NULL);
+        builtins_exit(&ef, nullptr);
     free_ast(&ctx);
     return result == -1 ? RETURN_FAILURE : result;
 }

@@ -9,6 +9,19 @@
 #ifndef BUILTINS_H
     #define BUILTINS_H
     #include "exec.h"
+    #include "u_str.h"
+
+typedef struct {
+    char **cmds;
+    size_t size;
+    size_t cap;
+} cmd_block_t;
+
+typedef struct {
+    buff_t *buff;
+    bool in_else;
+    ef_t *ef;
+} if_ctx_t;
 
 typedef struct {
     char const *name;

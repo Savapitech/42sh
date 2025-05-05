@@ -16,6 +16,7 @@
 
 #include "common.h"
 #include "readline.h"
+#include "debug.h"
 #include "repl.h"
 #include "u_str.h"
 
@@ -70,23 +71,24 @@ bool ensure_buff_capacity(buff_t *buff)
 }
 
 static
-bool append_null_terminator(buff_t *buff)
+bool append_null_terminator(buff_t *buff, exec_ctx_t *exec_ctx)
 {
     if (!ensure_buff_av_capacity(buff, 1))
         return false;
     buff->str[buff->sz - 1] = '\0';
     buff->sz++;
-    if (isatty(STDIN_FILENO))
+    if (isatty(exec_ctx->read_fd))
         WRITE_CONST(STDOUT_FILENO, "\n");
     return true;
 }
 
 static
-int8_t handle_line_buff(buff_t *buff, char *read_buff, ssize_t read_size)
+int8_t handle_line_buff(exec_ctx_t *exec_ctx, buff_t *buff, char *read_buff,
+    ssize_t read_size)
 {
-    if (handle_keys(buff, read_buff))
+    if (handle_keys(exec_ctx, buff, read_buff))
         return RETURN_SUCCESS;
-    if (isatty(STDIN_FILENO) && str_printable(read_buff, read_size))
+    if (isatty(exec_ctx->read_fd) && str_printable(read_buff, read_size))
         write(STDOUT_FILENO, read_buff, read_size);
     if (!ensure_buff_av_capacity(buff, read_size))
         return RETURN_FAILURE;
@@ -96,7 +98,7 @@ int8_t handle_line_buff(buff_t *buff, char *read_buff, ssize_t read_size)
     return -1;
 }
 
-bool readline(buff_t *buff)
+bool readline(exec_ctx_t *exec_ctx, buff_t *buff, int fd)
 {
     char read_buff[2] = "";
     ssize_t read_size = 0;
@@ -105,13 +107,13 @@ bool readline(buff_t *buff)
         return false;
     while (strchr(read_buff, '\n') == NULL && *read_buff != '\r') {
         memset(read_buff, '\0', sizeof read_buff);
-        read_size = read(STDIN_FILENO, &read_buff, sizeof read_buff - 1);
+        read_size = read(fd, &read_buff, sizeof read_buff - 1);
         if (read_size < 0)
             return false;
         if (read_size == 0)
             return true;
-        if (handle_line_buff(buff, read_buff, read_size) > -1)
+        if (handle_line_buff(exec_ctx, buff, read_buff, read_size) > -1)
             return true;
     }
-    return append_null_terminator(buff);
+    return append_null_terminator(buff, exec_ctx);
 }

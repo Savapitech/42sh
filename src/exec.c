@@ -13,13 +13,13 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+#include "args.h"
 #include "ast.h"
 #include "builtins.h"
 #include "common.h"
 #include "debug.h"
 #include "env.h"
 #include "exec.h"
-#include "globbing.h"
 #include "path.h"
 #include "repl.h"
 #include "u_mem.h"
@@ -75,7 +75,7 @@ char **parse_args(ef_t *ef, ast_t *node)
         * DEFAULT_ARGS_CAP), .sz = 0, .cap = DEFAULT_ARGS_CAP };
 
     if (!args.args)
-        return NULL;
+        return nullptr;
     for (size_t i = 0; i < node->vector.sz; i++) {
         if (ef->skip_sz > 0 && i >= ef->skip_i && i < ef->skip_i + ef->skip_sz)
             continue;
@@ -83,8 +83,8 @@ char **parse_args(ef_t *ef, ast_t *node)
             return free((void *)args.args), NULL;
     }
     if (!ensure_args_capacity(&args))
-        return NULL;
-    args.args[args.sz] = NULL;
+        return nullptr;
+    args.args[args.sz] = nullptr;
     return args.args;
 }
 

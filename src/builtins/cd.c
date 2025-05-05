@@ -43,7 +43,7 @@ char *get_current_dir(void)
     size_t max_it = 100;
 
     if (!buffer)
-        return NULL;
+        return nullptr;
     while (getcwd(buffer, size) == NULL && max_it > 0) {
         if (errno != ERANGE)
             return (free(buffer), NULL);
@@ -82,7 +82,7 @@ int builtins_cd(ef_t *ef, char **args)
 
     if (!(ef->out_fd == STDOUT_FILENO || ef->p_i == ef->p_sz - 1))
         return RETURN_SUCCESS;
-    if (path == NULL || u_strcmp(args[1], "~") == 0)
+    if (path == NULL)
         path = get_env_value(ef->env, "HOME");
     if (path == NULL)
         return RETURN_FAILURE;

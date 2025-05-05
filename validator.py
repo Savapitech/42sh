@@ -66,7 +66,7 @@ class Test:
         key: str,
         name: str,
         cmds: list[str],
-        depends_on: tuple[str, ...] = ()
+        depends_on: tuple[str, ...] = (),
     ):
         self.key = key
         self.name = name
@@ -74,8 +74,8 @@ class Test:
         self.depends_on = depends_on
         self.has_run = False
 
-    def _run_each_cmd(self, cmd: str):
-        result_42sh = run_shell(["./42sh"], cmd)
+    def _run_each_cmd(self, cmd: str, tested_bin):
+        result_42sh = run_shell([tested_bin], cmd)
         result_tcsh = run_shell(["tcsh"], cmd)
 
         if result_42sh.exit_code == 84 and result_tcsh.exit_code != 0:
@@ -88,7 +88,7 @@ class Test:
         print("\033[31m.\033[0m", end='') # ]]
         return cmd, result_42sh, result_tcsh
 
-    def run(self, test_map) -> bool:
+    def run(self, test_map, tested_bin) -> bool:
         if self.has_run:
             return True
 
@@ -104,7 +104,7 @@ class Test:
                 continue
 
             if not dep.has_run:
-                success &= dep.run(test_map)
+                success &= dep.run(test_map, tested_bin)
                 if not success:
                     return False
 
@@ -112,7 +112,7 @@ class Test:
         failures = []
 
         for cmd in self.cmds:
-            if (failure := self._run_each_cmd(cmd)) is not None:
+            if (failure := self._run_each_cmd(cmd, tested_bin)) is not None:
                 failures.append(failure)
         if not failures:
             print(" \033[32mOK\033[0m") # ]]
@@ -130,7 +130,10 @@ def main():
 
     success = True
     for test in TESTS:
-        success &= test.run(test_map=test_map)
+        success &= test.run(
+            test_map=test_map,
+            tested_bin=sys.argv[1] if len(sys.argv) > 1 else "./42sh"
+        )
 
     return not success
 

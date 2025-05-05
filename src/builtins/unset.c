@@ -5,14 +5,12 @@
 ** unset
 */
 
-#include <ctype.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
 #include "common.h"
-#include "env.h"
 #include "exec.h"
 #include "u_str.h"
 

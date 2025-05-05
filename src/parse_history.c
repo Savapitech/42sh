@@ -4,20 +4,16 @@
 ** File description:
 ** his for history
 */
+
 #include <ctype.h>
-#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <string.h>
+#include <unistd.h>
 
-#include "utils.h"
-#include "common.h"
-#include "env.h"
-#include "exec.h"
-#include "u_mem.h"
-#include "u_str.h"
 #include "history.h"
+#include "u_str.h"
+#include "utils.h"
 
 const parsing_history_t tab_fnct[] = {
     {"!!", &his_last_command},

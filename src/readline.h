@@ -10,7 +10,8 @@
     #define BUFF_INIT_SZ 16
     #include <stdbool.h>
 
+    #include "exec.h"
     #include "u_str.h"
 
-bool readline(buff_t *buff);
+bool readline(exec_ctx_t *exec_ctx, buff_t *buff, int fd);
 #endif /* READLINE */

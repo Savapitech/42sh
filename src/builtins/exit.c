@@ -12,7 +12,7 @@
 #include "env.h"
 #include "exec.h"
 
-int builtins_exit(ef_t *ef, char **args __attribute__((unused)))
+int builtins_exit(ef_t *ef, char **args[[gnu::unused]])
 {
     if (ef->flags & F_PIPE &&
         !(ef->out_fd == STDOUT_FILENO || ef->p_i == ef->p_sz - 1))

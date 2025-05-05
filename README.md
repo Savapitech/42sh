@@ -28,10 +28,9 @@
 - [x] redirections
 - [ ] line editing (move, del, multi-line)
 - [ ] input shortcut (^A,^E,^R,^V,^F,^B,...)
-- [ ] color highlighting in input
 - [ ] foreground/background jobs (`&`), (btln `fg`, `bg`,  `jobs`) 
-- [ ] while/for/foreach loops
-- [ ] if / cases
+- [x] while/foreach loops
+- [x] if
 - [x] `||`/`&&`
 - [ ] configuration file
 - [x] script with shebangs
@@ -40,19 +39,13 @@
 - [ ] `-e` exit on failure
 - [ ] `-n` (dry run mode)
 - [ ] `-h` help (open man?)
-- [ ] autocompletion of commands
 - [x] globbing
-- [ ] var interpreter
-- [ ] inhibitor
-- [ ] magic quotes
-- [ ] parenthesis (sub-commands)
-- [ ] direnv/wakatime integration
+- [x] var interpreter
+- [x] inhibitor
+- [x] magic quotes
+- [x] parenthesis
 - [x] command history (`history` btln)
-- [ ] arithmetric expansion (`$(( x + 1 ))`)
-- [ ] brace expansion: `{a,b,c}` and `{1..10}`
 - [x] heredocs
 - [ ]  functions (`:() { :|:& }`)
 - [ ] special env vars: `$?`, `$$`, ...
 - [ ] git integration (branch)
-- [ ] `x`, `e`, `o` & pipefail modes
-- [ ] file inquiry operators (`-d`, `f`, ...)

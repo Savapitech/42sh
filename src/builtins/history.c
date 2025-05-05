@@ -6,8 +6,8 @@
 */
 
 #include <stdio.h>
+
 #include "common.h"
-#include "env.h"
 #include "exec.h"
 
 int builtins_history(ef_t *ef, char **args __attribute__((unused)))

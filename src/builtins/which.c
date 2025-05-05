@@ -31,13 +31,15 @@ bool search_builtin(ef_t *ef, char *arg)
         if (u_strlen(BUILTINS[i].name) != (int)strlen(arg))
             continue;
         if (u_strcmp(BUILTINS[i].name, arg) == 0)
-            return dprintf(ef->out_fd, "%s is a shell built-in\n", arg), true;
+            return dprintf(ef->out_fd, "%s: shell built-in command.\n", arg),
+                true;
     }
     for (size_t i = 0; i < OOTHER_BUILTINS_SZ; i++) {
         if (u_strlen(OOTHER_BUILTINS[i]) != (int)strlen(arg))
             continue;
         if (u_strcmp(OOTHER_BUILTINS[i], arg) == 0)
-            return dprintf(ef->out_fd, "%s is a shell built-in\n", arg), true;
+            return dprintf(ef->out_fd, "%s: shell built-in command.\n", arg),
+                true;
     }
     return false;
 }
@@ -54,12 +56,13 @@ bool search_cmd(ef_t *ef, char *arg)
         return free(alias_path.str), NULL;
     parse_alias(&alias_path.str, &alias_path.sz, ef->exec_ctx->alias);
     if (strcmp(arg, alias_path.str) != 0)
-        return dprintf(ef->out_fd, "%s: 	aliased to %s\n", arg,
+        return dprintf(ef->out_fd, "%s:\t aliased to %s\n", arg,
             alias_path.str), true;
     if (search_builtin(ef, arg))
         return true;
     if (strcmp(arg, bin_path) != 0)
         return dprintf(ef->out_fd, "%s\n", bin_path), true;
+    fprintf(stderr, "%s: Command not found.\n", arg);
     free(alias_path.str);
     return true;
 }

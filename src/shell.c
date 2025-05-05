@@ -5,6 +5,7 @@
 ** _
 */
 
+#include <fcntl.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,7 +21,7 @@
 #include "repl.h"
 #include "shell.h"
 #include "u_str.h"
-#include "visitor.h"
+#include "utils.h"
 
 __attribute__((unused))
 static
@@ -45,20 +46,20 @@ void check_basic_error(char const *buffer)
 }
 
 static
-void write_prompt(int is_a_tty)
+void write_prompt(int is_a_tty, exec_ctx_t *exec_ctx)
 {
     if (is_a_tty)
-        WRITE_CONST(STDOUT_FILENO, SHELL_PROMPT);
+        print_shell_prompt(exec_ctx);
 }
 
 static
 bool change_shell_command(buff_t *buff, exec_ctx_t *exec_ctx)
 {
-    char *tmp_buff = NULL;
+    char *tmp_buff = nullptr;
     size_t buffer_len;
 
     buff->sz = 0;
-    if (!readline(buff))
+    if (!readline(exec_ctx, buff, exec_ctx->read_fd))
         return false;
     if (!buff->sz)
         return false;
@@ -78,15 +79,14 @@ bool change_shell_command(buff_t *buff, exec_ctx_t *exec_ctx)
 static
 int shell_loop(int is_a_tty, exec_ctx_t *exec_ctx)
 {
-    buff_t buff = { .str = NULL, 0, .cap = BUFF_INIT_SZ };
+    buff_t buff = { .str = nullptr, 0, .cap = BUFF_INIT_SZ };
 
     init_shell_repl(exec_ctx);
     while (true) {
-        write_prompt(is_a_tty);
+        write_prompt(is_a_tty, exec_ctx);
         if (!change_shell_command(&buff, exec_ctx))
             return exec_ctx->history->last_exit_code;
     }
-    free(exec_ctx->history_command);
     return free(buff.str), exec_ctx->history->last_exit_code;
 }
 
@@ -96,10 +96,10 @@ his_command_t *init_cmd_history(void)
     his_command_t *cmd_history = malloc(sizeof(his_command_t) * 100);
 
     if (cmd_history == NULL)
-        return NULL;
+        return nullptr;
     for (int i = 0; i != 100; i++){
-        cmd_history[i].arg = NULL;
-        cmd_history[i].command = NULL;
+        cmd_history[i].arg = nullptr;
+        cmd_history[i].command = nullptr;
         cmd_history[i].id = i;
     }
     cmd_history->sz = 0;
@@ -121,24 +121,37 @@ bool error_in_init(exec_ctx_t *exec_ctx)
     return false;
 }
 
-#include <signal.h>
-int shell(char **env_ptr)
+static
+int get_read_fd(opt_t *opt)
+{
+    int fd;
+
+    if (opt->script_file == NULL)
+        return STDIN_FILENO;
+    fd = open(opt->script_file, O_RDONLY);
+    if (fd < 0)
+        return perror(opt->script_file), -1;
+    return fd;
+}
+
+int shell(opt_t *opt, char **env_ptr)
 {
     alias_t alias = init_alias();
     env_t env = parse_env(env_ptr);
-    history_t history = { .cmd_history = NULL, .last_exit_code = 0,
-        .last_chdir = NULL};
+    history_t history = { .cmd_history = nullptr, .last_exit_code = 0,
+        .last_chdir = nullptr};
     his_command_t *cmd_history = init_cmd_history();
     local_t local = create_local();
-    exec_ctx_t exec_ctx = {.env = &env, .local = &local,
-        .history = &history, .history_command = cmd_history, .alias = &alias};
+    exec_ctx_t exec_ctx = {.env = &env, .local = &local, .opt = opt,
+        .read_fd = get_read_fd(opt), .history = &history,
+        .history_command = cmd_history, .alias = &alias};
     int shell_result;
 
-    if (error_in_init(&exec_ctx) == true)
+    if (exec_ctx.read_fd == -1 || (int)error_in_init(&exec_ctx))
         return RETURN_FAILURE;
     U_DEBUG_CALL(debug_env_entries, &env);
-    shell_result = shell_loop(isatty(STDIN_FILENO), &exec_ctx);
-    if (isatty(STDIN_FILENO)) {
+    shell_result = shell_loop(isatty(exec_ctx.read_fd), &exec_ctx);
+    if (isatty(exec_ctx.read_fd)) {
         WRITE_CONST(STDOUT_FILENO, "exit\n");
         restore_term_flags(&exec_ctx);
     }
