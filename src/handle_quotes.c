@@ -4,17 +4,15 @@
 ** File description:
 ** handle_quotes
 */
-#include <stdio.h>
-#include <string.h>
+
 #include <ctype.h>
-#include <unistd.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
 #include "ast.h"
-#include "env.h"
-#include "local.h"
 #include "exec.h"
-#include "u_str.h"
 
 static
 char *set_f_part(char *node_str)
@@ -23,16 +21,16 @@ char *set_f_part(char *node_str)
     int i = 0;
 
     if (f_part == NULL)
-        return NULL;
+        return nullptr;
     for (; f_part[i] && f_part[i] != '$'; i++);
     f_part[i] = '\0';
     return f_part;
 }
 
 static
-char *set_s_part(char *node_str, int len_f_part, ast_t *node, size_t *i)
+char *set_s_part(char *node_str, int len_f_part, ast_t *node, const size_t *i)
 {
-    int pointer_rank = len_f_part;
+    size_t pointer_rank = len_f_part;
 
     for (; pointer_rank < node->vector.tokens[*i].sz && node_str[pointer_rank]
         && !isblank(node_str[pointer_rank]); pointer_rank++);
@@ -59,7 +57,7 @@ static
 bool concat_var(char *var, args_t *args, ast_t *node, size_t *i)
 {
     char *f_part = set_f_part(node->vector.tokens[*i].str);
-    char *s_part = NULL;
+    char *s_part = nullptr;
 
     args->args[args->sz] = var;
     if (f_part == NULL)
@@ -70,7 +68,8 @@ bool concat_var(char *var, args_t *args, ast_t *node, size_t *i)
     return concat_and_free(var, f_part, s_part, args);
 }
 
-char *get_key(ast_t *node, size_t *i)
+static
+char *get_key(ast_t *node, const size_t *i)
 {
     size_t id = 0;
 
@@ -81,13 +80,13 @@ char *get_key(ast_t *node, size_t *i)
             return strndup(&node->vector.tokens[*i].str[id],
                 node->vector.tokens[*i].sz - id);
             }
-    return NULL;
+    return nullptr;
 }
 
 bool handle_var(ast_t *node, size_t *i, exec_ctx_t *ctx, args_t *args)
 {
     char *key = get_key(node, i);
-    char *var = NULL;
+    char *var = nullptr;
     int end_key = 0;
 
     if (key == NULL){
