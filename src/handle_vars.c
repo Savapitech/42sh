@@ -31,14 +31,6 @@ char *get_values(exec_ctx_t *ctx, char *key)
 }
 
 static
-char *handle_variable(ast_t *node, exec_ctx_t *ctx, size_t *i)
-{
-    (*i)++;
-    node->vector.tokens[*i].str[node->vector.tokens[*i].sz] = '\0';
-    return get_values(ctx, node->vector.tokens[*i].str);
-}
-
-static
 char *take_next_parenthese_arg(ast_t *node, size_t *in_str, size_t *i)
 {
     size_t end = 0;
@@ -100,6 +92,7 @@ bool format_quotes(ast_t *node, char be_matched, size_t *i)
 
     if (last_quote == NULL)
         return (fprintf(stderr, "Unmatched \'%c\'.\n", be_matched), false);
+    node->vector.sz -= 2;
     if (isblank(last_quote[1] || be_matched == '`')){
         last_quote[0] = '\0';
         return true;
@@ -129,7 +122,7 @@ bool check_quotes(ast_t *node, size_t *i, exec_ctx_t *ctx, args_t *args)
     if (be_matched == '`')
         return handle_magic_quotes(node, ctx, i, args);
     if (be_matched == '\"')
-        return handle_quotes(node, i, ctx, args);
+        return handle_var(node, i, ctx, args);
     args->args[args->sz] = strdup(node->vector.tokens[*i].str);
     return false;
 }
@@ -148,12 +141,7 @@ bool check_for_closable(ast_t *node, exec_ctx_t *ctx, size_t *i, args_t *args)
 
 void handle_var_case(ast_t *node, exec_ctx_t *ctx, size_t *i, args_t *args)
 {
-    if (node->vector.tokens[*i].type == T_VAR && *i + 1 < node->vector.sz){
-        args->args[args->sz] = handle_variable(node, ctx, i);
-        return;
-    }
     if (check_for_closable(node, ctx, i, args))
         return;
-    args->args[args->sz] = strndup(node->vector.tokens[*i].str,
-        node->vector.tokens[*i].sz);
+    handle_var(node, i, ctx, args);
 }

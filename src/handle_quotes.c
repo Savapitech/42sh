@@ -14,6 +14,7 @@
 #include "env.h"
 #include "local.h"
 #include "exec.h"
+#include "u_str.h"
 
 static
 char *set_f_part(char *node_str)
@@ -29,13 +30,14 @@ char *set_f_part(char *node_str)
 }
 
 static
-char *set_s_part(char *node_str, int len_f_part)
+char *set_s_part(char *node_str, int len_f_part, ast_t *node, size_t *i)
 {
     int pointer_rank = len_f_part;
 
-    for (; node_str[pointer_rank] && !isblank(node_str[pointer_rank]);
-    pointer_rank++);
-    return &node_str[pointer_rank];
+    for (; pointer_rank < node->vector.tokens[*i].sz && node_str[pointer_rank]
+        && !isblank(node_str[pointer_rank]); pointer_rank++);
+    return strndup(&node_str[pointer_rank],
+        node->vector.tokens[*i].sz - pointer_rank);
 }
 
 static
@@ -48,35 +50,51 @@ bool concat_and_free(char *var, char *f_part, char *s_part, args_t *args)
     strcpy(args->args[args->sz], f_part);
     strcat(args->args[args->sz], var);
     strcat(args->args[args->sz], s_part);
+    free(s_part);
     free(f_part);
     return false;
 }
 
 static
-bool concat_var(char *var, char *node_str, args_t *args)
+bool concat_var(char *var, args_t *args, ast_t *node, size_t *i)
 {
-    char *f_part = set_f_part(node_str);
+    char *f_part = set_f_part(node->vector.tokens[*i].str);
     char *s_part = NULL;
 
+    args->args[args->sz] = var;
     if (f_part == NULL)
         return true;
-    s_part = set_s_part(node_str, strlen(f_part));
+    s_part = set_s_part(node->vector.tokens[*i].str, strlen(f_part), node, i);
     if (s_part == NULL)
         return free(f_part), true;
     return concat_and_free(var, f_part, s_part, args);
 }
 
-bool handle_quotes(ast_t *node, size_t *i, exec_ctx_t *ctx, args_t *args)
+char *get_key(ast_t *node, size_t *i)
 {
-    char *key = strchr(node->vector.tokens[*i].str, '$');
+    size_t id = 0;
+
+    for (; node->vector.tokens[*i].str &&
+        id < node->vector.tokens[*i].sz; id++)
+        if (node->vector.tokens[*i].str[id] == '$'){
+            id++;
+            return strndup(&node->vector.tokens[*i].str[id],
+                node->vector.tokens[*i].sz - id);
+            }
+    return NULL;
+}
+
+bool handle_var(ast_t *node, size_t *i, exec_ctx_t *ctx, args_t *args)
+{
+    char *key = get_key(node, i);
     char *var = NULL;
     int end_key = 0;
 
     if (key == NULL){
-        args->args[args->sz] = strdup(node->vector.tokens[*i].str);
+        args->args[args->sz] = strndup(node->vector.tokens[*i].str,
+            node->vector.tokens[*i].sz);
         return false;
     }
-    key = strdup(&key[1]);
     if (key == NULL)
         return true;
     for (; key[end_key] && !isblank(key[end_key]); end_key++);
@@ -85,6 +103,5 @@ bool handle_quotes(ast_t *node, size_t *i, exec_ctx_t *ctx, args_t *args)
     free(key);
     if (var == NULL)
         return true;
-    args->args[args->sz] = var;
-    return concat_var(var, node->vector.tokens[*i].str, args);
+    return concat_var(var, args, node, i);
 }
