@@ -5,18 +5,17 @@
 ** magic_quotes
 */
 
+#include <fcntl.h>
 #include <glob.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
-#include <fcntl.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <unistd.h>
 
 #include "exec.h"
-#include "u_mem.h"
 
 static
 void exec_magic(ast_t *node, exec_ctx_t *ctx, size_t *i, int fd[2])
