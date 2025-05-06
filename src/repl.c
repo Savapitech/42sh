@@ -73,6 +73,11 @@ bool handle_keys(exec_ctx_t *exec_ctx, buff_t *buff, char const *read_buff)
         case CTRL('c'):
             ignore_sigint(exec_ctx);
             return false;
+        case CTRL('l'):
+            WRITE_CONST(STDOUT_FILENO, ESC "[2J");
+            WRITE_CONST(STDOUT_FILENO, ESC "[H");
+            print_shell_prompt(exec_ctx);
+            return false;
         default:
             return false;
     }
