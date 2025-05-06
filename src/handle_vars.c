@@ -100,7 +100,7 @@ bool format_quotes(ast_t *node, char be_matched, size_t *i)
 
     if (last_quote == NULL)
         return (fprintf(stderr, "Unmatched \'%c\'.\n", be_matched), false);
-    if (isblank(last_quote[1])){
+    if (isblank(last_quote[1] || be_matched == '`')){
         last_quote[0] = '\0';
         return true;
     } else
@@ -120,15 +120,14 @@ bool check_quotes(ast_t *node, size_t *i, exec_ctx_t *ctx, args_t *args)
 
     if (!strchr("\'\"`", node->vector.tokens[*i].str[0]))
         return true;
-    if (strlen(node->vector.tokens[*i].str) == 1 ||
-        !strchr(&node->vector.tokens[*i].str[1], be_matched))
+    if (node->vector.tokens[*i].sz == 1)
         return (fprintf(stderr, "Unmatched \'%c\'.\n", be_matched), true);
     memmove(&node->vector.tokens[*i].str[0],
         &node->vector.tokens[*i].str[1], node->vector.tokens[*i].sz);
-    if (be_matched == '`')
-        return handle_magic_quotes(node, ctx, i, args);
     if (!format_quotes(node, be_matched, i))
         return true;
+    if (be_matched == '`')
+        return handle_magic_quotes(node, ctx, i, args);
     if (be_matched == '\"')
         return handle_quotes(node, i, ctx, args);
     args->args[args->sz] = strdup(node->vector.tokens[*i].str);
