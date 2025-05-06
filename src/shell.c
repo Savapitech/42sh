@@ -80,7 +80,10 @@ static
 int shell_loop(int is_a_tty, exec_ctx_t *exec_ctx)
 {
     buff_t buff = { .str = nullptr, 0, .cap = BUFF_INIT_SZ };
+    struct termios repl_settings;
 
+    tcgetattr(STDIN_FILENO, &repl_settings);
+    exec_ctx->saved_term_settings = repl_settings;
     init_shell_repl(exec_ctx);
     if (exec_ctx->opt->cmd != nullptr)
         return visitor(exec_ctx->opt->cmd, exec_ctx);

@@ -11,7 +11,6 @@
 #include <unistd.h>
 
 #include "common.h"
-#include "exec.h"
 #include "repl.h"
 #include "u_str.h"
 #include "vt100_esc_codes.h"
@@ -40,30 +39,28 @@ void print_shell_prompt(exec_ctx_t *exec_ctx)
 
 void init_shell_repl(exec_ctx_t *exec_ctx)
 {
-    struct termios repl_settings;
-
-    tcgetattr(STDIN_FILENO, &repl_settings);
-    exec_ctx->saved_term_settings = repl_settings;
     exec_ctx->is_running = true;
     if (isatty(exec_ctx->read_fd)) {
         setvbuf(stdout, nullptr, _IONBF, 0);
         signal(SIGINT, SIG_IGN);
         WRITE_CONST(STDOUT_FILENO, BLINKING_VERTICAL_CURSOR);
-        repl_settings.c_iflag = IXON;
-        repl_settings.c_lflag = ~(ECHO | ICANON);
-        tcsetattr(STDIN_FILENO, TCSANOW, &repl_settings);
+        exec_ctx->saved_term_settings.c_iflag = IXON;
+        exec_ctx->saved_term_settings.c_lflag = ~(ECHO | ICANON);
+        tcsetattr(exec_ctx->read_fd, TCSANOW, &exec_ctx->saved_term_settings);
     }
 }
 
 void restore_term_flags(exec_ctx_t *exec_ctx)
 {
-    tcsetattr(STDIN_FILENO, TCSANOW, &exec_ctx->saved_term_settings);
+    if (!isatty(exec_ctx->read_fd))
+        return;
+    tcsetattr(exec_ctx->read_fd, TCSANOW, &exec_ctx->saved_term_settings);
 }
 
 static
 void ignore_sigint(exec_ctx_t *exec_ctx)
 {
-    WRITE_CONST(STDIN_FILENO, "\n");
+    WRITE_CONST(exec_ctx->read_fd, "\n");
     print_shell_prompt(exec_ctx);
 }
 
