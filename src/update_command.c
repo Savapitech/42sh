@@ -48,6 +48,8 @@ size_t update_command(char **buffer,
     *buffer += strspn(*buffer, " \t");
     if (**buffer == '\0')
         return RETURN_SUCCESS;
+    if (strncmp(*buffer, "#!", 2) == 0)
+        return RETURN_SUCCESS;
     if (parse_history(buffer, &buffer_len,
         buffer_sz, &exec_ctx->history_command) == 84)
         return RETURN_SUCCESS;
