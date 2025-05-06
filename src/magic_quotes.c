@@ -106,17 +106,16 @@ void get_output(int fd[2], args_t *args)
     put_output(fd, args, to_return, sz);
 }
 
-char *handle_magic_quotes(ast_t *node, exec_ctx_t *ctx,
+bool handle_magic_quotes(ast_t *node, exec_ctx_t *ctx,
     size_t *i, args_t *args)
 {
-    char *to_return = 0;
     int fd[2];
 
     if (pipe(fd) == -1)
-        return NULL;
+        return true;
     exec_magic(node, ctx, i, fd);
     close(fd[1]);
     get_output(fd, args);
     close(fd[0]);
-    return to_return;
+    return false;
 }

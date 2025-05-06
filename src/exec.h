@@ -53,8 +53,8 @@ int exec_the_args(ef_t *ef, char **args);
 void exit_child(int sig __attribute__((unused)));
 int visit_loop(ef_t *ef, ast_t *node);
 void handle_var_case(ast_t *node, exec_ctx_t *ctx, size_t *i, args_t *args);
-char *handle_magic_quotes(ast_t *node, exec_ctx_t *ctx, size_t *i,
-    args_t *args);
+bool handle_magic_quotes(ast_t *node, exec_ctx_t *ctx,
+    size_t *i, args_t *args);
 bool handle_quotes(ast_t *node, size_t *i, exec_ctx_t *ctx, args_t *args);
 char *get_values(exec_ctx_t *ctx, char *key);
 #endif /* EXEC_H */

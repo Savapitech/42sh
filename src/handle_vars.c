@@ -94,22 +94,41 @@ bool check_parentheses(ast_t *node, size_t *i, exec_ctx_t *ctx, args_t *args)
 }
 
 static
+bool format_quotes(ast_t *node, char be_matched, size_t *i)
+{
+    char *last_quote = strchr(node->vector.tokens[*i].str, be_matched);
+
+    if (last_quote == NULL)
+        return (fprintf(stderr, "Unmatched \'%c\'.\n", be_matched), false);
+    if (isblank(last_quote[1])){
+        last_quote[0] = '\0';
+        return true;
+    } else
+        node->vector.tokens[*i].str[node->vector.tokens[*i].sz - 1] = '\0';
+    memmove(&last_quote[0], &last_quote[1], strlen(last_quote));
+    last_quote = strchr(node->vector.tokens[*i].str, be_matched);
+    if (strchr(node->vector.tokens[*i].str, be_matched))
+        return (fprintf(stderr, "Unmatched \'%c\'.\n", be_matched), false);
+    node->vector.tokens[*i].str[node->vector.tokens[*i].sz - 2] = '\0';
+    return true;
+}
+
+static
 bool check_quotes(ast_t *node, size_t *i, exec_ctx_t *ctx, args_t *args)
 {
     char be_matched = node->vector.tokens[*i].str[0];
 
     if (!strchr("\'\"`", node->vector.tokens[*i].str[0]))
         return true;
-    if (strlen(node->vector.tokens[*i].str) == 1 || be_matched !=
-        node->vector.tokens[*i].str[node->vector.tokens[*i].sz - 1])
+    if (strlen(node->vector.tokens[*i].str) == 1 ||
+        !strchr(&node->vector.tokens[*i].str[1], be_matched))
         return (fprintf(stderr, "Unmatched \'%c\'.\n", be_matched), true);
-    node->vector.tokens[*i].str[node->vector.tokens[*i].sz - 1] = '\0';
     memmove(&node->vector.tokens[*i].str[0],
-        &node->vector.tokens[*i].str[1], strlen(node->vector.tokens[*i].str));
-    if (be_matched == '`'){
-        handle_magic_quotes(node, ctx, i, args);
-        return false;
-    }
+        &node->vector.tokens[*i].str[1], node->vector.tokens[*i].sz);
+    if (be_matched == '`')
+        return handle_magic_quotes(node, ctx, i, args);
+    if (!format_quotes(node, be_matched, i))
+        return true;
     if (be_matched == '\"')
         return handle_quotes(node, i, ctx, args);
     args->args[args->sz] = strdup(node->vector.tokens[*i].str);
