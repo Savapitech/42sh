@@ -24,7 +24,7 @@ const parsing_history_t tab_fnct[] = {
 };
 
 static
-int cmd_history_is_in(char *line)
+int cmd_history_is_in(const char *line)
 {
     for (int i = 0; line[i] != 0; i++)
         if (line[i] == CHAR_HIST &&
@@ -35,7 +35,7 @@ int cmd_history_is_in(char *line)
 }
 
 static
-int is_two_char_cmd(char *line, int coord_x)
+int is_two_char_cmd(const char *line, int coord_x)
 {
     if (line[coord_x] != CHAR_HIST)
         return -1;
@@ -58,11 +58,11 @@ int choose_id_or_last(his_variable_t *his_variable, int index_str, char *str)
     int mode = 0;
     const int cpy_index = index_str;
 
-    if (str[index_str] != CHAR_HIST && is_a_token(str, index_str + 1) == false)
+    if (str[index_str] != CHAR_HIST && !is_a_token(str, index_str + 1))
         return -1;
     index_str++;
     for (; str[index_str] != 0; index_str++){
-        if (is_a_token(str, index_str) == true || isblank(str[index_str]))
+        if ((int)is_a_token(str, index_str) || isblank(str[index_str]))
             break;
         if (!isdigit(str[index_str]))
             mode = 1;
