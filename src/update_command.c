@@ -4,10 +4,14 @@
 ** File description:
 ** update_command
 */
-#include "history.h"
+
+#include <string.h>
+
 #include "builtins_handler.h"
-#include "u_str.h"
 #include "common.h"
+#include "debug.h"
+#include "history.h"
+#include "u_str.h"
 
 static int check_cmd(char *cmd)
 {
@@ -41,6 +45,9 @@ size_t update_command(char **buffer,
     buffer_len = u_strlen(*buffer);
     if (buffer_len < 2)
         return RETURN_FAILURE;
+    *buffer += strspn(*buffer, " \t");
+    if (**buffer == '\0')
+        return RETURN_SUCCESS;
     if (parse_history(buffer, &buffer_len,
         buffer_sz, &exec_ctx->history_command) == 84)
         return RETURN_SUCCESS;
