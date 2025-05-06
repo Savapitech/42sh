@@ -15,8 +15,8 @@
 #include <unistd.h>
 
 #include "common.h"
-#include "readline.h"
 #include "debug.h"
+#include "readline.h"
 #include "repl.h"
 #include "u_str.h"
 
@@ -79,6 +79,7 @@ bool append_null_terminator(buff_t *buff, exec_ctx_t *exec_ctx)
     buff->sz++;
     if (isatty(exec_ctx->read_fd))
         WRITE_CONST(STDOUT_FILENO, "\n");
+    U_DEBUG("Buffer [%s]\n", buff->str);
     return true;
 }
 
