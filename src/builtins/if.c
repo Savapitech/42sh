@@ -94,7 +94,6 @@ bool read_if_blocks(ef_t *ef, if_ctx_t *ctx, cmd_block_t *then_blk,
 {
     bool in_else = false;
 
-    init_shell_repl(ef->exec_ctx);
     while (true) {
         ctx->buff->sz = 0;
         if (isatty(ef->exec_ctx->read_fd))
@@ -112,7 +111,6 @@ bool read_if_blocks(ef_t *ef, if_ctx_t *ctx, cmd_block_t *then_blk,
         if (!handle_if_buff(ctx, then_blk, else_blk, &in_else))
             return false;
     }
-    restore_term_flags(ef->exec_ctx);
     return true;
 }
 
@@ -134,8 +132,10 @@ bool handle_if_logic(ef_t *ef, bool cond, char *last)
         return cond ? visitor(last, ef->exec_ctx), true : true;
     if (!init_block(&then_blk) || !init_block(&else_blk))
         return false;
+    init_shell_repl(ef->exec_ctx);
     if (!read_if_blocks(ef, &ctx, &then_blk, &else_blk))
         return false;
+    restore_term_flags(ef->exec_ctx);
     if (cond)
         exec_block(&then_blk, ef);
     else
