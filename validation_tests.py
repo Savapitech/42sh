@@ -298,6 +298,10 @@ TESTS = [
         cmds=[
             "which ls\n",
             "which cd\n",
+            "which echo\n",
+            "where ls\n",
+            "where cd\n",
+            "where echo\n",
             "alias ll ls\nwhere ll\n",
             #"alias ll ls\nwhich ll\n",
         ],
