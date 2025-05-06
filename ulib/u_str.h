@@ -37,5 +37,6 @@ void free_array(char **array);
 void puterror(char const *prefix);
 int my_array_len(char **tab);
 char **arraydup(char **array);
+char *u_strnchr(char *str, char to_search, size_t n);
 
 #endif /* STRING_H */

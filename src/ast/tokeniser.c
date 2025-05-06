@@ -23,7 +23,6 @@ const tokens_list_t TOKENS_LIST[] = {
     { T_LEFT_PARENT, "(", 1, "T_LEFT_PARENT" },
     { T_RIGHT_PARENT, ")", 1, "T_RIGHT_PARENT" },
     { T_PREV_CMD, "!!", 2, "T_PREV_CMD" },
-    { T_VAR, "$", 1, "T_VAR" },
     { T_APPEND, ">>", 2, "T_APPEND" },
     { T_REDIRECT, ">", 1, "T_REDIRECT" },
     { T_HEREDOC, "<<", 2, "T_HEREDOC" },
@@ -80,11 +79,49 @@ bool check_closable(token_t actual_token)
 }
 
 static
+token_t handle_token_type(ast_ctx_t *ctx)
+{
+    for (size_t i = 0; i < TOKENS_LIST_SZ; i++) {
+        if (u_strncmp(ctx->str, TOKENS_LIST[i].str, TOKENS_LIST[i].sz) == 0) {
+            U_DEBUG("Token %-14s [%.*s]\n", TOKENS_LIST[i].name,
+                (int)TOKENS_LIST[i].sz, ctx->str);
+            ctx->str += TOKENS_LIST[i].sz;
+            return (token_t){ TOKENS_LIST[i].type,
+                ctx->str - TOKENS_LIST[i].sz, TOKENS_LIST[i].sz };
+        }
+    }
+    return (token_t){0, NULL, 0};
+}
+
+static
+bool compare_to_close(ast_ctx_t *ctx, token_t acutal_tok)
+{
+    token_type_t token = 0;
+
+    if (!*ctx->str && !(*ctx->str + 1))
+        return false;
+    for (size_t i = 0; i < TOKENS_LIST_SZ; i++) {
+        if (u_strncmp(ctx->str, TOKENS_LIST[i].str,
+            TOKENS_LIST[i].sz) == 0) {
+            token = TOKENS_LIST[i].type;
+            break;
+        }
+    }
+    if (u_strncmp(ctx->str, acutal_tok.str, acutal_tok.sz) == 0){
+        if (acutal_tok.type & (T_QUOTES | T_DQUOTES)
+            && !isblank(*(ctx->str + 1)) && token == 0)
+            return false;
+        return true;
+    }
+    return false;
+}
+
+static
 void get_arg_token(ast_ctx_t *ctx, int *found_token, token_t acutal_tok)
 {
     if (check_closable(acutal_tok)){
         ctx->str++;
-        if (u_strncmp(ctx->str, acutal_tok.str, acutal_tok.sz) == 0){
+        if (compare_to_close(ctx, acutal_tok)){
             *found_token = 1;
             ctx->str++;
         }
@@ -99,21 +136,6 @@ void get_arg_token(ast_ctx_t *ctx, int *found_token, token_t acutal_tok)
     }
     if (!*found_token)
         ctx->str++;
-}
-
-static
-token_t handle_token_type(ast_ctx_t *ctx)
-{
-    for (size_t i = 0; i < TOKENS_LIST_SZ; i++) {
-        if (u_strncmp(ctx->str, TOKENS_LIST[i].str, TOKENS_LIST[i].sz) == 0) {
-            U_DEBUG("Token %-14s [%.*s]\n", TOKENS_LIST[i].name,
-                (int)TOKENS_LIST[i].sz, ctx->str);
-            ctx->str += TOKENS_LIST[i].sz;
-            return (token_t){ TOKENS_LIST[i].type,
-                ctx->str - TOKENS_LIST[i].sz, TOKENS_LIST[i].sz };
-        }
-    }
-    return (token_t){0, NULL, 0};
 }
 
 void format_for_closable(ast_ctx_t *ctx, token_t *actual_token)
