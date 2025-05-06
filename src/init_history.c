@@ -5,13 +5,13 @@
 ** init_history
 */
 
+#include "ctype.h"
+#include "history.h"
+#include "stdio.h"
+#include "stdlib.h"
+#include "string.h"
 #include <fcntl.h>
 #include <unistd.h>
-#include "stdlib.h"
-#include "stdio.h"
-#include "string.h"
-#include "history.h"
-#include "ctype.h"
 
 static char *get_arg(char *line, int x, int end_cmd)
 {
@@ -31,7 +31,7 @@ his_command_t set_cmd(char *line, his_command_t cmd_struct)
 
     while (line[x] != '\0' && !isblank(line[x]))
         x++;
-    cmd_struct.command = malloc((sizeof(char) * x + 1));
+    cmd_struct.command = malloc(((sizeof(char) * x) + 1));
     if (cmd_struct.command != NULL) {
         cmd_struct.command = strncpy(cmd_struct.command, line, x);
         cmd_struct.command[x] = '\0';
