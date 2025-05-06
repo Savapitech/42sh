@@ -14,6 +14,7 @@
 #include "common.h"
 #include "debug.h"
 #include "exec.h"
+#include "readline.h"
 #include "repl.h"
 #include "u_str.h"
 
@@ -93,12 +94,15 @@ bool read_if_blocks(ef_t *ef, if_ctx_t *ctx, cmd_block_t *then_blk,
 {
     bool in_else = false;
 
+    init_shell_repl(ef->exec_ctx);
     while (true) {
+        ctx->buff->sz = 0;
         if (isatty(ef->exec_ctx->read_fd))
             WRITE_CONST(ctx->ef->out_fd, IF_PROMPT);
-        if (getline(&ctx->buff->str, &ctx->buff->sz, stdin) == -1)
+        if (!readline(ef->exec_ctx, ctx->buff, ef->exec_ctx->read_fd))
             return false;
-        ctx->buff->str[strcspn(ctx->buff->str, "\n")] = '\0';
+        if (ctx->buff->sz == 0)
+            return true;
         if (strcmp(ctx->buff->str, "else") == 0) {
             in_else = true;
             continue;
@@ -108,6 +112,7 @@ bool read_if_blocks(ef_t *ef, if_ctx_t *ctx, cmd_block_t *then_blk,
         if (!handle_if_buff(ctx, then_blk, else_blk, &in_else))
             return false;
     }
+    restore_term_flags(ef->exec_ctx);
     return true;
 }
 
@@ -121,7 +126,7 @@ void exec_block(cmd_block_t *blk, ef_t *ef)
 static
 bool handle_if_logic(ef_t *ef, bool cond, char *last)
 {
-    if_ctx_t ctx = {.buff = &(buff_t){ .str = nullptr, .sz = 0 }, .ef = ef};
+    if_ctx_t ctx = {.buff = &(buff_t){ .str = nullptr, 0 }, .ef = ef};
     cmd_block_t then_blk;
     cmd_block_t else_blk;
 
