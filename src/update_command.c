@@ -9,11 +9,11 @@
 
 #include "builtins_handler.h"
 #include "common.h"
-#include "debug.h"
 #include "history.h"
 #include "u_str.h"
 
-static int check_cmd(char *cmd)
+static
+int check_cmd(const char *cmd)
 {
     if (!cmd)
         return 84;
