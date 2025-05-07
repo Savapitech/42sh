@@ -40,6 +40,7 @@ TESTS = [
         "/bin/ls\n",
         "/../bin/ls\n",
         "~/../../bin/ls\n",
+        "setenv PATH /\nbin/ls\n",
         "fixtures/exec.sh\n",
     ],
     depends_on=("ARGS",)
