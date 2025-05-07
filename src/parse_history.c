@@ -29,7 +29,7 @@ int cmd_history_is_in(const char *line)
     for (int i = 0; line[i] != 0; i++)
         if (line[i] == CHAR_HIST &&
             (line[i + 1] != ' ' && line[i + 1] != '\t'
-            && line[i + 1] != '\0'))
+            && line[i + 1] != '\0' && line[i + 1] != '='))
             return 0;
     return 1;
 }
@@ -98,14 +98,14 @@ static
 char *replace_history(char *line, his_command_t *cmd_history)
 {
     his_variable_t his_variable = {.coord_variable = 0,
-        .id = 0, .size_variable = 0, .str = NULL, .type = -1};
+        .id = 0, .size_variable = 0, .str = nullptr, .type = -1};
 
     which_his_cmd(&his_variable, line);
     while (his_variable.type != -1){
         line = tab_fnct[his_variable.type].funct(line, &his_variable,
             cmd_history);
         if (line == NULL)
-            return NULL;
+            return nullptr;
         which_his_cmd(&his_variable, line);
     }
     return line;
