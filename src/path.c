@@ -60,6 +60,8 @@ char *parse_full_bin_path(env_t *env, char *bin_name)
 
     if (path == nullptr)
         path = DEFAULT_PATH;
+    if (strchr(bin_name, '/') != NULL)
+        return u_strdup(bin_name);
     full_bin_path = find_binary(path, bin_name, &dup_path);
     if (full_bin_path == nullptr)
         return nullptr;
