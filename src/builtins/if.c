@@ -100,7 +100,6 @@ bool read_if_blocks(ef_t *ef, if_ctx_t *ctx, cmd_block_t *then_blk,
             WRITE_CONST(ctx->ef->out_fd, IF_PROMPT);
         if (!readline(ef->exec_ctx, ctx->buff))
             return false;
-        U_DEBUG("If buff [%s]\n", ctx->buff->str);
         if (ctx->buff->sz == 0)
             return true;
         if (strcmp(ctx->buff->str, "else") == 0) {
