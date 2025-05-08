@@ -101,7 +101,7 @@ bool compare_to_close(ast_ctx_t *ctx, token_t acutal_tok)
     if (!*ctx->str && !(*ctx->str + 1))
         return false;
     for (size_t i = 0; i < TOKENS_LIST_SZ; i++) {
-        if (u_strncmp(ctx->str, TOKENS_LIST[i].str,
+        if (u_strncmp((ctx->str + 1), TOKENS_LIST[i].str,
             TOKENS_LIST[i].sz) == 0) {
             token = TOKENS_LIST[i].type;
             break;
