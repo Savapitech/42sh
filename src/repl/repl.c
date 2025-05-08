@@ -22,10 +22,11 @@ const key_handler_t KEY_HANDLERS[] = {
     {"\03", handle_key_ctrl_c},  // ^C
     {"\04", handle_key_ctrl_d},  // ^D
     {"\014", handle_key_ctrl_l}, // ^L
-    {"]A", handle_key_arrow_up},
-    {"]B", handle_key_arrow_down},
-    {"]D", handle_key_arrow_left},
-    {"]C", handle_key_arrow_right},
+    {ESC "[A", handle_key_arrow_up},
+    {ESC "[B", handle_key_arrow_down},
+    {ESC "[C", handle_key_arrow_right},
+    {ESC "[D", handle_key_arrow_left},
+    {"\x7f", handle_delete},
 };
 
 void print_shell_prompt(exec_ctx_t *exec_ctx)
@@ -77,7 +78,8 @@ ssize_t handle_keys(
 {
     U_DEBUG("Found special char, [%hhx]\n", *read_buff);
     for (size_t i = 0; i < sizeof KEY_HANDLERS / sizeof *KEY_HANDLERS; i++) {
-        if (strncmp(read_buff, KEY_HANDLERS[i].name, len) == 0)
+        if (strncmp(read_buff, KEY_HANDLERS[i].name,
+                strlen(KEY_HANDLERS[i].name)) != 0)
             continue;
         if (!KEY_HANDLERS[i].exec(ec, buff))
             return strlen(KEY_HANDLERS[i].name);
@@ -85,5 +87,5 @@ ssize_t handle_keys(
     }
     for (size_t i = 0; i < len; i++)
         U_DEBUG("<- [%d]\n", read_buff[i]);
-    return 0;
+    return 1;
 }

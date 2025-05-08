@@ -19,6 +19,7 @@ typedef struct {
 bool handle_key_ctrl_c(exec_ctx_t *ec, buff_t *buff);
 bool handle_key_ctrl_d(exec_ctx_t *ec, buff_t *buff);
 bool handle_key_ctrl_l(exec_ctx_t *ec, buff_t *buff);
+bool handle_delete(exec_ctx_t *ec, buff_t *buff);
 
 bool handle_key_arrow_up(exec_ctx_t *ec, buff_t *buff);
 bool handle_key_arrow_left(exec_ctx_t *ec, buff_t *buff);
