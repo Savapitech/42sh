@@ -96,13 +96,12 @@ bool format_quotes(ast_t *node, char be_matched, size_t *i)
     if (isblank(last_quote[1]) || be_matched == '`'){
         last_quote[0] = '\0';
         return true;
-    } else
-        node->vector.tokens[*i].str[node->vector.tokens[*i].sz - 1] = '\0';
+    }
     memmove(&last_quote[0], &last_quote[1], strlen(last_quote));
     last_quote = strchr(node->vector.tokens[*i].str, be_matched);
     if (strchr(node->vector.tokens[*i].str, be_matched))
         return (fprintf(stderr, "Unmatched \'%c\'.\n", be_matched), false);
-    node->vector.tokens[*i].str[node->vector.tokens[*i].sz - 2] = '\0';
+    node->vector.tokens[*i].str[node->vector.tokens[*i].sz] = '\0';
     return true;
 }
 
@@ -115,8 +114,7 @@ bool check_quotes(ast_t *node, size_t *i, exec_ctx_t *ctx, args_t *args)
         return true;
     if (node->vector.tokens[*i].sz == 1)
         return (fprintf(stderr, "Unmatched \'%c\'.\n", be_matched), true);
-    memmove(&node->vector.tokens[*i].str[0],
-        &node->vector.tokens[*i].str[1], node->vector.tokens[*i].sz);
+    node->vector.tokens[*i].str++;
     if (!format_quotes(node, be_matched, i))
         return true;
     if (be_matched == '`')
