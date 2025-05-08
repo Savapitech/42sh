@@ -92,8 +92,8 @@ bool format_quotes(ast_t *node, char be_matched, size_t *i)
 
     if (last_quote == NULL)
         return (fprintf(stderr, "Unmatched \'%c\'.\n", be_matched), false);
-    node->vector.sz -= 2;
-    if (isblank(last_quote[1] || be_matched == '`')){
+    node->vector.tokens[*i].sz -= 2;
+    if (isblank(last_quote[1]) || be_matched == '`'){
         last_quote[0] = '\0';
         return true;
     } else
