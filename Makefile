@@ -21,6 +21,7 @@ SRC += $(wildcard src/builtins/expr/*.c)
 SRC += $(wildcard src/ast/*.c)
 SRC += $(wildcard src/utils/*.c)
 SRC += $(wildcard src/local/*.c)
+SRC += $(wildcard src/repl/*.c)
 
 LIB_SRC := $(wildcard ulib/*.c)
 LIB_SRC += $(wildcard ulib/write/printf/*.c)

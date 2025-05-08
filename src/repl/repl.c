@@ -7,15 +7,26 @@
 
 #include <signal.h>
 #include <stdio.h>
+#include <string.h>
 #include <termios.h>
 #include <unistd.h>
 
 #include "common.h"
-#include "repl.h"
 #include "debug.h"
+#include "repl.h"
+#include "repl/key_handler.h"
 #include "u_str.h"
 #include "vt100_esc_codes.h"
 
+const key_handler_t KEY_HANDLERS[] = {
+    {"\03", handle_key_ctrl_c},  // ^C
+    {"\04", handle_key_ctrl_d},  // ^D
+    {"\014", handle_key_ctrl_l}, // ^L
+    {"]A", handle_key_arrow_up},
+    {"]B", handle_key_arrow_down},
+    {"]D", handle_key_arrow_left},
+    {"]C", handle_key_arrow_right},
+};
 
 void print_shell_prompt(exec_ctx_t *exec_ctx)
 {
@@ -58,29 +69,21 @@ void restore_term_flags(exec_ctx_t *exec_ctx)
     tcsetattr(exec_ctx->read_fd, TCSANOW, &exec_ctx->saved_term_settings);
 }
 
-static
-void ignore_sigint(exec_ctx_t *exec_ctx)
-{
-    WRITE_CONST(exec_ctx->read_fd, "\n");
-    print_shell_prompt(exec_ctx);
-}
-
-bool handle_keys(exec_ctx_t *exec_ctx, buff_t *buff, char const *read_buff)
+ssize_t handle_keys(
+    exec_ctx_t *ec,
+    buff_t *buff,
+    char const *read_buff,
+    size_t len)
 {
     U_DEBUG("Found special char, [%hhx]\n", *read_buff);
-    switch (*read_buff) {
-        case CTRL('d'):
-            buff->sz = 0;
-            return true;
-        case CTRL('c'):
-            ignore_sigint(exec_ctx);
-            return false;
-        case CTRL('l'):
-            WRITE_CONST(STDOUT_FILENO, ESC "[2J");
-            WRITE_CONST(STDOUT_FILENO, ESC "[H");
-            print_shell_prompt(exec_ctx);
-            return false;
-        default:
-            return false;
+    for (size_t i = 0; i < sizeof KEY_HANDLERS / sizeof *KEY_HANDLERS; i++) {
+        if (strncmp(read_buff, KEY_HANDLERS[i].name, len) == 0)
+            continue;
+        if (!KEY_HANDLERS[i].exec(ec, buff))
+            return strlen(KEY_HANDLERS[i].name);
+        return -1;
     }
+    for (size_t i = 0; i < len; i++)
+        U_DEBUG("<- [%d]\n", read_buff[i]);
+    return 0;
 }

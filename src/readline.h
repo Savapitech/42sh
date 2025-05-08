@@ -7,15 +7,16 @@
 
 #ifndef READLINE
     #define READLINE
+
     #define BUFF_INIT_SZ 16
     #include <stdbool.h>
 
-    #include "exec.h"
+    #include "builtins_handler.h"
     #include "u_str.h"
 
     #define BULK_READ_BUFF_SZ 32
 
-bool readline(exec_ctx_t *exec_ctx, buff_t *out);
+bool readline(exec_ctx_t *ec, buff_t *out);
 
 typedef struct {
     buff_t *out;
