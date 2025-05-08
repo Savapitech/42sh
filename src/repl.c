@@ -12,6 +12,7 @@
 
 #include "common.h"
 #include "repl.h"
+#include "debug.h"
 #include "u_str.h"
 #include "vt100_esc_codes.h"
 
@@ -66,6 +67,7 @@ void ignore_sigint(exec_ctx_t *exec_ctx)
 
 bool handle_keys(exec_ctx_t *exec_ctx, buff_t *buff, char const *read_buff)
 {
+    U_DEBUG("Found special char, [%hhx]\n", *read_buff);
     switch (*read_buff) {
         case CTRL('d'):
             buff->sz = 0;

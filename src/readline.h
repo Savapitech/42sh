@@ -13,5 +13,19 @@
     #include "exec.h"
     #include "u_str.h"
 
-bool readline(exec_ctx_t *exec_ctx, buff_t *buff, int fd);
+    #define BULK_READ_BUFF_SZ 32
+
+bool readline(exec_ctx_t *exec_ctx, buff_t *out);
+
+typedef struct {
+    buff_t *out;
+    char *in;
+    char cpy[BULK_READ_BUFF_SZ];
+} readline_helper_t;
+
+typedef struct {
+    size_t used;
+    size_t written;
+} text_parse_info_t;
+
 #endif /* READLINE */

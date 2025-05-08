@@ -59,7 +59,7 @@ bool change_shell_command(buff_t *buff, exec_ctx_t *exec_ctx)
     size_t buffer_len;
 
     buff->sz = 0;
-    if (!readline(exec_ctx, buff, exec_ctx->read_fd))
+    if (!readline(exec_ctx, buff))
         return false;
     if (!buff->sz)
         return false;
@@ -79,9 +79,10 @@ bool change_shell_command(buff_t *buff, exec_ctx_t *exec_ctx)
 static
 int shell_loop(int is_a_tty, exec_ctx_t *exec_ctx)
 {
-    buff_t buff = { .str = nullptr, 0, .cap = BUFF_INIT_SZ };
+    buff_t buff = { .str = nullptr, 0, .cap = 0 };
     struct termios repl_settings;
 
+    exec_ctx->isatty = is_a_tty;
     tcgetattr(STDIN_FILENO, &repl_settings);
     exec_ctx->saved_term_settings = repl_settings;
     init_shell_repl(exec_ctx);

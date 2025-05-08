@@ -14,20 +14,10 @@
 #include <termios.h>
 #include <unistd.h>
 
-#include "common.h"
 #include "debug.h"
 #include "readline.h"
 #include "repl.h"
 #include "u_str.h"
-
-static
-bool str_printable(char const *str, size_t size)
-{
-    for (size_t i = 0; i < size; i++)
-        if (!isprint(str[i]))
-            return false;
-    return true;
-}
 
 static
 bool ensure_buff_av_capacity(buff_t *buff, size_t requested)
@@ -35,6 +25,12 @@ bool ensure_buff_av_capacity(buff_t *buff, size_t requested)
     char *new_str;
     size_t endsize = BUFF_INIT_SZ;
 
+    if (buff->str == NULL) {
+        buff->str = malloc((sizeof *buff->str) * requested);
+        if (buff->str == NULL)
+            return false;
+        buff->cap = requested;
+    }
     if ((buff->sz + requested) < buff->cap)
         return true;
     for (; endsize < buff->sz + requested; endsize <<= 1);
@@ -49,72 +45,109 @@ bool ensure_buff_av_capacity(buff_t *buff, size_t requested)
 }
 
 static
-bool ensure_buff_capacity(buff_t *buff)
+bool append_null_terminator(buff_t *out)
 {
-    char *new_str;
-
-    if (buff->str == NULL) {
-        new_str = malloc((sizeof *buff->str) * BUFF_INIT_SZ);
-        if (new_str == NULL)
-            return false;
-        buff->str = new_str;
-        buff->cap = BUFF_INIT_SZ;
-    }
-    if (buff->sz == buff->cap) {
-        new_str = realloc(buff->str, (sizeof *buff->str) * buff->cap << 1);
-        if (new_str == NULL)
-            return false;
-        buff->str = new_str;
-        buff->cap <<= 1;
-    }
+    if (out->sz == 0)
+        return true;
+    if (!ensure_buff_av_capacity(out, 1))
+        return false;
+    U_DEBUG("buff sz: %zu\n", out->sz);
+    if (out->str[out->sz - 1] == '\n')
+        out->sz--;
+    U_DEBUG("readline [%.*s]\n", (int)out->sz, out->str);
+    out->str[out->sz] = '\0';
+    out->sz++;
     return true;
 }
 
 static
-bool append_null_terminator(buff_t *buff, exec_ctx_t *exec_ctx)
+bool populate_single_char(
+    exec_ctx_t *exec_ctx,
+    buff_t *out,
+    char *cpy,
+    char in)
 {
-    if (!ensure_buff_av_capacity(buff, 1))
+    if (in == '\r')
+        in = '\n';
+    if (in == '\0')
         return false;
-    buff->str[buff->sz - 1] = '\0';
-    buff->sz++;
-    if (isatty(exec_ctx->read_fd))
-        WRITE_CONST(STDOUT_FILENO, "\n");
-    U_DEBUG("Buffer [%s]\n", buff->str);
+    if (isspace(in) || isprint(in) || !exec_ctx->isatty) {
+        *cpy = in;
+        out->str[out->sz] = in;
+        out->sz++;
+        return true;
+    }
+    return false;
+}
+
+static
+bool populate_copy_buff(
+    exec_ctx_t *exec_ctx, readline_helper_t *rh, ssize_t rd,
+    text_parse_info_t *tpi)
+{
+    size_t w = 0;
+    ssize_t i = 0;
+
+    for (bool done = false; !done && i < rd; i++) {
+        if (populate_single_char(exec_ctx, rh->out, &rh->cpy[w], rh->in[i])) {
+            done = rh->cpy[w] == '\n';
+            w++;
+            continue;
+        }
+        if (handle_keys(exec_ctx, rh->out, &rh->in[i])) {
+            tpi->used = i;
+            tpi->written = w;
+            return false;
+        }
+    }
+    if (exec_ctx->isatty)
+        write(STDOUT_FILENO, rh->cpy, w);
+    tpi->used = i;
+    tpi->written = w;
     return true;
 }
 
 static
-int8_t handle_line_buff(exec_ctx_t *exec_ctx, buff_t *buff, char *read_buff,
-    ssize_t read_size)
+bool read_until_line_ending(
+    exec_ctx_t *exec_ctx, readline_helper_t *rh, ssize_t rd)
 {
-    if (handle_keys(exec_ctx, buff, read_buff))
-        return RETURN_SUCCESS;
-    if (isatty(exec_ctx->read_fd) && str_printable(read_buff, read_size))
-        write(STDOUT_FILENO, read_buff, read_size);
-    if (!ensure_buff_av_capacity(buff, read_size))
-        return RETURN_FAILURE;
-    strncpy(buff->str + buff->sz,
-        read_buff, read_size);
-    buff->sz += read_size;
-    return -1;
+    text_parse_info_t tpi;
+
+    for (;;) {
+        memset(&tpi, '\0', sizeof tpi);
+        if (!ensure_buff_av_capacity(rh->out, BULK_READ_BUFF_SZ))
+            return false;
+        populate_copy_buff(exec_ctx, rh, rd, &tpi);
+        U_DEBUG("copied %zu chars to cpy (%zu used)\n", tpi.written, tpi.used);
+        memmove(rh->in, &rh->in[tpi.used], BULK_READ_BUFF_SZ - tpi.used);
+        memset(&rh->in[BULK_READ_BUFF_SZ - tpi.used], '\0', tpi.used);
+        if (rh->cpy[tpi.written - 1] == '\n')
+            break;
+        rd = read(exec_ctx->read_fd, rh->in, BULK_READ_BUFF_SZ);
+        if (rd <= 0)
+            return (rd == 0);
+        U_DEBUG("read %zu characters\n", rd);
+    }
+    return true;
 }
 
-bool readline(exec_ctx_t *exec_ctx, buff_t *buff, int fd)
+bool readline(exec_ctx_t *exec_ctx, buff_t *out)
 {
-    char read_buff[2] = "";
-    ssize_t read_size = 0;
+    static char read_buff[BULK_READ_BUFF_SZ] = {0};
+    readline_helper_t rh = { out, read_buff, { 0 } };
+    bool is_empty = true;
+    ssize_t rd = 0;
 
-    if (!ensure_buff_capacity(buff))
+    for (size_t i = 0; i < sizeof read_buff; i++)
+        is_empty &= read_buff[i] == '\0';
+    U_DEBUG("readline buff is empty? %d\n", is_empty);
+    if (is_empty) {
+        rd = read(exec_ctx->read_fd, read_buff, sizeof read_buff);
+        if (rd < 0)
+            return (rd == 0);
+    } else
+        rd = BULK_READ_BUFF_SZ;
+    if (!read_until_line_ending(exec_ctx, &rh, rd))
         return false;
-    while (strchr(read_buff, '\n') == NULL && *read_buff != '\r') {
-        memset(read_buff, '\0', sizeof read_buff);
-        read_size = read(fd, &read_buff, sizeof read_buff - 1);
-        if (read_size < 0)
-            return false;
-        if (read_size == 0)
-            return true;
-        if (handle_line_buff(exec_ctx, buff, read_buff, read_size) > -1)
-            return true;
-    }
-    return append_null_terminator(buff, exec_ctx);
+    return append_null_terminator(out);
 }

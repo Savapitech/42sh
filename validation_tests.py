@@ -99,6 +99,7 @@ TESTS = [
         "echo    plop\n",
         "echo\t\tplop\n",
         "echo plop\t \n",
+        "echo \0\0e | wc -c\n"
     ],
     depends_on=("ARGS",)
   ),
