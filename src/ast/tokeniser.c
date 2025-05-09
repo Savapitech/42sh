@@ -155,8 +155,11 @@ void format_for_closable(ast_ctx_t *ctx, token_t *actual_token)
     if (actual_token->type == T_RIGHT_PARENT)
         *actual_token = handle_token_type(ctx);
     if (actual_token->type == T_LEFT_PARENT &&
-        ctx->parsed_tok == 1)
+        ctx->parsed_tok == 1){
         *actual_token = (token_t){ 0, NULL, 0 };
+        while (*ctx->str != '\0' && isblank(*ctx->str))
+            ctx->str++;
+    }
     if (actual_token->type == T_LEFT_PARENT
         && ctx->parsed_tok != 1)
         *actual_token = (token_t){ T_RIGHT_PARENT, ")", 1};
