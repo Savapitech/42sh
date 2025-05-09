@@ -321,6 +321,10 @@ TESTS = [
             "echo a\n",
             "echo a b\n",
             "echo ab\n",
+            "echo -e\n",
+            "echo -n\n",
+            "echo aa -e\n",
+            "echo -n aa\n",
             "echo $PATH\n",
             ],
         depends_on=("CD", "ENV")
