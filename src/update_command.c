@@ -43,7 +43,7 @@ size_t update_command(char **buffer,
     size_t buffer_len = 0;
 
     buffer_len = u_strlen(*buffer);
-    if (buffer_len < 2)
+    if (buffer_len < 1)
         return RETURN_FAILURE;
     *buffer += strspn(*buffer, " \t");
     if (**buffer == '\0')
