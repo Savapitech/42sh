@@ -82,6 +82,7 @@ int shell_loop(int is_a_tty, exec_ctx_t *exec_ctx)
     buff_t buff = { .str = nullptr, 0, .cap = 0 };
     struct termios repl_settings;
 
+    U_DEBUG_CALL(debug_env_entries, exec_ctx->env);
     exec_ctx->isatty = is_a_tty;
     tcgetattr(STDIN_FILENO, &repl_settings);
     exec_ctx->saved_term_settings = repl_settings;
@@ -152,12 +153,12 @@ int shell(opt_t *opt, char **env_ptr)
     local_t local = create_local();
     exec_ctx_t exec_ctx = {.env = &env, .local = &local, .opt = opt,
         .read_fd = get_read_fd(opt), .history = &history, .precmd = nullptr,
-        .history_command = cmd_history, .alias = &alias, 0, .cwdcmd = nullptr};
+        .history_command = cmd_history, .alias = &alias, 0, .cwdcmd = nullptr,
+        .ignoreof = false };
     int shell_result;
 
     if (exec_ctx.read_fd == -1 || (int)error_in_init(&exec_ctx))
         return RETURN_FAILURE;
-    U_DEBUG_CALL(debug_env_entries, &env);
     shell_result = shell_loop(isatty(exec_ctx.read_fd), &exec_ctx);
     if (opt->cmd == NULL && isatty(exec_ctx.read_fd)) {
         WRITE_CONST(STDOUT_FILENO, "exit\n");

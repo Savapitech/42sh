@@ -30,6 +30,7 @@ typedef struct {
     size_t prompt_len;
     char *precmd;
     char *cwdcmd;
+    bool ignoreof;
 } exec_ctx_t;
 
 size_t update_command(char **buffer,

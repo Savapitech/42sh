@@ -50,6 +50,12 @@ int special_case(ef_t *ef, char **args)
 static
 bool handle_special_variables(ef_t *ef, char **args, char *var, int i)
 {
+    if (strcmp(var, "ignoreof") == 0) {
+        ef->exec_ctx->ignoreof = true;
+        return true;
+    }
+    if (args[i] == nullptr)
+        return false;
     if (strcmp(var, "precmd") == 0) {
         ef->exec_ctx->precmd = strdup(args[i]);
         return true;
@@ -87,6 +93,8 @@ int builtins_set(ef_t *ef, char **args)
 {
     char *var = nullptr;
 
+    if (args[1] != nullptr && handle_special_variables(ef, args, args[1], 2))
+        return RETURN_SUCCESS;
     if (my_array_len(args) < 3)
         return special_case(ef, args);
     return handle_set(ef, args, var);

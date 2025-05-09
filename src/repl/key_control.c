@@ -19,8 +19,10 @@ bool handle_key_ctrl_c(readline_helper_t *rh, exec_ctx_t *ec, buff_t *buff)
     return false;
 }
 
-bool handle_key_ctrl_d(readline_helper_t *, exec_ctx_t *, buff_t *buff)
+bool handle_key_ctrl_d(readline_helper_t *, exec_ctx_t *ec, buff_t *buff)
 {
+    if (ec->ignoreof)
+        return false;
     buff->sz = 0;
     return true;
 }
