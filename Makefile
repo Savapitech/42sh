@@ -85,7 +85,7 @@ $$(NAME_$(strip $1)): $$(LIB_NAME_$(strip $1)) $$(OBJ_$(strip $1))
 
 endef
 
-$(eval $(call mk-profile, release, SRC, -iquote src, $(BIN_NAME)))
+$(eval $(call mk-profile, release, SRC, -iquote src -g3, $(BIN_NAME)))
 $(eval $(call mk-profile, debug, SRC, -iquote src -D U_DEBUG_MODE \
 	-fanalyzer -g3, debug))
 $(eval $(call mk-profile, test, SRC, -iquote src --coverage, test))

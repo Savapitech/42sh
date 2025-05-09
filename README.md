@@ -13,6 +13,7 @@
 - [x] `termname`
 - [x] `which`/`where`
 - [x] `yes`
+- [x] `expr`
 
 - [x] pipes
 - [x] redirections
@@ -33,4 +34,4 @@
 - [x] parenthesis
 - [x] command history (`history` btln)
 - [x] heredocs
-- [ ] special env vars: `$?`, `$$`, ...
+- [x] special env vars: `$?`, `$$`, ...

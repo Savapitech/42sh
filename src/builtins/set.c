@@ -5,14 +5,12 @@
 ** set
 */
 
-#include <ctype.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
 #include "common.h"
-#include "env.h"
 #include "exec.h"
 #include "u_str.h"
 
@@ -30,8 +28,8 @@ void print_local(ef_t *ef)
 int special_case(ef_t *ef, char **args)
 {
     int piv = 0;
-    char *key = NULL;
-    char *val = NULL;
+    char *key = nullptr;
+    char *val = nullptr;
 
     if (args[1] == NULL)
         return print_local(ef), RETURN_SUCCESS;
@@ -49,25 +47,47 @@ int special_case(ef_t *ef, char **args)
     return RETURN_SUCCESS;
 }
 
-int builtins_set(ef_t *ef, char **args)
+static
+bool handle_special_variables(ef_t *ef, char **args, char *var, int i)
 {
-    char *var = NULL;
+    if (strcmp(var, "precmd") == 0) {
+        ef->exec_ctx->precmd = strdup(args[i]);
+        return true;
+    }
+    if (strcmp(var, "cwdcmd") == 0) {
+        ef->exec_ctx->cwdcmd = strdup(args[i]);
+        return true;
+    }
+    return false;
+}
 
-    if (my_array_len(args) < 3)
-        return special_case(ef, args);
+static
+int handle_set(ef_t *ef, char **args, char *var)
+{
     for (int i = 1; args[i]; i++){
         if (check_local_var(args[i], args[0]))
             return RETURN_FAILURE;
         var = args[i];
         i++;
+        if (handle_special_variables(ef, args, var, i))
+            return RETURN_SUCCESS;
         if (!args[i])
-            return (set_local(ef->exec_ctx->local, var, NULL)
+            return (set_local(ef->exec_ctx->local, var, nullptr)
             , RETURN_SUCCESS);
-        if (strcmp(args[i], "="))
+        if (strcmp(args[i], "=") != 0)
             return RETURN_FAILURE;
         i++;
         if (!set_local(ef->exec_ctx->local, var, args[i]))
             return RETURN_FAILURE;
     }
     return RETURN_SUCCESS;
+}
+
+int builtins_set(ef_t *ef, char **args)
+{
+    char *var = nullptr;
+
+    if (my_array_len(args) < 3)
+        return special_case(ef, args);
+    return handle_set(ef, args, var);
 }

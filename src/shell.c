@@ -151,8 +151,8 @@ int shell(opt_t *opt, char **env_ptr)
     his_command_t *cmd_history = init_cmd_history();
     local_t local = create_local();
     exec_ctx_t exec_ctx = {.env = &env, .local = &local, .opt = opt,
-        .read_fd = get_read_fd(opt), .history = &history,
-        .history_command = cmd_history, .alias = &alias, 0 };
+        .read_fd = get_read_fd(opt), .history = &history, .precmd = nullptr,
+        .history_command = cmd_history, .alias = &alias, 0, .cwdcmd = nullptr};
     int shell_result;
 
     if (exec_ctx.read_fd == -1 || (int)error_in_init(&exec_ctx))

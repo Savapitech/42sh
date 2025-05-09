@@ -144,7 +144,7 @@ int launch_bin(char *full_bin_path, char **args, ef_t *ef)
         if (execve(full_bin_path, args, ef->env->env) < 0) {
             status = command_error(full_bin_path, args, errno);
             free_env(ef->env);
-            exit(((free_args(args), free(ef->buffer)), status));
+            exit(((free_args(args)), status));
         }
     }
     if (!(ef->flags & F_PIPE) || ef->p_i == ef->p_sz - 1)

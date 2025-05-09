@@ -71,6 +71,8 @@ int builtins_cd_chdir(ef_t *ef, char **args, char *path)
         cd_print_error();
         return RETURN_FAILURE;
     }
+    if (ef->exec_ctx->cwdcmd != nullptr)
+        visitor(ef->exec_ctx->cwdcmd, ef->exec_ctx);
     free(ef->exec_ctx->history->last_chdir);
     ef->exec_ctx->history->last_chdir = act_pwd;
     set_env(ef->env, "PWD", path);

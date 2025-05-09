@@ -28,6 +28,8 @@ typedef struct {
     int read_fd;
     int isatty;
     size_t prompt_len;
+    char *precmd;
+    char *cwdcmd;
 } exec_ctx_t;
 
 size_t update_command(char **buffer,

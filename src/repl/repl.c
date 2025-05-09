@@ -16,6 +16,7 @@
 #include "repl.h"
 #include "repl/key_handler.h"
 #include "u_str.h"
+#include "visitor.h"
 #include "vt100_esc_codes.h"
 
 const key_handler_t KEY_HANDLERS[] = {
@@ -48,23 +49,31 @@ void print_second_shell_prompt(exec_ctx_t *ec)
     }
 }
 
+static
+void print_prompt(env_t *env_ptr, char *hostname, exec_ctx_t *ec)
+{
+    printf(BLUE PROMPT_HEADER GREEN "%s" RESET "@" CYAN "%s" BLUE "] "
+        RESET "-" BLUE " [" RESET "%s" BLUE
+        "] " RESET "-" BLUE " [" YELLOW "%d" BLUE
+        "]\n└─[" PURPLE "$" BLUE "] " RESET,
+        get_env_value(env_ptr, "USER"),
+        hostname,
+        get_env_value(env_ptr, "PWD"),
+        ec->history_command->sz);
+}
+
 void print_shell_prompt(exec_ctx_t *ec)
 {
     env_t *env_ptr = ec->env;
     char const *ps1 = get_env_value(env_ptr, "PS1");
     char hostname[64];
 
+    if (ec->precmd != nullptr)
+        visitor(ec->precmd, ec);
     if (ps1 == nullptr) {
         if (gethostname(hostname, 64) < 0)
             return;
-        printf(BLUE PROMPT_HEADER GREEN "%s" RESET "@" CYAN "%s" BLUE "] "
-            RESET "-" BLUE " [" RESET "%s" BLUE
-            "] " RESET "-" BLUE " [" YELLOW "%d" BLUE
-            "]\n└─[" PURPLE "$" BLUE "] " RESET,
-            get_env_value(env_ptr, "USER"),
-            hostname,
-            get_env_value(env_ptr, "PWD"),
-            ec->history_command->sz);
+        print_prompt(env_ptr, hostname, ec);
         ec->prompt_len = 6;
     } else {
         printf("%s", ps1);

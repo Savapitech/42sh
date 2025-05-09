@@ -329,4 +329,15 @@ TESTS = [
             ],
         depends_on=("CD", "ENV")
     ),
+
+    Test(
+        key="SPECIAL_VARS",
+        name="special variables",
+        cmds=[
+            "echo $term\n",
+            "echo $cwd\n",
+            "ncd /\n",
+            ],
+        depends_on=()
+    ),
 ]

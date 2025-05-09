@@ -19,6 +19,10 @@ char *get_env_value(env_t *env, char const *key)
 {
     int key_len = u_strlen(key);
 
+    if (strcmp(key, "term") == 0)
+        return get_env_value(env, "TERM");
+    if (strcmp(key, "cwd") == 0)
+        return get_env_value(env, "PWD");
     for (size_t i = 0; i < env->sz; i++) {
         if (env->env[i] == NULL)
             continue;
@@ -27,7 +31,7 @@ char *get_env_value(env_t *env, char const *key)
         if (u_strcmp(env->env[i], key) == 0)
             return env->env[i] + key_len + 1;
     }
-    return NULL;
+    return nullptr;
 }
 
 static
@@ -87,12 +91,12 @@ static
 void env_bzero(char **env, size_t sz)
 {
     for (size_t i = 0; i < sz; i++)
-        env[i] = NULL;
+        env[i] = nullptr;
 }
 
 bool set_env(env_t *env, char *key, char *value)
 {
-    char *new_env = NULL;
+    char *new_env = nullptr;
     size_t key_len = u_strlen(key);
     size_t value_len = u_strlen(value);
 
@@ -119,7 +123,7 @@ env_t parse_env(char **env)
 
     new_env.env = (char **)malloc(sizeof(char *) * new_env.cap);
     if (!new_env.env)
-        return (env_t){ 0, .env = NULL };
+        return (env_t){ 0, .env = nullptr };
     env_bzero(new_env.env, new_env.sz);
     for (; *env != NULL; env++) {
         if (!ensure_env_capacity(&new_env))
@@ -131,6 +135,6 @@ env_t parse_env(char **env)
     }
     if (!ensure_env_capacity(&new_env))
         return (free((void *)new_env.env), (env_t){ 0 });
-    new_env.env[new_env.sz] = NULL;
+    new_env.env[new_env.sz] = nullptr;
     return new_env;
 }
