@@ -1,44 +1,31 @@
 - [x] `:`
 - [x] `alias`
-- [ ] `alloc`
-- [ ] `astprint`
+- [x] `astprint`
 - [x] `builtins`
 - [x] `cd`/`chdir`
-- [ ] `date`
-- [ ] `echo`
+- [x] `echo`
 - [x] `env`/`setenv`/`unsetenv` (`env` à completer)
-- [ ] `export`
-- [ ] `eval`/`exec`
+- [x] `export`
 - [x] `exit`
-- [ ] `kill`
-- [ ] `limit`
 - [x] `printenv`
 - [x] `pushd`/`popd`
-- [ ] `printf`
 - [x] `repeat`
-- [ ] `source`/`.`
-- [ ] `termname`
-- [ ] `time`
-- [ ] `trap`
-- [ ] `wc`
+- [x] `termname`
 - [x] `which`/`where`
 - [x] `yes`
 
 - [x] pipes
 - [x] redirections
-- [ ] line editing (move, del, multi-line)
-- [ ] input shortcut (^A,^E,^R,^V,^F,^B,...)
-- [ ] foreground/background jobs (`&`), (btln `fg`, `bg`,  `jobs`) 
+- [x] line editing (move, del)
+- [x] input shortcut (^A,^E,^F,^B,...)
+- [x] foreground/background jobs (`&`), (btln `fg`) (bonus) 
 - [x] while/foreach loops
 - [x] if
 - [x] `||`/`&&`
-- [ ] configuration file
 - [x] script with shebangs
-- [ ] `-c` eval argument
-- [ ] `-D` set env var at boot
+- [x] `-c` eval argument
 - [ ] `-e` exit on failure
-- [ ] `-n` (dry run mode)
-- [ ] `-h` help (open man?)
+- [x] `-h` help (open man?)
 - [x] globbing
 - [x] var interpreter
 - [x] inhibitor
@@ -46,6 +33,4 @@
 - [x] parenthesis
 - [x] command history (`history` btln)
 - [x] heredocs
-- [ ]  functions (`:() { :|:& }`)
 - [ ] special env vars: `$?`, `$$`, ...
-- [ ] git integration (branch)
