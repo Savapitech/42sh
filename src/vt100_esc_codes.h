@@ -16,6 +16,11 @@
 
     // move
     #define MOVE_RIGHT(n) ESC "[" #n "C"
+    #define MOVE_LEFT(n) ESC "[" #n "D"
+
+    // delete
+    #define DELETE_CHARS(n) ESC "[" #n "P"
+    #define ERASE_TO_END_LINE ESC "[0K"
 
     // colors
     #define RESET CFMT(0)

@@ -27,6 +27,7 @@ typedef struct {
     opt_t *opt;
     int read_fd;
     int isatty;
+    size_t prompt_len;
 } exec_ctx_t;
 
 size_t update_command(char **buffer,
