@@ -54,16 +54,16 @@ bool handle_parentheses(ast_t *node, size_t *i, args_t *args)
 
     while (in_str < node->vector.tokens[*i].sz){
         if (!ensure_args_capacity(args))
-            return false;
+            return true;
         vl = take_next_parenthese_arg(node, &in_str, i);
         if (vl == NULL)
-            return free((void *)args->args), false;
+            return free((void *)args->args), true;
         args->args[args->sz] = vl;
         args->sz++;
     }
     args->args[args->sz] = nullptr;
     args->sz--;
-    return true;
+    return false;
 }
 
 static
