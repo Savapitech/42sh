@@ -67,7 +67,7 @@ bool handle_parentheses(ast_t *node, size_t *i, args_t *args)
 }
 
 static
-bool check_parentheses(ast_t *node, size_t *i, args_t *args)
+bool check_parentheses(ast_t *node, size_t *i, exec_ctx_t *ctx, args_t *args)
 {
     if (!strchr("()", node->vector.tokens[*i].str[0]))
         return true;
