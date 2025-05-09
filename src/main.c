@@ -8,6 +8,7 @@
 #include <getopt.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "common.h"
 #include "debug.h"
@@ -49,9 +50,12 @@ bool parse_args(opt_t *opt, int ac, char **av)
 int main(int ac, char **av, char **env)
 {
     opt_t opt = { 0, .script_file = nullptr, .cmd = nullptr };
+    int result;
 
     U_DEBUG_MSG("Debug mode altivated.\n");
     if (!parse_args(&opt, ac, av))
         return RETURN_FAILURE;
-    return shell(&opt, env);
+    result = shell(&opt, env);
+    free(opt.cmd);
+    return result;
 }

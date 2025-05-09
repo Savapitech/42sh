@@ -17,4 +17,5 @@ char *cat_in_str(his_variable_t *his_variable, char *str, char *cpy);
 int len_array(char **array);
 char *insert_str(const char *base, const char *insert, size_t pos);
 void free_everything(exec_ctx_t *exec_ctx);
+void free_args(char **args);
 #endif /* UTILS_H */

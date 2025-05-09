@@ -92,7 +92,7 @@ int shell_loop(int is_a_tty, exec_ctx_t *exec_ctx)
     while (true) {
         write_prompt(is_a_tty, exec_ctx);
         if (!change_shell_command(&buff, exec_ctx))
-            return exec_ctx->history->last_exit_code;
+            return free(buff.str), exec_ctx->history->last_exit_code;
     }
     return free(buff.str), exec_ctx->history->last_exit_code;
 }
