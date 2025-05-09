@@ -24,7 +24,7 @@
 - [x] `||`/`&&`
 - [x] script with shebangs
 - [x] `-c` eval argument
-- [ ] `-e` exit on failure
+- [x] `-e` exit on failure
 - [x] `-h` help (open man?)
 - [x] globbing
 - [x] var interpreter

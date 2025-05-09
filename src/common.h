@@ -21,5 +21,6 @@ typedef struct {
     uint8_t flags;
     char *script_file;
     char *cmd;
+    bool exit_failure;
 } opt_t;
 #endif /* COMMON_H */

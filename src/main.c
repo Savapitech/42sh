@@ -14,7 +14,7 @@
 #include "debug.h"
 #include "shell.h"
 
-const char OPT_FLAGS[] = "hc:";
+const char OPT_FLAGS[] = "hec:";
 
 static
 void print_usages(FILE *file, char *bin)
@@ -34,6 +34,9 @@ bool parse_args(opt_t *opt, int ac, char **av)
             case 'c':
                 opt->cmd = strdup(optarg);
                 break;
+            case 'e':
+                opt->exit_failure = true;
+                break;
             default:
                 return print_usages(stderr, av[0]), false;
         }
@@ -41,15 +44,14 @@ bool parse_args(opt_t *opt, int ac, char **av)
     if (optind < ac) {
         opt->script_file = av[optind];
         U_DEBUG("Script file [%s]\n", opt->script_file);
-    } else {
-        U_DEBUG_MSG("No script file provided.\n");
     }
     return true;
 }
 
 int main(int ac, char **av, char **env)
 {
-    opt_t opt = { 0, .script_file = nullptr, .cmd = nullptr };
+    opt_t opt = { 0, .script_file = nullptr, .cmd = nullptr,
+        .exit_failure = false };
     int result;
 
     U_DEBUG_MSG("Debug mode altivated.\n");

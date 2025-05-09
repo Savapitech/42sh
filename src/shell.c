@@ -61,7 +61,6 @@ bool change_shell_command(buff_t *buff, exec_ctx_t *exec_ctx)
     buff->sz = 0;
     if (!readline(exec_ctx, buff))
         return false;
-    U_DEBUG("BUFF SZ [%lu]\n", buff->sz);
     if (!buff->sz)
         return false;
     tmp_buff = buff->str;
@@ -92,6 +91,8 @@ int shell_loop(int is_a_tty, exec_ctx_t *exec_ctx)
     while (true) {
         write_prompt(is_a_tty, exec_ctx);
         if (!change_shell_command(&buff, exec_ctx))
+            return free(buff.str), exec_ctx->history->last_exit_code;
+        if (exec_ctx->opt->exit_failure && exec_ctx->history->last_exit_code)
             return free(buff.str), exec_ctx->history->last_exit_code;
     }
     return free(buff.str), exec_ctx->history->last_exit_code;
