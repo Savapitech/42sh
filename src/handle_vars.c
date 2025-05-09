@@ -5,33 +5,33 @@
 ** handle_vars
 */
 
-#include <stdio.h>
-#include <string.h>
 #include <ctype.h>
-#include <unistd.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
 #include "ast.h"
 #include "env.h"
-#include "local.h"
 #include "exec.h"
+#include "local.h"
 
 char *get_values(exec_ctx_t *ctx, char *key)
 {
-    char *r_char = NULL;
+    char *r_char = nullptr;
 
     r_char = get_env_value(ctx->env, key);
     if (r_char == NULL)
         r_char = get_local_value(ctx->local, key);
     if (r_char == NULL) {
         fprintf(stderr, "%s: Undefined variable.\n", key);
-        return NULL;
+        return nullptr;
     }
     return r_char;
 }
 
 static
-char *take_next_parenthese_arg(ast_t *node, size_t *in_str, size_t *i)
+char *take_next_parenthese_arg(ast_t *node, size_t *in_str, const size_t *i)
 {
     size_t end = 0;
     char *buff;
@@ -47,7 +47,7 @@ char *take_next_parenthese_arg(ast_t *node, size_t *in_str, size_t *i)
 }
 
 static
-bool handle_parentheses(ast_t *node, exec_ctx_t *ctx, size_t *i, args_t *args)
+bool handle_parentheses(ast_t *node, size_t *i, args_t *args)
 {
     size_t in_str = 0;
     char *vl;
@@ -61,13 +61,13 @@ bool handle_parentheses(ast_t *node, exec_ctx_t *ctx, size_t *i, args_t *args)
         args->args[args->sz] = vl;
         args->sz++;
     }
-    args->args[args->sz] = NULL;
+    args->args[args->sz] = nullptr;
     args->sz--;
     return true;
 }
 
 static
-bool check_parentheses(ast_t *node, size_t *i, exec_ctx_t *ctx, args_t *args)
+bool check_parentheses(ast_t *node, size_t *i, args_t *args)
 {
     if (!strchr("()", node->vector.tokens[*i].str[0]))
         return true;
@@ -80,13 +80,11 @@ bool check_parentheses(ast_t *node, size_t *i, exec_ctx_t *ctx, args_t *args)
     node->vector.tokens[*i].str[node->vector.tokens[*i].sz - 1] = '\0';
     node->vector.tokens[*i].str = &node->vector.tokens[*i].str[1];
     node->vector.tokens[*i].sz -= 2;
-    if (!handle_parentheses(node, ctx, i, args))
-        return true;
-    return false;
+    return handle_parentheses(node, i, args);
 }
 
 static
-bool format_quotes(ast_t *node, char be_matched, size_t *i)
+bool format_quotes(ast_t *node, char be_matched, const size_t *i)
 {
     char *last_quote = strchr(node->vector.tokens[*i].str, be_matched);
 
@@ -129,11 +127,11 @@ bool check_for_closable(ast_t *node, exec_ctx_t *ctx, size_t *i, args_t *args)
 {
     if (!strchr("\'\"`()", node->vector.tokens[*i].str[0]))
         return false;
-    if (!check_parentheses(node, i, ctx, args))
+    if (!check_parentheses(node, i, args))
         return true;
-    else if (!check_quotes(node, i, ctx, args))
+    if (!check_quotes(node, i, ctx, args))
         return true;
-    args->args[args->sz] = NULL;
+    args->args[args->sz] = nullptr;
     return true;
 }
 

@@ -19,7 +19,6 @@
 #include "repl.h"
 #include "u_str.h"
 
-static
 bool ensure_buff_av_capacity(buff_t *buff, size_t requested)
 {
     char *new_str;
@@ -62,7 +61,7 @@ bool append_null_terminator(buff_t *out)
 
 static
 bool copy_single_char(
-    exec_ctx_t *exec_ctx,
+    readline_helper_t *rh,
     buff_t *out,
     char *cpy,
     char in)
@@ -71,38 +70,77 @@ bool copy_single_char(
         in = '\n';
     if (in == '\0' || in == '\f')
         return false;
-    if (isspace(in) || isprint(in) || !exec_ctx->isatty) {
+    if (isspace(in) || isprint(in) || !rh->ec->isatty) {
         *cpy = in;
-        out->str[out->sz] = in;
+        if (rh->cursor != rh->out->sz && in == '\n')
+            return true;
+        memmove(&out->str[rh->cursor + 1], &out->str[rh->cursor],
+            out->sz - rh->cursor);
+        out->str[rh->cursor] = in;
         out->sz++;
+        rh->cursor++;
+        refresh_line(rh);
         return true;
     }
     return false;
 }
 
+void write_buff(readline_helper_t *rh)
+{
+    char move_back[32] = {0};
+
+    if (!rh->ec->isatty)
+        return;
+    WRITE_CONST(STDOUT_FILENO, ERASE_TO_END_LINE);
+    write(STDOUT_FILENO, &rh->out->str[rh->cursor], rh->out->sz - rh->cursor);
+    snprintf(move_back, sizeof(move_back), "\033[%zuD",
+        rh->out->sz - rh->cursor);
+    write(STDOUT_FILENO, move_back, strlen(move_back));
+}
+
+void refresh_line(readline_helper_t *rh)
+{
+    size_t target = rh->cursor + rh->ec->prompt_len;
+    char move_cursor[32];
+
+    if (!rh->ec->isatty)
+        return;
+    append_null_terminator(rh->out);
+    if (rh->out->sz > 1 && *rh->cpy == '\n') {
+        WRITE_CONST(STDOUT_FILENO, "\n");
+        return;
+    }
+    WRITE_CONST(STDOUT_FILENO, "\r");
+    if (rh->ec->prompt_len > 0)
+        print_second_shell_prompt(rh->ec);
+    write(STDOUT_FILENO, rh->out->str, rh->out->sz);
+    WRITE_CONST(STDOUT_FILENO, ERASE_TO_END_LINE);
+    snprintf(move_cursor, sizeof move_cursor, "\r\033[%zuC", target);
+    write(STDOUT_FILENO, move_cursor, strlen(move_cursor));
+}
+
 static
 bool populate_copy_buff(
-    exec_ctx_t *ec, readline_helper_t *rh, ssize_t rd,
+    readline_helper_t *rh, ssize_t rd,
     text_parse_info_t *tpi)
 {
     ssize_t i = 0;
     ssize_t skip;
 
     for (bool done = false; !done && i < rd; i++) {
-        if (copy_single_char(ec, rh->out, &rh->cpy[tpi->written], rh->in[i])) {
+        if (copy_single_char(rh, rh->out, &rh->cpy[tpi->written], rh->in[i])) {
             done = rh->cpy[tpi->written] == '\n';
             tpi->written++;
             continue;
         }
-        skip = handle_keys(ec, rh->out, &rh->in[i], BULK_READ_BUFF_SZ - i);
+        skip = handle_keys(rh, rh->out, &rh->in[i], BULK_READ_BUFF_SZ - i);
         if (skip < 0) {
             tpi->used = i;
             return false;
         }
         i += skip - 1;
     }
-    if (ec->isatty)
-        write(STDOUT_FILENO, rh->cpy, tpi->written);
+    refresh_line(rh);
     tpi->used = i;
     return true;
 }
@@ -117,7 +155,7 @@ bool read_until_line_ending(
         memset(&tpi, '\0', sizeof tpi);
         if (!ensure_buff_av_capacity(rh->out, BULK_READ_BUFF_SZ))
             return false;
-        if (!populate_copy_buff(ec, rh, rd, &tpi))
+        if (!populate_copy_buff(rh, rd, &tpi))
             return true;
         U_DEBUG("copied %zu chars to cpy (%zu used)\n", tpi.written, tpi.used);
         memmove(rh->in, &rh->in[tpi.used], BULK_READ_BUFF_SZ - tpi.used);
@@ -135,7 +173,8 @@ bool read_until_line_ending(
 bool readline(exec_ctx_t *ec, buff_t *out)
 {
     static char read_buff[BULK_READ_BUFF_SZ] = {0};
-    readline_helper_t rh = { out, read_buff, { 0 } };
+    readline_helper_t rh = { ec, out, read_buff, { 0 }, 0,
+        .history_idx = ec->history_command->sz };
     bool is_empty = true;
     ssize_t rd = 0;
 

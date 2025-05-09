@@ -22,16 +22,35 @@ const key_handler_t KEY_HANDLERS[] = {
     {"\03", handle_key_ctrl_c},  // ^C
     {"\04", handle_key_ctrl_d},  // ^D
     {"\014", handle_key_ctrl_l}, // ^L
+    {"\05", handle_key_ctrl_e}, // ^E
+    {"\01", handle_key_ctrl_a}, // ^E
+    {"\02", handle_key_ctrl_b}, // ^E
+    {"\06", handle_key_ctrl_f}, // ^E
     {ESC "[A", handle_key_arrow_up},
     {ESC "[B", handle_key_arrow_down},
     {ESC "[C", handle_key_arrow_right},
     {ESC "[D", handle_key_arrow_left},
-    {"\x7f", handle_delete},
+    {"\x7f", handle_backspace},
+    {"\x1b[3~", handle_delete},
 };
 
-void print_shell_prompt(exec_ctx_t *exec_ctx)
+void print_second_shell_prompt(exec_ctx_t *ec)
 {
-    env_t *env_ptr = exec_ctx->env;
+    env_t *env_ptr = ec->env;
+    char const *ps1 = get_env_value(env_ptr, "PS1");
+
+    if (ps1 == nullptr) {
+        printf(BLUE "└─[" PURPLE "$" BLUE "] " RESET);
+        ec->prompt_len = 6;
+    } else {
+        printf("%s", ps1);
+        ec->prompt_len = strlen(ps1);
+    }
+}
+
+void print_shell_prompt(exec_ctx_t *ec)
+{
+    env_t *env_ptr = ec->env;
     char const *ps1 = get_env_value(env_ptr, "PS1");
     char hostname[64];
 
@@ -45,9 +64,12 @@ void print_shell_prompt(exec_ctx_t *exec_ctx)
             get_env_value(env_ptr, "USER"),
             hostname,
             get_env_value(env_ptr, "PWD"),
-            exec_ctx->history_command->sz);
-    } else
+            ec->history_command->sz);
+        ec->prompt_len = 6;
+    } else {
         printf("%s", ps1);
+        ec->prompt_len = strlen(ps1);
+    }
 }
 
 void init_shell_repl(exec_ctx_t *exec_ctx)
@@ -71,7 +93,7 @@ void restore_term_flags(exec_ctx_t *exec_ctx)
 }
 
 ssize_t handle_keys(
-    exec_ctx_t *ec,
+    readline_helper_t *rh,
     buff_t *buff,
     char const *read_buff,
     size_t len)
@@ -81,7 +103,7 @@ ssize_t handle_keys(
         if (strncmp(read_buff, KEY_HANDLERS[i].name,
                 strlen(KEY_HANDLERS[i].name)) != 0)
             continue;
-        if (!KEY_HANDLERS[i].exec(ec, buff))
+        if (!KEY_HANDLERS[i].exec(rh, rh->ec, buff))
             return strlen(KEY_HANDLERS[i].name);
         return -1;
     }

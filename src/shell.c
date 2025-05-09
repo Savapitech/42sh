@@ -61,6 +61,7 @@ bool change_shell_command(buff_t *buff, exec_ctx_t *exec_ctx)
     buff->sz = 0;
     if (!readline(exec_ctx, buff))
         return false;
+    U_DEBUG("BUFF SZ [%lu]\n", buff->sz);
     if (!buff->sz)
         return false;
     tmp_buff = buff->str;
@@ -150,7 +151,7 @@ int shell(opt_t *opt, char **env_ptr)
     local_t local = create_local();
     exec_ctx_t exec_ctx = {.env = &env, .local = &local, .opt = opt,
         .read_fd = get_read_fd(opt), .history = &history,
-        .history_command = cmd_history, .alias = &alias};
+        .history_command = cmd_history, .alias = &alias, 0 };
     int shell_result;
 
     if (exec_ctx.read_fd == -1 || (int)error_in_init(&exec_ctx))
