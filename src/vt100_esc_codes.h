@@ -17,6 +17,7 @@
     // move
     #define MOVE_RIGHT(n) ESC "[" #n "C"
     #define MOVE_LEFT(n) ESC "[" #n "D"
+    #define MOVE_TO_N_COL(n) ESC "[" #n  "G"
 
     // delete
     #define DELETE_CHARS(n) ESC "[" #n "P"

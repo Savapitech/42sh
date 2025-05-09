@@ -23,9 +23,9 @@ const key_handler_t KEY_HANDLERS[] = {
     {"\04", handle_key_ctrl_d},  // ^D
     {"\014", handle_key_ctrl_l}, // ^L
     {"\05", handle_key_ctrl_e}, // ^E
-    {"\01", handle_key_ctrl_a}, // ^E
-    {"\02", handle_key_ctrl_b}, // ^E
-    {"\06", handle_key_ctrl_f}, // ^E
+    {"\01", handle_key_ctrl_a}, // ^A
+    {"\02", handle_key_ctrl_b}, // ^B
+    {"\06", handle_key_ctrl_f}, // ^F
     {ESC "[A", handle_key_arrow_up},
     {ESC "[B", handle_key_arrow_down},
     {ESC "[C", handle_key_arrow_right},
