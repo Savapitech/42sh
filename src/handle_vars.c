@@ -88,7 +88,7 @@ bool check_parentheses(ast_t *node, size_t *i, exec_ctx_t *ctx, args_t *args)
 static
 bool format_quotes(ast_t *node, char be_matched, size_t *i)
 {
-    char *last_quote = strchr(node->vector.tokens[*i].str, be_matched);
+    char *last_quote = strrchr(node->vector.tokens[*i].str, be_matched);
 
     if (last_quote == NULL)
         return (fprintf(stderr, "Unmatched \'%c\'.\n", be_matched), false);
@@ -106,15 +106,32 @@ bool format_quotes(ast_t *node, char be_matched, size_t *i)
 }
 
 static
+char *init_move(ast_t *node, size_t *i, size_t *sz_before)
+{
+    char *move = NULL;
+
+    for (; *sz_before < node->vector.tokens[*i].sz; *sz_before += 1){
+        if (strchr("\'\"`", node->vector.tokens[*i].str[*sz_before]))
+            move = &node->vector.tokens[*i].str[*sz_before];
+        if (move)
+            return move;
+    }
+    return move;
+}
+
+static
 bool check_quotes(ast_t *node, size_t *i, exec_ctx_t *ctx, args_t *args)
 {
-    char be_matched = node->vector.tokens[*i].str[0];
+    size_t sz_before = 0;
+    char *move = init_move(node, i, &sz_before);
+    char be_matched;
 
-    if (!strchr("\'\"`", node->vector.tokens[*i].str[0]))
+    if (move == NULL)
         return true;
+    be_matched = move[0];
     if (node->vector.tokens[*i].sz == 1)
         return (fprintf(stderr, "Unmatched \'%c\'.\n", be_matched), true);
-    node->vector.tokens[*i].str++;
+    memmove(&move[0], &move[1], node->vector.tokens[*i].sz - sz_before);
     if (!format_quotes(node, be_matched, i))
         return true;
     if (be_matched == '`')
@@ -127,8 +144,12 @@ bool check_quotes(ast_t *node, size_t *i, exec_ctx_t *ctx, args_t *args)
 
 bool check_for_closable(ast_t *node, exec_ctx_t *ctx, size_t *i, args_t *args)
 {
-    if (!strchr("\'\"`()", node->vector.tokens[*i].str[0]))
-        return false;
+    for (size_t j = 0; j < node->vector.tokens[*i].sz; j++){
+        if (strchr("\'\"`()", node->vector.tokens[*i].str[j]))
+            break;
+        if (j + 1 == node->vector.tokens[*i].sz)
+            return false;
+    }
     if (!check_parentheses(node, i, ctx, args))
         return true;
     else if (!check_quotes(node, i, ctx, args))

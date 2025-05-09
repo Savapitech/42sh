@@ -98,7 +98,7 @@ bool compare_to_close(ast_ctx_t *ctx, token_t acutal_tok)
 {
     token_type_t token = 0;
 
-    if (!*ctx->str && !(*ctx->str + 1))
+    if (!*ctx->str || !(*ctx->str + 1))
         return false;
     for (size_t i = 0; i < TOKENS_LIST_SZ; i++) {
         if (u_strncmp((ctx->str + 1), TOKENS_LIST[i].str,
@@ -117,23 +117,35 @@ bool compare_to_close(ast_ctx_t *ctx, token_t acutal_tok)
 }
 
 static
-void get_arg_token(ast_ctx_t *ctx, int *found_token, token_t acutal_tok)
+int check_token(ast_ctx_t *ctx, token_t *actual_tok)
 {
-    if (check_closable(acutal_tok)){
+    for (size_t i = 0; i < TOKENS_LIST_SZ; i++) {
+        if (TOKENS_LIST[i].type & (T_QUOTES | T_DQUOTES)
+        && u_strncmp(ctx->str, TOKENS_LIST[i].str,
+            TOKENS_LIST[i].sz) == 0){
+            *actual_tok = (token_t){ TOKENS_LIST[i].type,
+                ctx->str - TOKENS_LIST[i].sz, TOKENS_LIST[i].sz};
+            break;
+        }
+        if (u_strncmp(ctx->str, TOKENS_LIST[i].str,
+            TOKENS_LIST[i].sz) == 0)
+            return 1;
+    }
+    return 0;
+}
+
+static
+void get_arg_token(ast_ctx_t *ctx, int *found_token, token_t *actual_tok)
+{
+    if (check_closable(*actual_tok)){
         ctx->str++;
-        if (compare_to_close(ctx, acutal_tok)){
+        if (compare_to_close(ctx, *actual_tok)){
             *found_token = 1;
             ctx->str++;
         }
         return;
     }
-    for (size_t i = 0; i < TOKENS_LIST_SZ; i++) {
-        if (u_strncmp(ctx->str, TOKENS_LIST[i].str,
-            TOKENS_LIST[i].sz) == 0) {
-            *found_token = 1;
-            break;
-        }
-    }
+    *found_token = check_token(ctx, actual_tok);
     if (!*found_token)
         ctx->str++;
 }
@@ -168,7 +180,7 @@ token_t get_next_token(ast_ctx_t *ctx)
     start = ctx->str;
     while ((*ctx->str && !found_token && (!isblank(*ctx->str) ||
         check_closable(actual_token))))
-        get_arg_token(ctx, &found_token, actual_token);
+        get_arg_token(ctx, &found_token, &actual_token);
     U_DEBUG("Token T_ARG          [%.*s]\n", (int)(ctx->str - start), start);
     return (token_t){ .type = T_ARG, .str = start,
         .sz = (size_t)(ctx->str - start) };
