@@ -53,4 +53,6 @@ int builtins_break(ef_t *ef, char **args);
 int builtins_expr(ef_t *ef, char **args);
 int builtins_if(ef_t *ef, char **args);
 int builtins_echo(ef_t *ef, char **args);
+int builtins_astprint(ef_t *, char **args);
+int builtins_termname(ef_t *ef, char **);
 #endif /* BUILTIND_H */

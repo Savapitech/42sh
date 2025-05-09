@@ -33,6 +33,7 @@ const builtins_funcs_t BUILTINS[] = {
     { "env", &builtins_env },
     { "printenv", &builtins_env },
     { "setenv", &builtins_setenv },
+    { "export", &builtins_setenv },
     { "unsetenv", &builtins_unsetenv },
     { ":", &builtins_funny_double_dot },
     { "repeat", &builtins_repeat },
@@ -49,6 +50,8 @@ const builtins_funcs_t BUILTINS[] = {
     { "expr", &builtins_expr },
     { "if", &builtins_if },
     { "break", &builtins_break },
+    { "astprint", &builtins_astprint },
+    { "termname", &builtins_termname },
     { "echo", &builtins_echo }
 };
 
