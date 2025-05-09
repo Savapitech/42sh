@@ -317,6 +317,11 @@ TESTS = [
             "cd too many args here\n",
             "unsetenv\n",
             "setenv ONLYKEY\n",
+            "echo\n",
+            "echo a\n",
+            "echo a b\n",
+            "echo ab\n",
+            "echo $PATH\n",
             ],
         depends_on=("CD", "ENV")
     ),

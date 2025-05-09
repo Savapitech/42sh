@@ -17,7 +17,7 @@
 #include "u_str.h"
 
 const char *OTHER_BUILTINS[] = {
-    "echo"
+    "pouet"
 };
 
 const size_t OTHER_BUILTINS_SZ = sizeof OTHER_BUILTINS

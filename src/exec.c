@@ -47,7 +47,8 @@ const builtins_funcs_t BUILTINS[] = {
     { "which", &builtins_which },
     { "expr", &builtins_expr },
     { "if", &builtins_if },
-    { "break", &builtins_break }
+    { "break", &builtins_break },
+    { "echo", &builtins_echo }
 };
 
 const size_t BUILTINS_SZ = sizeof BUILTINS / sizeof *BUILTINS;
