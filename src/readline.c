@@ -50,10 +50,8 @@ bool append_null_terminator(buff_t *out)
         return true;
     if (!ensure_buff_av_capacity(out, 1))
         return false;
-    U_DEBUG("buff sz: %zu\n", out->sz);
     if (out->str[out->sz - 1] == '\n')
         out->sz--;
-    U_DEBUG("readline [%.*s]\n", (int)out->sz, out->str);
     out->str[out->sz] = '\0';
     out->sz++;
     return true;
@@ -157,7 +155,6 @@ bool read_until_line_ending(
             return false;
         if (!populate_copy_buff(rh, rd, &tpi))
             return true;
-        U_DEBUG("copied %zu chars to cpy (%zu used)\n", tpi.written, tpi.used);
         memmove(rh->in, &rh->in[tpi.used], BULK_READ_BUFF_SZ - tpi.used);
         memset(&rh->in[BULK_READ_BUFF_SZ - tpi.used], '\0', tpi.used);
         if (rh->cpy[tpi.written - 1] == '\n')
@@ -165,7 +162,6 @@ bool read_until_line_ending(
         rd = read(ec->read_fd, rh->in, BULK_READ_BUFF_SZ);
         if (rd <= 0)
             return (rd == 0);
-        U_DEBUG("read %zu characters\n", rd);
     }
     return true;
 }
@@ -180,7 +176,6 @@ bool readline(exec_ctx_t *ec, buff_t *out)
 
     for (size_t i = 0; i < sizeof read_buff; i++)
         is_empty &= read_buff[i] == '\0';
-    U_DEBUG("readline buff is empty? %d\n", is_empty);
     if (is_empty) {
         rd = read(ec->read_fd, read_buff, sizeof read_buff);
         if (rd < 0)

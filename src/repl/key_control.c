@@ -21,8 +21,14 @@ bool handle_key_ctrl_c(readline_helper_t *rh, exec_ctx_t *ec, buff_t *buff)
     return false;
 }
 
-bool handle_key_ctrl_d(readline_helper_t *, exec_ctx_t *ec, buff_t *buff)
+bool handle_key_ctrl_d(readline_helper_t *rh, exec_ctx_t *ec, buff_t *buff)
 {
+    if (rh->cursor) {
+        WRITE_CONST(STDOUT_FILENO, "\n");
+        print_shell_prompt(ec);
+        refresh_line(rh);
+        return false;
+    }
     if (ec->ignoreof)
         return false;
     buff->sz = 0;
@@ -39,7 +45,7 @@ bool handle_key_ctrl_l(readline_helper_t *, exec_ctx_t *ec, buff_t *)
 
 bool handle_backspace(readline_helper_t *rh, exec_ctx_t *, buff_t *buff)
 {
-    if (rh->cursor == 0)
+    if (!rh->cursor || !buff->sz)
         return false;
     rh->cursor--;
     memmove(&buff->str[rh->cursor], &buff->str[rh->cursor + 1],

@@ -8,7 +8,6 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "debug.h"
 #include "key_handler.h"
 #include "readline.h"
 #include "u_str.h"
@@ -71,7 +70,6 @@ bool handle_key_arrow_left(
         rh->cursor--;
         refresh_line(rh);
     }
-    U_DEBUG("Key [LEFT] cursor [%zd]\n", rh->cursor);
     return false;
 }
 
@@ -82,6 +80,5 @@ bool handle_key_arrow_right(
         rh->cursor++;
         refresh_line(rh);
     }
-    U_DEBUG("Key [RIGHT] cursor [%zd]\n", rh->cursor);
     return false;
 }

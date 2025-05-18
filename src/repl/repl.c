@@ -107,7 +107,6 @@ ssize_t handle_keys(
     char const *read_buff,
     size_t len)
 {
-    U_DEBUG("Found special char, [%hhx]\n", *read_buff);
     for (size_t i = 0; i < sizeof KEY_HANDLERS / sizeof *KEY_HANDLERS; i++) {
         if (strncmp(read_buff, KEY_HANDLERS[i].name,
                 strlen(KEY_HANDLERS[i].name)) != 0)

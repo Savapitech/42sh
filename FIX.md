@@ -7,3 +7,4 @@
 - [ ] All AFL crashes
 - [ ] Fix CTRL+E and ->
 - [ ] Multi line editing
+- [ ] Foreach in if
