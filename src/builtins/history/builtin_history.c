@@ -108,7 +108,6 @@ char *his_id_command(char *line,
     new_str = cat_in_str(his_variable, line, new_line);
     printf("%s\n", new_str);
     free(new_line);
-    free(line);
     return new_str;
 }
 
