@@ -18,6 +18,7 @@ LIB_NAME := libu.a
 SRC := $(wildcard src/*.c)
 SRC += $(wildcard src/builtins/*.c)
 SRC += $(wildcard src/builtins/expr/*.c)
+SRC += $(wildcard src/builtins/history/*.c)
 SRC += $(wildcard src/ast/*.c)
 SRC += $(wildcard src/utils/*.c)
 SRC += $(wildcard src/local/*.c)

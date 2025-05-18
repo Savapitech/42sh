@@ -54,7 +54,7 @@ bool search_cmd(ef_t *ef, char *arg)
         return false;
     if (bin_path == NULL)
         return free(alias_path.str), NULL;
-    parse_alias(&alias_path.str, &alias_path.sz, ef->exec_ctx->alias);
+    replace_alias(&alias_path.str, ef->exec_ctx->alias);
     if (strcmp(arg, alias_path.str) != 0)
         return dprintf(ef->out_fd, "%s:\t aliased to %s\n", arg,
             alias_path.str), true;

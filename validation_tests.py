@@ -179,6 +179,7 @@ TESTS = [
         name="alias",
         cmds=[
             "ll\nalias ll ls\nll\n",
+            "alias ls ls\nls\nalias\n",
             "ll\n",
         ],
         depends_on=()

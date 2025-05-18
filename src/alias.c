@@ -12,7 +12,6 @@
 #include <unistd.h>
 
 #include "alias.h"
-#include "common.h"
 #include "history.h"
 #include "utils.h"
 
@@ -70,7 +69,6 @@ char *get_alias(char *buffer, int i, alias_t *alias)
     return buffer;
 }
 
-static
 bool replace_alias(char **buffer, alias_t *alias)
 {
     char *tmp_buff = *buffer;
@@ -84,15 +82,6 @@ bool replace_alias(char **buffer, alias_t *alias)
     }
     *buffer = tmp_buff;
     return true;
-}
-
-int parse_alias(char **buffer, size_t *buffer_len, alias_t *alias)
-{
-    bool need_to_replace = true;
-
-    while (need_to_replace)
-        need_to_replace = replace_alias(buffer, alias);
-    return RETURN_SUCCESS;
 }
 
 alias_t init_alias(void)

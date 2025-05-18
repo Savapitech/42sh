@@ -16,21 +16,18 @@
 
 void free_alias(alias_t *alias)
 {
-    for (size_t i = 0; i != alias->size; i++){
+    for (size_t i = 0; i < alias->size; i++){
         free(alias->alias_array[i]);
         free(alias->alias_to_replace[i]);
     }
     free(alias->alias_array);
     free(alias->alias_to_replace);
-    return;
 }
 
 int builtins_display_alias(alias_t *alias)
 {
-    for (size_t i = 0; i != alias->size; i++){
-        printf("|| Alias: %s || ", alias->alias_array[i]);
-        printf("Command: %s ||\n", alias->alias_to_replace[i]);
-    }
+    for (size_t i = 0; i != alias->size; i++)
+        printf("%s\t%s\n", alias->alias_array[i], alias->alias_to_replace[i]);
     return RETURN_SUCCESS;
 }
 
@@ -47,16 +44,16 @@ int size_str_in_narray(int i, char **array)
 static
 char *array_nto_strdup(char **array, int i)
 {
-    char *new_str = NULL;
+    char *new_str = nullptr;
     int size_str = 0;
     int letter = 0;
 
     if (len_array(array) < i)
-        return NULL;
+        return nullptr;
     size_str = size_str_in_narray(i, array);
     new_str = malloc(size_str + 1);
     if (new_str == NULL)
-        return NULL;
+        return nullptr;
     for (int j = i; array[j] != NULL; j++){
         for (int k = 0; array[j][k] != '\0'; k++){
             new_str[letter] = array[j][k];
@@ -107,18 +104,13 @@ int add_alias(alias_t *alias, char **args)
 int builtins_alias(ef_t *ef, char **args)
 {
     alias_t *alias = ef->exec_ctx->alias;
-    char *first_arg = args[1];
 
-    if (first_arg != NULL && strcmp(args[1], "-h") == 0){
-        fprintf(stderr, "alias [cpy] [command]\n");
-        return RETURN_FAILURE;
-    }
-    if (len_array(args) < 3){
+    if (args[1] != NULL && strcmp(args[1], "-h") == 0)
+        return fprintf(stderr, "alias [cpy] [command]\n"), RETURN_FAILURE;
+    if (len_array(args) < 3) {
         builtins_display_alias(alias);
         return RETURN_SUCCESS;
     }
     alias->size++;
-    if (add_alias(alias, args) == RETURN_FAILURE)
-        return RETURN_FAILURE;
-    return RETURN_SUCCESS;
+    return add_alias(alias, args);
 }
