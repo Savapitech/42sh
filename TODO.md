@@ -5,3 +5,4 @@
 - [ ] Finish line editing
 - [ ] Syntax highlighting
 - [ ] CTRL+R
+- [ ] Git integration
