@@ -14,7 +14,7 @@
     #include "readline.h"
     #include "u_str.h"
 
-void init_shell_repl(exec_ctx_t *exec_ctx);
+void init_shell_repl(exec_ctx_t *ec);
 
 void restore_term_flags(exec_ctx_t *exec_ctx);
 

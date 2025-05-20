@@ -16,6 +16,7 @@
 #include "debug.h"
 #include "env.h"
 #include "history.h"
+#include "job.h"
 #include "local.h"
 #include "readline.h"
 #include "repl.h"
@@ -147,8 +148,7 @@ int shell(opt_t *opt, char **env_ptr)
 {
     alias_t alias = init_alias();
     env_t env = parse_env(env_ptr);
-    history_t history = { .cmd_history = nullptr, .last_exit_code = 0,
-        .last_chdir = nullptr};
+    history_t history = { nullptr, 0, nullptr};
     his_command_t *cmd_history = init_cmd_history();
     local_t local = create_local();
     exec_ctx_t exec_ctx = {.env = &env, .local = &local, .opt = opt,
@@ -157,7 +157,8 @@ int shell(opt_t *opt, char **env_ptr)
         .ignoreof = false };
     int shell_result;
 
-    if (exec_ctx.read_fd == -1 || (int)error_in_init(&exec_ctx))
+    if (exec_ctx.read_fd == -1 || (int)error_in_init(&exec_ctx)
+        || !init_jobs(&exec_ctx))
         return RETURN_FAILURE;
     shell_result = shell_loop(isatty(exec_ctx.read_fd), &exec_ctx);
     if (opt->cmd == NULL && isatty(exec_ctx.read_fd)) {

@@ -20,6 +20,7 @@
 #include "debug.h"
 #include "env.h"
 #include "exec.h"
+#include "job.h"
 #include "path.h"
 #include "repl.h"
 #include "u_mem.h"
@@ -52,7 +53,8 @@ const builtins_funcs_t BUILTINS[] = {
     { "break", &builtins_break },
     { "astprint", &builtins_astprint },
     { "termname", &builtins_termname },
-    { "echo", &builtins_echo }
+    { "echo", &builtins_echo },
+    { "fg", &builtins_fg }
 };
 
 const size_t BUILTINS_SZ = sizeof BUILTINS / sizeof *BUILTINS;
@@ -133,27 +135,37 @@ void set_fd(ef_t *ef)
 }
 
 static
+int exec(char *full_bin_path, char **args, ef_t *ef)
+{
+    execve(full_bin_path, args, ef->env->env);
+    return command_error(full_bin_path, args, errno);
+}
+
+static
 int launch_bin(char *full_bin_path, char **args, ef_t *ef)
 {
     int status;
     pid_t pid = fork();
+    bool untraced = (!(ef->flags & F_PIPE) || ef->p_i == ef->p_sz - 1);
 
     if (pid == 0) {
-        restore_term_flags(ef->exec_ctx);
         set_fd(ef);
-        if (execve(full_bin_path, args, ef->env->env) < 0) {
-            status = command_error(full_bin_path, args, errno);
-            free_env(ef->env);
-            exit(((free_args(args)), status));
-        }
+        restore_term_flags(ef->exec_ctx);
+        init_child_job(ef->exec_ctx, pid);
+        status = exec(full_bin_path, args, ef);
+        exit(RETURN_FAILURE);
     }
-    if (!(ef->flags & F_PIPE) || ef->p_i == ef->p_sz - 1)
-        waitpid(pid, &status, 0);
-    else
-        waitpid(pid, &status, WNOHANG);
+    setpgid(pid, pid);
+    tcsetpgrp(ef->exec_ctx->read_fd, pid);
+    waitpid(pid, &status, untraced ? WUNTRACED : WNOHANG);
+    if (WIFSTOPPED(status)) {
+        ef->exec_ctx->jobs.jobs[ef->exec_ctx->jobs.sz - 1].running = true;
+        ef->exec_ctx->jobs.jobs[ef->exec_ctx->jobs.sz - 1].foreground = false;
+        printf("[%lu]+  Continued &\n", ef->exec_ctx->jobs.sz);
+    }
     if (WIFEXITED(status))
         ef->exec_ctx->history->last_exit_code =
-        ef->exec_ctx->history->last_exit_code ?: WEXITSTATUS(status);
+            ef->exec_ctx->history->last_exit_code ?: WEXITSTATUS(status);
     return status;
 }
 
@@ -223,6 +235,9 @@ int execute(ef_t *ef)
     exec_the_args(ef, args);
     free_args(args);
     init_shell_repl(ef->exec_ctx);
+    if (ef->exec_ctx->isatty &&
+        tcsetpgrp(ef->exec_ctx->read_fd, ef->exec_ctx->jobs.jobs[0].pgid) < 0)
+        return RETURN_FAILURE;
     return ef->exec_ctx->history->last_exit_code
         != 0 ? RETURN_FAILURE : RETURN_SUCCESS;
 }

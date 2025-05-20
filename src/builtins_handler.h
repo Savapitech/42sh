@@ -17,6 +17,18 @@
     #include "shell.h"
 
 typedef struct {
+    pid_t pgid;
+    bool running;
+    bool foreground;
+} job_t;
+
+typedef struct {
+    job_t *jobs;
+    size_t sz;
+    size_t cap;
+} jobs_t;
+
+typedef struct {
     env_t *env;
     history_t *history;
     his_command_t *history_command;
@@ -31,6 +43,7 @@ typedef struct {
     char *precmd;
     char *cwdcmd;
     bool ignoreof;
+    jobs_t jobs;
 } exec_ctx_t;
 
 size_t update_command(char **buffer,

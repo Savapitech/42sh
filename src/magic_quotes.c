@@ -56,20 +56,20 @@ char *add_to_args(char *to_return, args_t *args, size_t *sz, size_t i)
 {
     to_return = realloc_buffer(to_return, sz, &i);
     if (to_return == NULL)
-        return NULL;
+        return nullptr;
     to_return[i] = '\0';
     if (!ensure_args_capacity(args))
         return (free(to_return), NULL);
     args->args[args->sz] = to_return;
     args->sz++;
-    return NULL;
+    return nullptr;
 }
 
 char *handle_buffer(char *to_return, size_t *sz, size_t *i, char buf)
 {
     to_return = realloc_buffer(to_return, sz, i);
     if (to_return == NULL)
-        return NULL;
+        return nullptr;
     to_return[*i] = buf;
     return to_return;
 }
