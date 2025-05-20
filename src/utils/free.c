@@ -26,4 +26,5 @@ void free_everything(exec_ctx_t *ec)
     }
     free(ec->history_command);
     free(ec->local->local_var);
+    free(ec->jobs.jobs);
 }
