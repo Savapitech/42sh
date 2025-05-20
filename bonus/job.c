@@ -45,9 +45,9 @@ bool init_child_job(exec_ctx_t *ec, pid_t pid)
 {
     if (pid == 0) {
         setpgid(0, 0);
-        set_ignored_signals(1);
         if (tcsetpgrp(ec->read_fd, getpid()) < 0)
             return false;
+        set_ignored_signals(1);
     } else {
         setpgid(pid, pid);
         if (!ensure_jobs_capacity(&ec->jobs))

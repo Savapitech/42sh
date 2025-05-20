@@ -54,7 +54,8 @@ const builtins_funcs_t BUILTINS[] = {
     { "astprint", &builtins_astprint },
     { "termname", &builtins_termname },
     { "echo", &builtins_echo },
-    { "fg", &builtins_fg }
+    { "fg", &builtins_fg },
+    { "bg", &builtins_bg }
 };
 
 const size_t BUILTINS_SZ = sizeof BUILTINS / sizeof *BUILTINS;
@@ -155,13 +156,13 @@ int launch_bin(char *full_bin_path, char **args, ef_t *ef)
         status = exec(full_bin_path, args, ef);
         exit(RETURN_FAILURE);
     }
-    setpgid(pid, pid);
-    tcsetpgrp(ef->exec_ctx->read_fd, pid);
+    if (!init_child_job(ef->exec_ctx, pid))
+        return RETURN_FAILURE;
     waitpid(pid, &status, untraced ? WUNTRACED : WNOHANG);
     if (WIFSTOPPED(status)) {
         ef->exec_ctx->jobs.jobs[ef->exec_ctx->jobs.sz - 1].running = true;
         ef->exec_ctx->jobs.jobs[ef->exec_ctx->jobs.sz - 1].foreground = false;
-        printf("\n[%lu]+  Continued &\n", ef->exec_ctx->jobs.sz);
+        printf("\nSuspended\n");
     }
     return status;
 }

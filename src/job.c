@@ -34,27 +34,33 @@ bool ensure_jobs_capacity(jobs_t *jobs)
     return true;
 }
 
-bool set_child_fg(exec_ctx_t *ec, size_t idx)
+bool set_child_term(exec_ctx_t *ec, size_t idx)
 {
     if (tcsetpgrp(ec->read_fd, ec->jobs.jobs[idx].pgid) < 0)
         return false;
-    kill(-ec->jobs.jobs[idx].pgid, SIGCONT);
     return true;
 }
 
-bool init_child_job(exec_ctx_t *ec, pid_t)
+bool init_child_job(exec_ctx_t *ec, pid_t pid)
 {
     if (!ec->isatty)
         return true;
-    setpgid(0, 0);
-    tcsetpgrp(ec->read_fd, getpid());
-    set_ignored_signals(1);
-    if (!ensure_jobs_capacity(&ec->jobs))
-        return false;
-    ec->jobs.jobs[ec->jobs.sz].pgid = getpid();
-    ec->jobs.jobs[ec->jobs.sz].running = true;
-    ec->jobs.jobs[ec->jobs.sz].foreground = true;
-    ec->jobs.sz++;
+    if (pid == 0) {
+        setpgid(0, 0);
+        if (tcsetpgrp(ec->read_fd, getpid()) < 0)
+            return false;
+        set_ignored_signals(1);
+    } else {
+        setpgid(pid, pid);
+        if (tcsetpgrp(ec->read_fd, pid) < 0)
+            return false;
+        if (!ensure_jobs_capacity(&ec->jobs))
+            return false;
+        ec->jobs.jobs[ec->jobs.sz].pgid = pid;
+        ec->jobs.jobs[ec->jobs.sz].running = true;
+        ec->jobs.jobs[ec->jobs.sz].foreground = true;
+        ec->jobs.sz++;
+    }
     return true;
 }
 
