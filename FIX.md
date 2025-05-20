@@ -8,4 +8,4 @@
 - [ ] Fix CTRL+E and ->
 - [ ] Multi line editing
 - [ ] Foreach in if
-- [ ] Output flushing when open an other shell with 42sh
+- [x] Output flushing when open an other shell with 42sh
