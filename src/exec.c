@@ -161,11 +161,8 @@ int launch_bin(char *full_bin_path, char **args, ef_t *ef)
     if (WIFSTOPPED(status)) {
         ef->exec_ctx->jobs.jobs[ef->exec_ctx->jobs.sz - 1].running = true;
         ef->exec_ctx->jobs.jobs[ef->exec_ctx->jobs.sz - 1].foreground = false;
-        printf("[%lu]+  Continued &\n", ef->exec_ctx->jobs.sz);
+        printf("\n[%lu]+  Continued &\n", ef->exec_ctx->jobs.sz);
     }
-    if (WIFEXITED(status))
-        ef->exec_ctx->history->last_exit_code =
-            ef->exec_ctx->history->last_exit_code ?: WEXITSTATUS(status);
     return status;
 }
 
@@ -228,11 +225,15 @@ int exec_the_args(ef_t *ef, char **args)
 int execute(ef_t *ef)
 {
     char **args;
+    int status;
 
     args = parse_args(ef, ef->act_node);
     if (!args)
         return RETURN_FAILURE;
-    exec_the_args(ef, args);
+    status = exec_the_args(ef, args);
+    if (WIFEXITED(status))
+        ef->exec_ctx->history->last_exit_code =
+            ef->exec_ctx->history->last_exit_code ?: WEXITSTATUS(status);
     free_args(args);
     init_shell_repl(ef->exec_ctx);
     if (ef->exec_ctx->isatty &&
