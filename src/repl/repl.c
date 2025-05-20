@@ -5,7 +5,6 @@
 ** _
 */
 
-#include <signal.h>
 #include <stdio.h>
 #include <string.h>
 #include <termios.h>
@@ -59,7 +58,7 @@ void print_prompt(env_t *env_ptr, char *hostname, exec_ctx_t *ec)
         get_env_value(env_ptr, "USER"),
         hostname,
         get_env_value(env_ptr, "PWD"),
-        ec->history_command->sz);
+        ec->history_command->sz + 1);
 }
 
 void print_shell_prompt(exec_ctx_t *ec)
@@ -81,24 +80,26 @@ void print_shell_prompt(exec_ctx_t *ec)
     }
 }
 
-void init_shell_repl(exec_ctx_t *exec_ctx)
+void init_shell_repl(exec_ctx_t *ec)
 {
-    exec_ctx->is_running = true;
-    if (isatty(exec_ctx->read_fd)) {
+    struct termios new_settings = ec->saved_term_settings;
+
+    ec->is_running = true;
+    if (ec->isatty) {
         setvbuf(stdout, nullptr, _IONBF, 0);
-        signal(SIGINT, SIG_IGN);
         WRITE_CONST(STDOUT_FILENO, BLINKING_VERTICAL_CURSOR);
-        exec_ctx->saved_term_settings.c_iflag = IXON;
-        exec_ctx->saved_term_settings.c_lflag = ~(ECHO | ICANON);
-        tcsetattr(exec_ctx->read_fd, TCSANOW, &exec_ctx->saved_term_settings);
+        new_settings.c_iflag &= ~IXON;
+        new_settings.c_lflag &= ~(ECHO | ICANON | ISIG);
+        new_settings.c_cc[VMIN] = 1;
+        new_settings.c_cc[VTIME] = 0;
+        tcsetattr(ec->read_fd, TCSANOW, &new_settings);
     }
 }
 
 void restore_term_flags(exec_ctx_t *exec_ctx)
 {
-    if (!isatty(exec_ctx->read_fd))
-        return;
-    tcsetattr(exec_ctx->read_fd, TCSANOW, &exec_ctx->saved_term_settings);
+    if (exec_ctx->isatty)
+        tcsetattr(exec_ctx->read_fd, TCSANOW, &exec_ctx->saved_term_settings);
 }
 
 ssize_t handle_keys(
