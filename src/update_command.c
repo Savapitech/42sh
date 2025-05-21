@@ -53,7 +53,10 @@ size_t update_command(char **buffer,
     if (parse_history(buffer, &buffer_len,
         buffer_sz, &exec_ctx->history_command) == 84)
         return RETURN_SUCCESS;
-    replace_alias(buffer, exec_ctx->alias);
+    if (parse_alias(buffer, exec_ctx->alias) == RETURN_FAILURE) {
+        exec_ctx->history->last_exit_code = RETURN_FAILURE;
+        return 0;
+    }
     exec_ctx->history_command = save_command(*buffer,
         exec_ctx->history_command);
     return buffer_len;

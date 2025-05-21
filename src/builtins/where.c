@@ -68,7 +68,7 @@ bool search_cmd(ef_t *ef, char *arg)
 
     if (!alias_path.str)
         return false;
-    replace_alias(&alias_path.str, ef->exec_ctx->alias);
+    parse_alias(&alias_path.str, ef->exec_ctx->alias);
     if (strcmp(arg, alias_path.str) != 0)
         dprintf(ef->out_fd, "%s is aliased to %s\n", arg, alias_path.str);
     search_builtins(ef, arg);
