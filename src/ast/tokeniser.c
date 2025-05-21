@@ -17,6 +17,7 @@ const tokens_list_t TOKENS_LIST[] = {
     { T_QUOTES, "\'", 1, "T_QUOTES"},
     { T_DQUOTES, "\"", 1, "T_DQUOTES"},
     { T_AND, "&&", 2, "T_AND" },
+    { T_JOB, "&", 1, "T_JOB" },
     { T_OR, "||", 2, "T_OR" },
     { T_PIPE, "|", 1, "T_PIPE" },
     { T_BACKTICK, "`", 1, "T_BACKTICK" },

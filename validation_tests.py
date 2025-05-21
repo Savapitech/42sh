@@ -241,10 +241,8 @@ TESTS = [
         cmds=[
             "expr 1 + 2",
             "expr 4 - 2",
-            #"expr 3 \\* 5",
-            #"expr 5 = 5",
-            #"expr 5 \\< 10",
-            #"expr 5 \\> 3",
+            "expr 5 = 5",
+            "expr 1 != 5",
         ],
         depends_on=("ARGS",)
     ),
@@ -307,7 +305,6 @@ TESTS = [
             "where cd\n",
             "where echo\n",
             "alias ll ls\nwhere ll\n",
-            #"alias ll ls\nwhich ll\n",
         ],
         depends_on=("ALIAS",)
     ),
@@ -339,6 +336,17 @@ TESTS = [
             "echo $term\n",
             "echo $cwd\n",
             "ncd /\n",
+            ],
+        depends_on=()
+    ),
+
+    Test(
+        key="JOBS_ERROR",
+        name="jobs error",
+        cmds=[
+            "fg\n",
+            "bg\n",
+            "jobs\n",
             ],
         depends_on=()
     ),

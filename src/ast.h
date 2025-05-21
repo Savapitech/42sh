@@ -40,9 +40,10 @@ typedef enum size_t {
     T_BACKSLASH = 1 << 19,
     T_NEWLINE = 1 << 20, // \n
     T_TILDE = 1 << 21, // ~
-    T_EOF = 1 << 22, // \0
-    T_ARG = 1 << 23,
-    T_INVALID = 1 << 24
+    T_JOB = 1 << 22, // &
+    T_EOF = 1 << 23, // \0
+    T_ARG = 1 << 24,
+    T_INVALID = 1 << 25
 } token_type_t;
 
 typedef enum {

@@ -55,7 +55,8 @@ const builtins_funcs_t BUILTINS[] = {
     { "termname", &builtins_termname },
     { "echo", &builtins_echo },
     { "fg", &builtins_fg },
-    { "bg", &builtins_bg }
+    { "bg", &builtins_bg },
+    { "jobs", &builtins_jobs }
 };
 
 const size_t BUILTINS_SZ = sizeof BUILTINS / sizeof *BUILTINS;
@@ -136,35 +137,40 @@ void set_fd(ef_t *ef)
 }
 
 static
-int exec(char *full_bin_path, char **args, ef_t *ef)
+int wait_child(ef_t *ef, int status, pid_t pid)
 {
-    execve(full_bin_path, args, ef->env->env);
-    return command_error(full_bin_path, args, errno);
+    bool untraced = (!(ef->flags & F_PIPE) || ef->p_i == ef->p_sz - 1);
+
+    if (!init_child_job(ef->exec_ctx, pid, ef))
+        return RETURN_FAILURE;
+    if (ef->bg) {
+        printf("[%lu] %d\n", ef->exec_ctx->jobs.sz, pid);
+        return RETURN_SUCCESS;
+    }
+    waitpid(pid, &status, untraced ? WUNTRACED : WNOHANG);
+    if (WIFSTOPPED(status)) {
+        ef->exec_ctx->jobs.jobs[ef->exec_ctx->jobs.sz - 1].running = false;
+        ef->exec_ctx->jobs.jobs[ef->exec_ctx->jobs.sz - 1].foreground = false;
+        printf("\nSuspended\n");
+    }
+    return status;
 }
 
 static
 int launch_bin(char *full_bin_path, char **args, ef_t *ef)
 {
-    int status;
+    int status = 0;
     pid_t pid = fork();
-    bool untraced = (!(ef->flags & F_PIPE) || ef->p_i == ef->p_sz - 1);
 
     if (pid == 0) {
         set_fd(ef);
         restore_term_flags(ef->exec_ctx);
-        init_child_job(ef->exec_ctx, pid);
-        status = exec(full_bin_path, args, ef);
+        init_child_job(ef->exec_ctx, pid, ef);
+        execve(full_bin_path, args, ef->env->env);
+        status = command_error(full_bin_path, args, errno);
         exit(RETURN_FAILURE);
     }
-    if (!init_child_job(ef->exec_ctx, pid))
-        return RETURN_FAILURE;
-    waitpid(pid, &status, untraced ? WUNTRACED : WNOHANG);
-    if (WIFSTOPPED(status)) {
-        ef->exec_ctx->jobs.jobs[ef->exec_ctx->jobs.sz - 1].running = true;
-        ef->exec_ctx->jobs.jobs[ef->exec_ctx->jobs.sz - 1].foreground = false;
-        printf("\nSuspended\n");
-    }
-    return status;
+    return wait_child(ef, status, pid);
 }
 
 static

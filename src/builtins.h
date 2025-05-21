@@ -57,4 +57,5 @@ int builtins_astprint(ef_t *, char **args);
 int builtins_termname(ef_t *ef, char **);
 int builtins_fg(ef_t *ef, char **);
 int builtins_bg(ef_t *ef, char **);
+int builtins_jobs(ef_t *ef, char **args);
 #endif /* BUILTIND_H */

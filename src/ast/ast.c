@@ -39,7 +39,7 @@ ast_t *parse_arg(ast_ctx_t *ctx, ast_t *node)
         ctx->act_tok.type = T_ARG;
     }
     if (ctx->act_tok.type & (T_ARG | T_REDIRECT | T_APPEND |
-        T_IN_REDIRECT | T_HEREDOC | T_VAR | T_STAR | T_TILDE)) {
+        T_IN_REDIRECT | T_HEREDOC | T_VAR | T_STAR | T_TILDE | T_JOB)) {
         if (!ensure_node_cap(node))
             return nullptr;
         node->vector.tokens[node->vector.sz] = ctx->act_tok;

@@ -9,6 +9,7 @@
 #include <unistd.h>
 
 #include "builtins_handler.h"
+#include "exec.h"
 #include "job.h"
 
 void set_ignored_signals(int child)
@@ -36,32 +37,39 @@ bool ensure_jobs_capacity(jobs_t *jobs)
 
 bool set_child_term(exec_ctx_t *ec, size_t idx)
 {
-    if (tcsetpgrp(ec->read_fd, ec->jobs.jobs[idx].pgid) < 0)
+    return tcsetpgrp(ec->read_fd, ec->jobs.jobs[idx].pgid) < 0 ? false : true;
+}
+
+static
+bool init_child_parent(exec_ctx_t *ec, pid_t pid, ef_t *ef)
+{
+    if (!ef->bg) {
+        setpgid(pid, pid);
+        tcsetpgrp(ec->read_fd, pid);
+    }
+    if (!ensure_jobs_capacity(&ec->jobs))
         return false;
+    ec->jobs.jobs[ec->jobs.sz].pgid = pid;
+    ec->jobs.jobs[ec->jobs.sz].running = true;
+    ec->jobs.jobs[ec->jobs.sz].foreground = !ef->bg;
+    ec->jobs.jobs[ec->jobs.sz].bin_name =
+        ec->history_command[ec->history_command->sz - 1].command;
+    ec->jobs.sz++;
     return true;
 }
 
-bool init_child_job(exec_ctx_t *ec, pid_t pid)
+bool init_child_job(exec_ctx_t *ec, pid_t pid, ef_t *ef)
 {
     if (!ec->isatty)
         return true;
     if (pid == 0) {
         setpgid(0, 0);
-        if (tcsetpgrp(ec->read_fd, getpid()) < 0)
+        if (!ef->bg && tcsetpgrp(ec->read_fd, getpid()) < 0)
             return false;
         set_ignored_signals(1);
-    } else {
-        setpgid(pid, pid);
-        if (tcsetpgrp(ec->read_fd, pid) < 0)
-            return false;
-        if (!ensure_jobs_capacity(&ec->jobs))
-            return false;
-        ec->jobs.jobs[ec->jobs.sz].pgid = pid;
-        ec->jobs.jobs[ec->jobs.sz].running = true;
-        ec->jobs.jobs[ec->jobs.sz].foreground = true;
-        ec->jobs.sz++;
+        return true;
     }
-    return true;
+    return init_child_parent(ec, pid, ef);
 }
 
 bool init_jobs(exec_ctx_t *ec)

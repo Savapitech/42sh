@@ -80,6 +80,10 @@ bool process_args(ast_t *node, args_t *args, size_t *toks_i, ef_t *ef)
         tok.str[tok.sz] = '\0';
         return (process_globbing(tok.str, args, toks_i));
     }
+    if (tok.type == T_JOB) {
+        ef->bg = true;
+        return true;
+    }
     if (tok.type == T_TILDE)
         return handle_tilde(ef, &tok, args);
     handle_var_case(node, ef->exec_ctx, toks_i, args);

@@ -20,6 +20,7 @@ typedef struct {
     pid_t pgid;
     bool running;
     bool foreground;
+    char *bin_name;
 } job_t;
 
 typedef struct {

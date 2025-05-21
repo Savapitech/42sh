@@ -44,6 +44,7 @@ typedef struct {
     int in_fd;
     int out_fd;
     exec_ctx_t *exec_ctx;
+    bool bg;
 } ef_t;
 
 __attribute__((nonnull))
