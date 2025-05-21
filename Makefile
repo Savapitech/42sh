@@ -24,14 +24,6 @@ SRC += $(wildcard src/utils/*.c)
 SRC += $(wildcard src/local/*.c)
 SRC += $(wildcard src/repl/*.c)
 
-BONUS_SRC := $(wildcard bonus/*.c)
-BONUS_SRC += $(wildcard bonus/builtins/*.c)
-BONUS_SRC += $(wildcard bonus/builtins/expr/*.c)
-BONUS_SRC += $(wildcard bonus/ast/*.c)
-BONUS_SRC += $(wildcard bonus/utils/*.c)
-BONUS_SRC += $(wildcard bonus/local/*.c)
-BONUS_SRC += $(wildcard bonus/repl/*.c)
-
 LIB_SRC := $(wildcard ulib/*.c)
 LIB_SRC += $(wildcard ulib/write/printf/*.c)
 LIB_SRC += $(wildcard ulib/math/*.c)
@@ -91,7 +83,6 @@ $(eval $(call mk-profile, debug, SRC, -iquote src -D U_DEBUG_MODE \
 	-fanalyzer -g3, debug))
 $(eval $(call mk-profile, test, SRC, -iquote src --coverage, test))
 $(eval $(call mk-profile, afl, SRC, -iquote src -D AFL_MODE, afl_runner))
-$(eval $(call mk-profile, bonus, BONUS_SRC, -iquote bonus, 42sh_job))
 
 all: $(NAME_release)
 

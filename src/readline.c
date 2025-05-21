@@ -14,10 +14,10 @@
 #include <termios.h>
 #include <unistd.h>
 
-#include "debug.h"
 #include "readline.h"
 #include "repl.h"
 #include "u_str.h"
+#include "vt100_esc_codes.h"
 
 bool ensure_buff_av_capacity(buff_t *buff, size_t requested)
 {
@@ -96,18 +96,12 @@ void write_buff(readline_helper_t *rh)
     write(STDOUT_FILENO, move_back, strlen(move_back));
 }
 
-void refresh_line(readline_helper_t *rh)
+static
+void print_buff(readline_helper_t *rh)
 {
     size_t target = rh->cursor + rh->ec->prompt_len;
     char move_cursor[32];
 
-    if (!rh->ec->isatty)
-        return;
-    append_null_terminator(rh->out);
-    if (rh->out->sz > 1 && *rh->cpy == '\n') {
-        WRITE_CONST(STDOUT_FILENO, "\n");
-        return;
-    }
     WRITE_CONST(STDOUT_FILENO, "\r");
     if (rh->ec->prompt_len > 0)
         print_second_shell_prompt(rh->ec);
@@ -115,6 +109,22 @@ void refresh_line(readline_helper_t *rh)
     WRITE_CONST(STDOUT_FILENO, ERASE_TO_END_LINE);
     snprintf(move_cursor, sizeof move_cursor, "\r\033[%zuC", target);
     write(STDOUT_FILENO, move_cursor, strlen(move_cursor));
+}
+
+void refresh_line(readline_helper_t *rh)
+{
+    if (!rh->ec->isatty)
+        return;
+    append_null_terminator(rh->out);
+    if (rh->cursor + rh->ec->prompt_len > rh->winsz.ws_col) {
+        write(STDOUT_FILENO, rh->out->str + rh->cursor - 1, 1);
+        return;
+    }
+    if (rh->out->sz > 1 && *rh->cpy == '\n') {
+        WRITE_CONST(STDOUT_FILENO, "\n");
+        return;
+    }
+    print_buff(rh);
 }
 
 static
@@ -150,6 +160,8 @@ bool read_until_line_ending(
     text_parse_info_t tpi;
 
     for (;;) {
+        if (ec->isatty)
+            ioctl(STDOUT_FILENO, TIOCGWINSZ, &rh->winsz);
         memset(&tpi, '\0', sizeof tpi);
         if (!ensure_buff_av_capacity(rh->out, BULK_READ_BUFF_SZ))
             return false;
@@ -174,6 +186,8 @@ bool readline(exec_ctx_t *ec, buff_t *out)
     bool is_empty = true;
     ssize_t rd = 0;
 
+    if (ec->isatty)
+        ioctl(STDOUT_FILENO, TIOCGWINSZ, &rh.winsz);
     for (size_t i = 0; i < sizeof read_buff; i++)
         is_empty &= read_buff[i] == '\0';
     if (is_empty) {

@@ -8,6 +8,7 @@
 #ifndef READLINE
     #define READLINE
     #include <stdbool.h>
+    #include <sys/ioctl.h>
 
     #include "builtins_handler.h"
     #include "u_str.h"
@@ -22,6 +23,7 @@ typedef struct {
     char cpy[BULK_READ_BUFF_SZ];
     size_t cursor;
     int history_idx;
+    struct winsize winsz;
 } readline_helper_t;
 
 typedef struct {

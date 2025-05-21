@@ -6,6 +6,6 @@
 - [x] Alias loop
 - [ ] All AFL crashes
 - [ ] Fix CTRL+E and ->
-- [ ] Multi line editing
+- [x] Multi line editing
 - [ ] Foreach in if
 - [x] Output flushing when open an other shell with 42sh

@@ -158,6 +158,7 @@ bool check_for_closable(ast_t *node, exec_ctx_t *ctx, size_t *i, args_t *args)
 
 void handle_var_case(ast_t *node, exec_ctx_t *ctx, size_t *i, args_t *args)
 {
+    args->args[args->sz] = nullptr;
     if (check_for_closable(node, ctx, i, args))
         return;
     handle_var(node, i, ctx, args);
