@@ -10,12 +10,13 @@
 #include <termios.h>
 #include <unistd.h>
 
+#include "ast.h"
 #include "common.h"
 #include "debug.h"
+#include "git.h"
 #include "repl.h"
 #include "repl/key_handler.h"
 #include "u_str.h"
-#include "visitor.h"
 #include "vt100_esc_codes.h"
 
 const key_handler_t KEY_HANDLERS[] = {
@@ -54,19 +55,29 @@ void print_second_shell_prompt(exec_ctx_t *ec)
 }
 
 static
+void print_git_prompt(git_status_t *gs)
+{
+    if (!gs->ahead && !gs->behind)
+        printf(BLUE " [" RED "%s" BLUE "] " RESET "-", gs->branch);
+}
+
+static
 void print_prompt(env_t *env_ptr, char *hostname, exec_ctx_t *ec)
 {
     char const *username = get_env_value(env_ptr, "USER");
+    git_status_t gs = {0};
 
     if (username == nullptr)
         username = "?";
     printf(BLUE PROMPT_HEADER GREEN "%s" RESET "@" CYAN "%s" BLUE "] "
         RESET "-" BLUE " [" RESET "%s" BLUE
-        "] " RESET "-" BLUE " [" YELLOW "%d" BLUE
-        "]\n└─[" PURPLE "%s%s" BLUE "] " RESET,
+        "] " RESET "-",
         username,
         hostname,
-        get_env_value(env_ptr, "PWD"),
+        get_env_value(env_ptr, "PWD"));
+    if (get_git_status(&gs))
+        print_git_prompt(&gs);
+    printf(BLUE " [" YELLOW "%d" BLUE "]\n└─[" PURPLE "%s%s" BLUE "] " RESET,
         ec->history_command->sz + 1,
         ec->history->last_exit_code == 0 ? "" : RED,
         strcmp(username, "root") == 0 ? "#" : "$");
