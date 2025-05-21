@@ -38,10 +38,14 @@ void print_second_shell_prompt(exec_ctx_t *ec)
 {
     env_t *env_ptr = ec->env;
     char const *ps1 = get_env_value(env_ptr, "PS1");
+    char const *username = get_env_value(env_ptr, "USER");
 
+    if (username == nullptr)
+        username = "?";
     if (ps1 == nullptr) {
-        printf(BLUE "└─[" PURPLE "%s$" BLUE "] " RESET,
-            ec->history->last_exit_code == 0 ? "" : RED);
+        printf(BLUE "└─[" PURPLE "%s%s" BLUE "] " RESET,
+            ec->history->last_exit_code == 0 ? "" : RED,
+            strcmp(username, "root") == 0 ? "#" : "$");
         ec->prompt_len = 6;
     } else {
         printf("%s", ps1);
@@ -52,15 +56,20 @@ void print_second_shell_prompt(exec_ctx_t *ec)
 static
 void print_prompt(env_t *env_ptr, char *hostname, exec_ctx_t *ec)
 {
+    char const *username = get_env_value(env_ptr, "USER");
+
+    if (username == nullptr)
+        username = "?";
     printf(BLUE PROMPT_HEADER GREEN "%s" RESET "@" CYAN "%s" BLUE "] "
         RESET "-" BLUE " [" RESET "%s" BLUE
         "] " RESET "-" BLUE " [" YELLOW "%d" BLUE
-        "]\n└─[" PURPLE "%s$" BLUE "] " RESET,
-        get_env_value(env_ptr, "USER"),
+        "]\n└─[" PURPLE "%s%s" BLUE "] " RESET,
+        username,
         hostname,
         get_env_value(env_ptr, "PWD"),
         ec->history_command->sz + 1,
-        ec->history->last_exit_code == 0 ? "" : RED);
+        ec->history->last_exit_code == 0 ? "" : RED,
+        strcmp(username, "root") == 0 ? "#" : "$");
 }
 
 void print_shell_prompt(exec_ctx_t *ec)
