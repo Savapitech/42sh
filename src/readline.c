@@ -15,6 +15,7 @@
 #include <unistd.h>
 
 #include "readline.h"
+#include "debug.h"
 #include "repl.h"
 #include "u_str.h"
 #include "vt100_esc_codes.h"
@@ -53,7 +54,6 @@ bool append_null_terminator(buff_t *out)
     if (out->str[out->sz - 1] == '\n')
         out->sz--;
     out->str[out->sz] = '\0';
-    out->sz++;
     return true;
 }
 
@@ -136,17 +136,20 @@ bool populate_copy_buff(
     ssize_t skip;
 
     for (bool done = false; !done && i < rd; i++) {
-        if (copy_single_char(rh, rh->out, &rh->cpy[tpi->written], rh->in[i])) {
-            done = rh->cpy[tpi->written] == '\n';
-            tpi->written++;
-            continue;
-        }
         skip = handle_keys(rh, rh->out, &rh->in[i], BULK_READ_BUFF_SZ - i);
         if (skip < 0) {
             tpi->used = i;
             return false;
         }
-        i += skip - 1;
+        if (skip) {
+            i += skip - 1;
+            continue;
+        }
+        if (copy_single_char(rh, rh->out, &rh->cpy[tpi->written], rh->in[i])) {
+            done = rh->cpy[tpi->written] == '\n';
+            tpi->written++;
+            continue;
+        }
     }
     refresh_line(rh);
     tpi->used = i;
@@ -182,7 +185,7 @@ bool readline(exec_ctx_t *ec, buff_t *out)
 {
     static char read_buff[BULK_READ_BUFF_SZ] = {0};
     readline_helper_t rh = { ec, out, read_buff, { 0 }, 0,
-        .history_idx = ec->history_command->sz };
+        .history_idx = ec->history_command->sz, .glob = {0} };
     bool is_empty = true;
     ssize_t rd = 0;
 
