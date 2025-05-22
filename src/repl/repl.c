@@ -34,6 +34,7 @@ const key_handler_t KEY_HANDLERS[] = {
     {ESC "[B", handle_key_arrow_down},
     {ESC "[C", handle_key_arrow_right},
     {ESC "[D", handle_key_arrow_left},
+    {"\t", handle_key_tab},
     {"\x7f", handle_backspace},
     {"\x1b[3~", handle_delete},
 };
@@ -62,6 +63,10 @@ void print_git_prompt(git_status_t *gs)
 {
     if (!gs->ahead && !gs->behind)
         printf(BLUE " [" RED "%s" BLUE "] " RESET "-", gs->branch);
+    if (gs->ahead)
+        printf(BLUE " [" RED "%s" GREEN " +" BLUE "] " RESET "-", gs->branch);
+    else if (gs->behind)
+        printf(BLUE " [" RED "%s" RED " -" BLUE "] " RESET "-", gs->branch);
 }
 
 static
@@ -105,26 +110,14 @@ void print_shell_prompt(exec_ctx_t *ec)
     }
 }
 
-void init_shell_repl(exec_ctx_t *ec)
+bool is_sequence(char *read_buff)
 {
-    struct termios new_settings = ec->saved_term_settings;
-
-    ec->is_running = true;
-    if (ec->isatty) {
-        setvbuf(stdout, nullptr, _IONBF, 0);
-        WRITE_CONST(STDOUT_FILENO, BLINKING_VERTICAL_CURSOR);
-        new_settings.c_iflag &= ~IXON;
-        new_settings.c_lflag &= ~(ECHO | ICANON | ISIG);
-        new_settings.c_cc[VMIN] = 1;
-        new_settings.c_cc[VTIME] = 0;
-        tcsetattr(ec->read_fd, TCSANOW, &new_settings);
+    for (size_t i = 0; i < sizeof KEY_HANDLERS / sizeof *KEY_HANDLERS; i++) {
+        if (strncmp(read_buff, KEY_HANDLERS[i].name,
+            strlen(KEY_HANDLERS[i].name)) == 0)
+            return true;
     }
-}
-
-void restore_term_flags(exec_ctx_t *exec_ctx)
-{
-    if (exec_ctx->isatty)
-        tcsetattr(exec_ctx->read_fd, TCSANOW, &exec_ctx->saved_term_settings);
+    return false;
 }
 
 ssize_t handle_keys(
@@ -133,6 +126,8 @@ ssize_t handle_keys(
     char const *read_buff,
     size_t len)
 {
+    if (!rh->ec->isatty)
+        return 0;
     for (size_t i = 0; i < sizeof KEY_HANDLERS / sizeof *KEY_HANDLERS; i++) {
         if (strncmp(read_buff, KEY_HANDLERS[i].name,
                 strlen(KEY_HANDLERS[i].name)) != 0)
@@ -143,5 +138,5 @@ ssize_t handle_keys(
     }
     for (size_t i = 0; i < len; i++)
         U_DEBUG("<- [%d]\n", read_buff[i]);
-    return 1;
+    return 0;
 }

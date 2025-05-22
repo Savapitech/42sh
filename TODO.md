@@ -1,7 +1,7 @@
 # TODO
 - [x] Add job control in main branch
-- [ ] Add auto complete
-- [ ] Finish line editing
+- [x] Add auto complete
 - [ ] Syntax highlighting
-- [ ] CTRL+R
+- [x] CTRL+R
 - [x] Git integration
+- [x] Finish line editing

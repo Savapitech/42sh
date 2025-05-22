@@ -4,8 +4,7 @@
 - [ ] !x no args
 - [x] Conditional jump/ invalid read with cd (PWD env var set)
 - [x] Alias loop
-- [ ] All AFL crashes
-- [ ] Fix CTRL+E and ->
+- [x] Fix CTRL+E and ->
 - [x] Multi line editing
 - [ ] Foreach in if
 - [x] Output flushing when open an other shell with 42sh

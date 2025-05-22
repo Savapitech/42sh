@@ -31,6 +31,7 @@ bool handle_key_ctrl_y(readline_helper_t *rh, exec_ctx_t *, buff_t *buff);
 bool handle_key_ctrl_r(readline_helper_t *rh, exec_ctx_t *ec, buff_t *buff);
 bool handle_backspace(readline_helper_t *rh, exec_ctx_t *ec, buff_t *buff);
 bool handle_delete(readline_helper_t *rh, exec_ctx_t *, buff_t *buff);
+bool handle_key_tab(readline_helper_t *rh, exec_ctx_t *ec, buff_t *buff);
 
 // Arrows
 bool handle_key_arrow_up(readline_helper_t *rh, exec_ctx_t *ec, buff_t *buff);
