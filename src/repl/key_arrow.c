@@ -12,7 +12,6 @@
 #include "readline.h"
 #include "u_str.h"
 
-static
 bool cat_history_entry(buff_t *buff, size_t i, his_command_t *cmd_history)
 {
     if (!ensure_buff_av_capacity(buff,

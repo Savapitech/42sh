@@ -29,6 +29,7 @@ const key_handler_t KEY_HANDLERS[] = {
     {"\06", handle_key_ctrl_f}, // ^F
     {"\027", handle_key_ctrl_w}, // ^W
     {"\031", handle_key_ctrl_y}, // ^Y
+    {"\022", handle_key_ctrl_r}, // ^R
     {ESC "[A", handle_key_arrow_up},
     {ESC "[B", handle_key_arrow_down},
     {ESC "[C", handle_key_arrow_right},
