@@ -28,7 +28,17 @@ buff_t get_current_word(readline_helper_t *rh, buff_t *buff)
     return word;
 }
 
-bool handle_key_tab(readline_helper_t *rh, exec_ctx_t *ec, buff_t *buff)
+static
+bool cat_auto_completion_in_buff(buff_t *buff, buff_t *word, char *pathv)
+{
+    if (!ensure_buff_av_capacity(buff, strlen(pathv)))
+        return false;
+    strcpy(word->str, pathv);
+    buff->sz += strlen(pathv) - word->sz;
+    return true;
+}
+
+bool handle_key_tab(readline_helper_t *rh, exec_ctx_t *, buff_t *buff)
 {
     buff_t word;
     glob_t globs;
@@ -36,24 +46,16 @@ bool handle_key_tab(readline_helper_t *rh, exec_ctx_t *ec, buff_t *buff)
 
     if (!rh->cursor || !buff->sz)
         return false;
-    printf("TAB\n");
     word = get_current_word(rh, buff);
-    printf("Current word [%.*s]\n", (int)word.sz, word.str);
     pattern = malloc(sizeof *pattern * (word.sz + 2));
     if (pattern == nullptr)
         return true;
     strncpy(pattern, word.str, word.sz);
     strcpy(pattern + word.sz, "*\0");
-    printf("Gen pattern [%s]\n", pattern);
     if (glob(pattern, GLOB_ERR, nullptr, &globs) != 0)
         return false;
-    for (size_t i = 0; i < globs.gl_pathc; i++) {
-        printf("Path v [%s] [%zu]\n", globs.gl_pathv[i], i);
-    }
-    if (!ensure_buff_av_capacity(buff, strlen(globs.gl_pathv[0])))
+    if (!cat_auto_completion_in_buff(buff, &word, globs.gl_pathv[0]))
         return true;
-    strcpy(word.str, globs.gl_pathv[0]);
-    buff->sz += strlen(globs.gl_pathv[0]) - word.sz;
     rh->cursor = buff->sz;
     refresh_line(rh);
     free(pattern);
