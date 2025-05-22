@@ -7,6 +7,7 @@
 
 #ifndef READLINE
     #define READLINE
+    #include <glob.h>
     #include <stdbool.h>
     #include <sys/ioctl.h>
 
@@ -16,6 +17,12 @@
     #define BUFF_INIT_SZ 16
     #define BULK_READ_BUFF_SZ 32
 
+
+typedef struct {
+    size_t used;
+    size_t written;
+} text_parse_info_t;
+
 typedef struct {
     exec_ctx_t *ec;
     buff_t *out;
@@ -24,12 +31,9 @@ typedef struct {
     size_t cursor;
     int history_idx;
     struct winsize winsz;
+    glob_t glob;
+    text_parse_info_t *tpi;
 } readline_helper_t;
-
-typedef struct {
-    size_t used;
-    size_t written;
-} text_parse_info_t;
 
 bool readline(exec_ctx_t *ec, buff_t *out);
 void write_buff(readline_helper_t *rh);

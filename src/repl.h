@@ -26,4 +26,5 @@ ssize_t handle_keys(
 
 void print_shell_prompt(exec_ctx_t *ec);
 void print_second_shell_prompt(exec_ctx_t *ec);
+bool is_sequence(char *read_buff);
 #endif /* REPL_H */

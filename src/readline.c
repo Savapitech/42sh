@@ -15,34 +15,9 @@
 #include <unistd.h>
 
 #include "readline.h"
-#include "debug.h"
 #include "repl.h"
 #include "u_str.h"
 #include "vt100_esc_codes.h"
-
-bool ensure_buff_av_capacity(buff_t *buff, size_t requested)
-{
-    char *new_str;
-    size_t endsize = BUFF_INIT_SZ;
-
-    if (buff->str == NULL) {
-        buff->str = malloc((sizeof *buff->str) * requested);
-        if (buff->str == NULL)
-            return false;
-        buff->cap = requested;
-    }
-    if ((buff->sz + requested) < buff->cap)
-        return true;
-    for (; endsize < buff->sz + requested; endsize <<= 1);
-    if (endsize > buff->cap) {
-        new_str = realloc(buff->str, (sizeof *buff->str) * endsize);
-        if (new_str == NULL)
-            return false;
-        buff->str = new_str;
-        buff->cap = endsize;
-    }
-    return true;
-}
 
 static
 bool append_null_terminator(buff_t *out)
@@ -120,11 +95,28 @@ void refresh_line(readline_helper_t *rh)
         write(STDOUT_FILENO, rh->out->str + rh->cursor - 1, 1);
         return;
     }
-    if (rh->out->sz > 1 && *rh->cpy == '\n') {
-        WRITE_CONST(STDOUT_FILENO, "\n");
-        return;
-    }
     print_buff(rh);
+}
+
+static
+bool handle_copy_buff(
+    readline_helper_t *rh, ssize_t skip, ssize_t *i, bool *done)
+{
+    if (skip < 0) {
+        rh->tpi->used = *i;
+        return false;
+    }
+    if (skip) {
+        *i += skip - 1;
+        return true;
+    }
+    if (copy_single_char(rh, rh->out, &rh->cpy[rh->tpi->written],
+            rh->in[*i])) {
+        *done = rh->cpy[rh->tpi->written] == '\n';
+        rh->tpi->written++;
+        return true;
+    }
+    return true;
 }
 
 static
@@ -137,19 +129,8 @@ bool populate_copy_buff(
 
     for (bool done = false; !done && i < rd; i++) {
         skip = handle_keys(rh, rh->out, &rh->in[i], BULK_READ_BUFF_SZ - i);
-        if (skip < 0) {
-            tpi->used = i;
+        if (!handle_copy_buff(rh, skip, &i, &done))
             return false;
-        }
-        if (skip) {
-            i += skip - 1;
-            continue;
-        }
-        if (copy_single_char(rh, rh->out, &rh->cpy[tpi->written], rh->in[i])) {
-            done = rh->cpy[tpi->written] == '\n';
-            tpi->written++;
-            continue;
-        }
     }
     refresh_line(rh);
     tpi->used = i;
@@ -162,6 +143,7 @@ bool read_until_line_ending(
 {
     text_parse_info_t tpi;
 
+    rh->tpi = &tpi;
     for (;;) {
         if (ec->isatty)
             ioctl(STDOUT_FILENO, TIOCGWINSZ, &rh->winsz);
@@ -179,6 +161,19 @@ bool read_until_line_ending(
             return (rd == 0);
     }
     return true;
+}
+
+static
+bool finish_buffer(readline_helper_t *rh)
+{
+    bool result;
+
+    if (rh->ec->isatty && *rh->cpy == '\n')
+        WRITE_CONST(STDOUT_FILENO, "\n");
+    result = append_null_terminator(rh->out);
+    if (*rh->cpy == '\n')
+        rh->out->sz++;
+    return result;
 }
 
 bool readline(exec_ctx_t *ec, buff_t *out)
@@ -201,5 +196,5 @@ bool readline(exec_ctx_t *ec, buff_t *out)
         rd = BULK_READ_BUFF_SZ;
     if (!read_until_line_ending(ec, &rh, rd))
         return false;
-    return append_null_terminator(out);
+    return finish_buffer(&rh);
 }
