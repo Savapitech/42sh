@@ -38,5 +38,6 @@ void puterror(char const *prefix);
 int my_array_len(char **tab);
 char **arraydup(char **array);
 char *u_strnchr(char *str, char to_search, size_t n);
+char *u_strndup(char const *src, size_t n);
 
 #endif /* STRING_H */

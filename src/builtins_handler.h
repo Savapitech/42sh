@@ -45,6 +45,7 @@ typedef struct {
     char *cwdcmd;
     bool ignoreof;
     jobs_t jobs;
+    char *paste_buff;
 } exec_ctx_t;
 
 size_t update_command(char **buffer,
