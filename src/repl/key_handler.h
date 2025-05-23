@@ -29,6 +29,7 @@ bool handle_key_ctrl_k(readline_helper_t *rh, exec_ctx_t *, buff_t *buff);
 bool handle_key_ctrl_w(readline_helper_t *rh, exec_ctx_t *, buff_t *buff);
 bool handle_key_ctrl_y(readline_helper_t *rh, exec_ctx_t *, buff_t *buff);
 bool handle_key_ctrl_r(readline_helper_t *rh, exec_ctx_t *ec, buff_t *buff);
+bool handle_key_ctrl_h(readline_helper_t *rh, exec_ctx_t *ec, buff_t *buff);
 bool handle_backspace(readline_helper_t *rh, exec_ctx_t *ec, buff_t *buff);
 bool handle_delete(readline_helper_t *rh, exec_ctx_t *, buff_t *buff);
 bool handle_key_tab(readline_helper_t *rh, exec_ctx_t *ec, buff_t *buff);

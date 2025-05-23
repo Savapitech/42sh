@@ -12,7 +12,6 @@
 
 #include "ast.h"
 #include "common.h"
-#include "debug.h"
 #include "git.h"
 #include "repl.h"
 #include "repl/key_handler.h"
@@ -31,6 +30,7 @@ const key_handler_t KEY_HANDLERS[] = {
     {"\031", handle_key_ctrl_y}, // ^Y
     {"\022", handle_key_ctrl_r}, // ^R
     {"\013", handle_key_ctrl_k}, // ^K
+    {"\010", handle_key_ctrl_h}, // ^H
     {ESC "[A", handle_key_arrow_up},
     {ESC "[B", handle_key_arrow_down},
     {ESC "[C", handle_key_arrow_right},

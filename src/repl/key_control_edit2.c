@@ -127,3 +127,8 @@ bool handle_key_ctrl_r(readline_helper_t *rh, exec_ctx_t *ec, buff_t *buff)
     refresh_line(rh);
     return false;
 }
+
+bool handle_key_ctrl_h(readline_helper_t *rh, exec_ctx_t *ec, buff_t *buff)
+{
+    return handle_backspace(rh, ec, buff);
+}
