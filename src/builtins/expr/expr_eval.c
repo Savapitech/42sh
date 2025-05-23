@@ -19,7 +19,7 @@ const expr_op_precedence_t *op_precedence(char *op)
     for (size_t i = 0; i < OPERATOR_PRECEDENCE_COUNT; i++)
         if (!strcmp(op, OPERATOR_PRECEDENCE[i].name))
             return OPERATOR_PRECEDENCE + i;
-    return NULL;
+    return nullptr;
 }
 
 static

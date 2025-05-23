@@ -36,8 +36,8 @@ bool handle_key_ctrl_y(readline_helper_t *rh, exec_ctx_t *, buff_t *buff)
     paste_len = strlen(rh->ec->paste_buff);
     if (!ensure_buff_av_capacity(buff, paste_len))
         return true;
-    strcpy(buff->str + paste_len, rh->ec->paste_buff);
-    buff->sz += paste_len - 2;
+    strcpy(buff->str + rh->cursor, rh->ec->paste_buff);
+    buff->sz += paste_len;
     rh->cursor += paste_len;
     return false;
 }
@@ -50,9 +50,8 @@ void display_reverse_search_prompt(
     dprintf(STDOUT_FILENO, "(reverse-i-search)`%s': ", search);
     if (found != -1) {
         dprintf(STDOUT_FILENO, "%s", hist[found].command);
-        if (hist[found].arg != NULL) {
+        if (hist[found].arg != NULL)
             dprintf(STDOUT_FILENO, " %s", hist[found].arg);
-        }
     }
 }
 

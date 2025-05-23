@@ -125,7 +125,7 @@ ssize_t handle_keys(
     readline_helper_t *rh,
     buff_t *buff,
     char const *read_buff,
-    size_t len)
+    size_t)
 {
     if (!rh->ec->isatty)
         return 0;
@@ -137,7 +137,5 @@ ssize_t handle_keys(
             return strlen(KEY_HANDLERS[i].name);
         return -1;
     }
-    for (size_t i = 0; i < len; i++)
-        U_DEBUG("<- [%d]\n", read_buff[i]);
     return 0;
 }
