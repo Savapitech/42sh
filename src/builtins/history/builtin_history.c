@@ -85,7 +85,6 @@ char *his_last_same_command(char *line,
             new_line = concat_cmd_arg(his_command[i].command,
                 his_command[i].arg);
             new_str = cat_in_str(his_variable, line, new_line);
-            free(line);
             return new_str;
         }
     }
@@ -147,7 +146,6 @@ char *his_last_word(char *line,
     new_str = cat_in_str(his_variable, line, new_line);
     printf("%s\n", new_str);
     free(new_line);
-    free(line);
     return new_str;
 }
 
@@ -166,6 +164,5 @@ char *his_last_arg(char *line,
     printf("%s\n", new_line);
     if (his_command[id].arg)
         free(new_line);
-    free(line);
     return new_str;
 }
