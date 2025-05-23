@@ -23,12 +23,14 @@ bool handle_key_ctrl_c(readline_helper_t *rh, exec_ctx_t *ec, buff_t *buff)
 
 bool handle_key_ctrl_d(readline_helper_t *rh, exec_ctx_t *ec, buff_t *buff)
 {
-    if (rh->cursor) {
+    if (rh->cursor && rh->cursor == buff->sz) {
         WRITE_CONST(STDOUT_FILENO, "\n");
         print_shell_prompt(ec);
         refresh_line(rh);
         return false;
     }
+    if (buff->sz)
+        return handle_delete(rh, ec, buff);
     if (ec->ignoreof)
         return false;
     buff->sz = 0;
